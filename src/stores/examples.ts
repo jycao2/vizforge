@@ -301,6 +301,27 @@ export const useExamplesStore = defineStore('examples', {
               'Reflector 用虚拟相机（真实相机关于镜平面的镜像）先渲一遍场景再按屏幕坐标采样回来，金属与玻璃体的 IBL 反射由程序化房间环境提供。',
             file: 'three/Mirror.vue',
           },
+          {
+            id: 'smart-factory',
+            title: '智慧工厂产线孪生',
+            description:
+              '两条产线全链路：上料 → 三台加工中心（到位停线、切削火花）→ XYZ 桁架机械手码垛 → 托盘出库，AGV 按弧长匀速跑闭合路径，设备故障会就地停线并触发地面告警波纹，含 OEE 看板与三种相机机位。',
+            file: 'three/SmartFactory.vue',
+          },
+          {
+            id: 'pipeline',
+            title: '长输管道数字孪生',
+            description:
+              '管线随地形起伏布设：内部流体用 ShaderMaterial 沿 uv.x 做相位流动，泄漏点/清管器位置在着色器里局部染色；法兰管墩沿弧长实例化布设，支持管壁透视、发射清管器并跟随视角、注入泄漏看压力流量联动。',
+            file: 'three/Pipeline.vue',
+          },
+          {
+            id: 'wind-farm',
+            title: '海上风电场',
+            description:
+              '真实尺度风机群（轮毂 90m / 叶轮 116m）：Gerstner 波海面、叶片顶点收窄+扭转建模、机舱偏航对风、Jensen 尾流模型让下游风机降载，功率按 ½ρAv³Cp 曲线计算，风况参数实时可调。',
+            file: 'three/WindFarm.vue',
+          },
         ],
       },
       {
