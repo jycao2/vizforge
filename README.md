@@ -16,19 +16,21 @@
 
 ## 项目预览
 
-**首页**——四条技术栈 74 个示例的总览入口：
+> 点任意一张图即可跳转到对应的在线示例页面（可直接操作参数面板）。
 
-![首页](docs/screenshots/home.png)
+[![首页](docs/screenshots/home.png)](https://jycao2.github.io/vizforge/)
 
-| Cesium · 台风路径与风圈 | Cesium · 日照阴影分析 |
+**首页**：四条技术栈 74 个示例的总览入口，点卡片进入对应示例。
+
+| [Cesium · 台风路径与风圈](https://jycao2.github.io/vizforge/#/e/cesium/typhoon) | [Cesium · 日照阴影分析](https://jycao2.github.io/vizforge/#/e/cesium/sun-shadow) |
 | --- | --- |
-| ![台风路径与风圈](docs/screenshots/cesium-typhoon.png) | ![日照阴影分析](docs/screenshots/cesium-sun-shadow.png) |
-| **Three.js · 大坝开闸放水** | **Three.js · 六轴机械臂码垛** |
-| ![大坝开闸放水](docs/screenshots/three-dam.png) | ![六轴机械臂码垛](docs/screenshots/three-robot-arm.png) |
-| **OpenLayers · 风场粒子流** | **WebGL · 体积云光线步进** |
-| ![风场粒子流](docs/screenshots/ol-wind-field.png) | ![体积云光线步进](docs/screenshots/webgl-volume-cloud.png) |
+| [![台风路径与风圈](docs/screenshots/cesium-typhoon.png)](https://jycao2.github.io/vizforge/#/e/cesium/typhoon) | [![日照阴影分析](docs/screenshots/cesium-sun-shadow.png)](https://jycao2.github.io/vizforge/#/e/cesium/sun-shadow) |
+| **[Three.js · 大坝开闸放水](https://jycao2.github.io/vizforge/#/e/three/dam)** | **[Three.js · 六轴机械臂码垛](https://jycao2.github.io/vizforge/#/e/three/robot-arm)** |
+| [![大坝开闸放水](docs/screenshots/three-dam.png)](https://jycao2.github.io/vizforge/#/e/three/dam) | [![六轴机械臂码垛](docs/screenshots/three-robot-arm.png)](https://jycao2.github.io/vizforge/#/e/three/robot-arm) |
+| **[OpenLayers · 风场粒子流](https://jycao2.github.io/vizforge/#/e/openlayers/wind-field)** | **[WebGL · 体积云光线步进](https://jycao2.github.io/vizforge/#/e/webgl/volume-cloud)** |
+| [![风场粒子流](docs/screenshots/ol-wind-field.png)](https://jycao2.github.io/vizforge/#/e/openlayers/wind-field) | [![体积云光线步进](docs/screenshots/webgl-volume-cloud.png)](https://jycao2.github.io/vizforge/#/e/webgl/volume-cloud) |
 
-更多：城市白模、城市热力图、实时镜面、缓冲区分析、阴影贴图等 66 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
+更多：城市白模、城市热力图、实时镜面、缓冲区分析、阴影贴图等另外 68 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
 
 ---
 
