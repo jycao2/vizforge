@@ -14,6 +14,22 @@
 
 > **Keywords**：Vue 3 · TypeScript · Vite · Pinia · Cesium · Three.js · OpenLayers · WebGL2 · GLSL shader · GIS · 三维地球 · 数字孪生 · 数据可视化 · 热力图 · 等值线 · 风场粒子 · 体积云 · GPGPU · 光线步进 · 阴影贴图 · 日照分析 · 前端可视化示例集
 
+## 项目预览
+
+**首页**——四条技术栈 74 个示例的总览入口：
+
+![首页](docs/screenshots/home.png)
+
+| Cesium · 台风路径与风圈 | Cesium · 日照阴影分析 |
+| --- | --- |
+| ![台风路径与风圈](docs/screenshots/cesium-typhoon.png) | ![日照阴影分析](docs/screenshots/cesium-sun-shadow.png) |
+| **Three.js · 大坝开闸放水** | **Three.js · 六轴机械臂码垛** |
+| ![大坝开闸放水](docs/screenshots/three-dam.png) | ![六轴机械臂码垛](docs/screenshots/three-robot-arm.png) |
+| **OpenLayers · 风场粒子流** | **WebGL · 体积云光线步进** |
+| ![风场粒子流](docs/screenshots/ol-wind-field.png) | ![体积云光线步进](docs/screenshots/webgl-volume-cloud.png) |
+
+更多：城市白模、城市热力图、实时镜面、缓冲区分析、阴影贴图等 66 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
+
 ---
 
 ## 特性
