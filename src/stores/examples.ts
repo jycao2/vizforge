@@ -162,6 +162,48 @@ export const useExamplesStore = defineStore('examples', {
               '径向渐变叠加成密度场 → 256 级色带查表 → 自定义材质的 RectangleGeometry 贴回球面，半径/强度/色带实时可调。',
             file: 'cesium/HeatmapOverlay.vue',
           },
+          {
+            id: 'terrain-dem',
+            title: '三维地形高程分析',
+            description:
+              '程序化 DEM 建三角网：分层设色 / Horn 山体阴影 / 坡度 / 坡向 / Marching Squares 等高线，垂直夸张与太阳方位实时可调，鼠标读取任意点高程。',
+            file: 'cesium/TerrainDEM.vue',
+          },
+          {
+            id: 'cut-fill',
+            title: '场地挖填方分析',
+            description:
+              '设计面找坡（基准标高 + 双向排水坡度）→ 差值场红挖蓝填、零线即挖填分界，格网柱体法算土方量，二分法一键求土方平衡标高。',
+            file: 'cesium/CutFill.vue',
+          },
+          {
+            id: 'flood-analysis',
+            title: '水库淹没分析',
+            description:
+              '连通淹没（河道种子洪水填充）与全域淹没对照，山后洼地只有后者会被淹；水面随水位重建粗网格，支持水位上涨动画。',
+            file: 'cesium/FloodAnalysis.vue',
+          },
+          {
+            id: 'viewshed',
+            title: '可视域分析',
+            description:
+              '瞭望塔通视分析：视线逐格插值判定地形遮挡，视高 / 视距 / 方位角 / 视场角可调，点击地图搬移观察点，统计可视率与最远可视距离。',
+            file: 'cesium/Viewshed.vue',
+          },
+          {
+            id: 'time-series',
+            title: '时序影像产品',
+            description:
+              '2001–2025 多期影像 + 时间轴播放 + 逐期指标曲线（建成区 / 植被 / 水域），支持与基准期 2001 卷帘对比，着色器内分割。',
+            file: 'cesium/TimeSeriesImagery.vue',
+          },
+          {
+            id: 'mask-clip',
+            title: '掩膜裁剪',
+            description:
+              'SDF 带符号距离场实现影像掩膜的羽化 / 描边 / 挖除，三种形状可调；叠加 globe.clippingPlanes 裁剪平面真实切掉地形。',
+            file: 'cesium/MaskClip.vue',
+          },
         ],
       },
       {
@@ -440,6 +482,34 @@ export const useExamplesStore = defineStore('examples', {
             description:
               '点缓冲按球面大地线推算 256 边形，线缓冲用相邻段平均法向做 miter 平移 + 端点半圆帽；面积/长度取球面真值，再叠加统计受影响点位。',
             file: 'openlayers/BufferAnalysis.vue',
+          },
+          {
+            id: 'terrain-profile',
+            title: '地形剖面分析',
+            description:
+              '程序化 DEM 烘晕渲底图贴进 OL，画线即得高程剖面：累计爬升 / 下降 / 最大坡度，剖面图上横移可在地图中定位。',
+            file: 'openlayers/TerrainProfile.vue',
+          },
+          {
+            id: 'isochrone',
+            title: '路网等时圈',
+            description:
+              '带速度的合成路网上跑 Dijkstra（二叉堆），路口时间场 IDW 插值后用 Marching Squares 提取 5/10/15/20 分钟等时线，点击换出发点。',
+            file: 'openlayers/Isochrone.vue',
+          },
+          {
+            id: 'idw-interpolation',
+            title: '降雨量空间插值',
+            description:
+              'IDW 反距离加权 + 等雨量线，幂参数 p 与邻站数 k 实时可调，留一交叉验证（LOO-CV）用 MAE / RMSE 给参数打分。',
+            file: 'openlayers/IdwInterpolation.vue',
+          },
+          {
+            id: 'hex-aggregate',
+            title: '蜂窝聚合分析',
+            description:
+              '共享单车轨迹点做 Hexbin 分箱：pointy-top 轴坐标系 + 立方取整，六边形尺寸实时可调，密度色带与计数标注。',
+            file: 'openlayers/HexAggregate.vue',
           },
         ],
       },

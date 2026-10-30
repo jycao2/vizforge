@@ -8,11 +8,11 @@
 
 **在线体验（GitHub Pages，无需安装）：https://jycao2.github.io/vizforge/**
 
-一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **77 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
+一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **87 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
 
-每个示例页右上角都有「查看源码」按钮，点开就是该示例的完整实现，可一键复制——它不是一个封装好的组件库，而是一本可以直接拆开看的、跑得起来的代码手册。从 Cesium 三维地球、Three.js 智慧工厂/海上风电场、OpenLayers 缓冲区分析，到体积云光线步进、GPGPU 粒子流场、SDF 光线步进、阴影贴图，都能在这里直接读源码。
+每个示例页右上角都有「查看源码」按钮，点开就是该示例的完整实现，可一键复制——它不是一个封装好的组件库，而是一本可以直接拆开看的、跑得起来的代码手册。从 Cesium 的 DEM 地形/挖填方/淹没/可视域/时序影像/掩膜裁剪，到 Three.js 智慧工厂/海上风电场，再到 OpenLayers 的地形剖面/路网等时圈/IDW 插值/蜂窝聚合，以及体积云光线步进、GPGPU 粒子流场、SDF 光线步进、阴影贴图，都能在这里直接读源码。
 
-> **Keywords**：Vue 3 · TypeScript · Vite · Pinia · Cesium · Three.js · OpenLayers · WebGL2 · GLSL shader · GIS · 三维地球 · 数字孪生 · 数据可视化 · 热力图 · 等值线 · 风场粒子 · 体积云 · GPGPU · 光线步进 · 阴影贴图 · 日照分析 · 前端可视化示例集
+> **Keywords**：Vue 3 · TypeScript · Vite · Pinia · Cesium · Three.js · OpenLayers · WebGL2 · GLSL shader · GIS · 三维地球 · 数字孪生 · 数据可视化 · 热力图 · 等值线 · 风场粒子 · 体积云 · GPGPU · 光线步进 · 阴影贴图 · 日照分析 · 挖填方 · 淹没分析 · 可视域 · 时序影像 · 掩膜裁剪 · 等时圈 · IDW 插值 · 蜂窝聚合 · 前端可视化示例集
 
 ## 项目预览
 
@@ -20,7 +20,7 @@
 
 [![首页](docs/screenshots/home.png)](https://jycao2.github.io/vizforge/)
 
-**首页**：四条技术栈 77 个示例的总览入口，点卡片进入对应示例。
+**首页**：四条技术栈 87 个示例的总览入口，点卡片进入对应示例。
 
 | [Cesium · 台风路径与风圈](https://jycao2.github.io/vizforge/#/e/cesium/typhoon) | [Cesium · 日照阴影分析](https://jycao2.github.io/vizforge/#/e/cesium/sun-shadow) |
 | --- | --- |
@@ -29,8 +29,12 @@
 | [![大坝开闸放水](docs/screenshots/three-dam.png)](https://jycao2.github.io/vizforge/#/e/three/dam) | [![六轴机械臂码垛](docs/screenshots/three-robot-arm.png)](https://jycao2.github.io/vizforge/#/e/three/robot-arm) |
 | **[OpenLayers · 风场粒子流](https://jycao2.github.io/vizforge/#/e/openlayers/wind-field)** | **[WebGL · 体积云光线步进](https://jycao2.github.io/vizforge/#/e/webgl/volume-cloud)** |
 | [![风场粒子流](docs/screenshots/ol-wind-field.png)](https://jycao2.github.io/vizforge/#/e/openlayers/wind-field) | [![体积云光线步进](docs/screenshots/webgl-volume-cloud.png)](https://jycao2.github.io/vizforge/#/e/webgl/volume-cloud) |
+| **[Cesium · 三维地形高程分析](https://jycao2.github.io/vizforge/#/e/cesium/terrain-dem)** | **[Cesium · 水库淹没分析](https://jycao2.github.io/vizforge/#/e/cesium/flood-analysis)** |
+| [![三维地形高程分析](docs/screenshots/cesium-terrain-dem.png)](https://jycao2.github.io/vizforge/#/e/cesium/terrain-dem) | [![水库淹没分析](docs/screenshots/cesium-flood-analysis.png)](https://jycao2.github.io/vizforge/#/e/cesium/flood-analysis) |
+| **[Cesium · 场地挖填方分析](https://jycao2.github.io/vizforge/#/e/cesium/cut-fill)** | **[OpenLayers · 路网等时圈](https://jycao2.github.io/vizforge/#/e/openlayers/isochrone)** |
+| [![场地挖填方分析](docs/screenshots/cesium-cut-fill.png)](https://jycao2.github.io/vizforge/#/e/cesium/cut-fill) | [![路网等时圈](docs/screenshots/ol-isochrone.png)](https://jycao2.github.io/vizforge/#/e/openlayers/isochrone) |
 
-更多：城市白模、城市热力图、实时镜面、缓冲区分析、阴影贴图等另外 71 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
+更多：时序影像、可视域、掩膜裁剪、地形剖面、IDW 插值、蜂窝聚合、缓冲区分析、阴影贴图等另外 81 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
 
 ---
 
@@ -86,7 +90,7 @@ npm run preview
 
 ## 示例清单
 
-### Cesium（19 个）
+### Cesium（25 个）
 
 三维地球与地理空间可视化引擎，基于 WebGL 的地球渲染。
 
@@ -111,6 +115,12 @@ npm run preview
 | 台风路径与风圈 | 西北太平洋台风过程：Catmull-Rom 样条路径、三层风圈随强度联动、程序化四臂螺旋云系，播放倍速与跟随视角齐备。 | `src/examples/cesium/Typhoon.vue` |
 | 城市白模 | 256 个街区 PolygonGraphics 按 extrudedHeight 拉伸，高度分色模拟 CBD 高楼群。 | `src/examples/cesium/CityModel.vue` |
 | 城市热力图 | 径向渐变叠加成密度场 → 256 级色带查表 → 自定义材质的 RectangleGeometry 贴回球面，半径/强度/色带实时可调。 | `src/examples/cesium/HeatmapOverlay.vue` |
+| 三维地形高程分析 | 程序化 DEM 建三角网：分层设色 / Horn 山体阴影 / 坡度 / 坡向 / Marching Squares 等高线，垂直夸张与太阳方位实时可调，鼠标读取任意点高程。 | `src/examples/cesium/TerrainDEM.vue` |
+| 场地挖填方分析 | 设计面找坡（基准标高 + 双向排水坡度）→ 差值场红挖蓝填、零线即挖填分界，格网柱体法算土方量，二分法一键求土方平衡标高。 | `src/examples/cesium/CutFill.vue` |
+| 水库淹没分析 | 连通淹没（河道种子洪水填充）与全域淹没对照，山后洼地只有后者会被淹；水面随水位重建粗网格，支持水位上涨动画。 | `src/examples/cesium/FloodAnalysis.vue` |
+| 可视域分析 | 瞭望塔通视分析：视线逐格插值判定地形遮挡，视高 / 视距 / 方位角 / 视场角可调，点击地图搬移观察点，统计可视率与最远可视距离。 | `src/examples/cesium/Viewshed.vue` |
+| 时序影像产品 | 2001–2025 多期影像 + 时间轴播放 + 逐期指标曲线（建成区 / 植被 / 水域），支持与基准期 2001 卷帘对比，着色器内分割。 | `src/examples/cesium/TimeSeriesImagery.vue` |
+| 掩膜裁剪 | SDF 带符号距离场实现影像掩膜的羽化 / 描边 / 挖除，三种形状可调；叠加 globe.clippingPlanes 裁剪平面真实切掉地形。 | `src/examples/cesium/MaskClip.vue` |
 
 ### Three.js（24 个）
 
@@ -139,11 +149,11 @@ npm run preview
 | 发动机拆解 | 程序化建模的直列四缸发动机：曲柄连杆运动学、双凸轮轴气门升程、正时链传动，可拖动拆解并点选任意部件查看说明。 | `src/examples/three/Engine.vue` |
 | 六轴机械臂码垛 | 工业机器人上位机仿真：腰/肩/肘/腕解析逆解、传送带按节拍送料、双指夹爪取放，把料箱码满一托盘后整托出库。 | `src/examples/three/RobotArm.vue` |
 | 实时镜面 | Reflector 用虚拟相机（真实相机关于镜平面的镜像）先渲一遍场景再按屏幕坐标采样回来，金属与玻璃体的 IBL 反射由程序化房间环境提供。 | `src/examples/three/Mirror.vue` |
-| 智慧工厂产线孪生 | 两条产线全链路：上料 → 三台加工中心（到位停线、切削火花）→ XYZ 桁架机械手码垛 → 托盘出库，AGV 按弧长匀速跑闭合路径，设备故障就地停线并触发告警波纹，含 OEE 看板与三种相机机位。 | `src/examples/three/SmartFactory.vue` |
+| 智慧工厂产线孪生 | 两条产线全链路：上料 → 三台加工中心（到位停线、切削火花）→ XYZ 桁架机械手码垛 → 托盘出库，AGV 按弧长匀速跑闭合路径，设备故障会就地停线并触发地面告警波纹，含 OEE 看板与三种相机机位。 | `src/examples/three/SmartFactory.vue` |
 | 长输管道数字孪生 | 管线随地形起伏布设：内部流体用 ShaderMaterial 沿 uv.x 做相位流动，泄漏点/清管器位置在着色器里局部染色；法兰管墩沿弧长实例化布设，支持管壁透视、发射清管器并跟随视角、注入泄漏看压力流量联动。 | `src/examples/three/Pipeline.vue` |
 | 海上风电场 | 真实尺度风机群（轮毂 90m / 叶轮 116m）：Gerstner 波海面、叶片顶点收窄+扭转建模、机舱偏航对风、Jensen 尾流模型让下游风机降载，功率按 ½ρAv³Cp 曲线计算，风况参数实时可调。 | `src/examples/three/WindFarm.vue` |
 
-### OpenLayers（18 个）
+### OpenLayers（22 个）
 
 功能强大的二维地图库，支持瓦片、矢量与丰富的交互。
 
@@ -167,6 +177,10 @@ npm run preview
 | 风场粒子流 | Windy 风格风场动画：西风急流 + 涡旋合成风场，屏幕网格双线性插值驱动数千粒子，拖尾衰减并按风速分档着色。 | `src/examples/openlayers/WindField.vue` |
 | 图层显隐控制 | 面/线/点三个图层叠在一起，用开关面板独立控制显隐，最典型的 GIS 图层面板。 | `src/examples/openlayers/LayerSwitch.vue` |
 | 缓冲区分析 | 点缓冲按球面大地线推算 256 边形，线缓冲用相邻段平均法向做 miter 平移 + 端点半圆帽；面积/长度取球面真值，再叠加统计受影响点位。 | `src/examples/openlayers/BufferAnalysis.vue` |
+| 地形剖面分析 | 程序化 DEM 烘晕渲底图贴进 OL，画线即得高程剖面：累计爬升 / 下降 / 最大坡度，剖面图上横移可在地图中定位。 | `src/examples/openlayers/TerrainProfile.vue` |
+| 路网等时圈 | 带速度的合成路网上跑 Dijkstra（二叉堆），路口时间场 IDW 插值后用 Marching Squares 提取 5/10/15/20 分钟等时线，点击换出发点。 | `src/examples/openlayers/Isochrone.vue` |
+| 降雨量空间插值 | IDW 反距离加权 + 等雨量线，幂参数 p 与邻站数 k 实时可调，留一交叉验证（LOO-CV）用 MAE / RMSE 给参数打分。 | `src/examples/openlayers/IdwInterpolation.vue` |
+| 蜂窝聚合分析 | 共享单车轨迹点做 Hexbin 分箱：pointy-top 轴坐标系 + 立方取整，六边形尺寸实时可调，密度色带与计数标注。 | `src/examples/openlayers/HexAggregate.vue` |
 
 ### WebGL（16 个）
 
@@ -205,9 +219,10 @@ src/
 │  └─ ExamplePage.vue      示例页：懒加载组件 + 源码面板
 ├─ examples/
 │  ├─ basemap-defs.ts      底图统一定义（Cesium / OpenLayers 共用）
-│  ├─ cesium/              19 个示例 + useCesium.ts（Viewer 脚手架、锚点缩放）+ basemaps.ts
-│  ├─ three/               21 个示例 + useThree.ts（Renderer / 相机 / OrbitControls / 自适应）
-│  ├─ openlayers/          18 个示例 + useOl.ts（Map 脚手架）+ basemaps.ts
+│  ├─ shared/terrain.ts     DEM 合成与算法工具（噪声场 / 双线性采样 / Horn 晕渲 / Marching Squares 等），地形类示例共用
+│  ├─ cesium/              25 个示例 + demMesh.ts（DEM 转 Cesium 几何 / 贴图材质）+ useCesium.ts + basemaps.ts
+│  ├─ three/               24 个示例 + useThree.ts（Renderer / 相机 / OrbitControls / 自适应）
+│  ├─ openlayers/          22 个示例 + useOl.ts（Map 脚手架）+ basemaps.ts
 │  └─ webgl/               16 个示例 + gl.ts（着色器编译、FBO、纹理、矩阵工具）
 ├─ utils/highlight.ts      highlight.js 封装
 ├─ types/                  ExampleMeta / TechCategory 等类型
@@ -253,6 +268,14 @@ public/3dtiles/            3D Tiles 示例使用的本地瓦片集
 - **Three.js `Reflector.material` 类型上是 `Material`**：想改 uniforms 需要 `as THREE.ShaderMaterial` 断言。
 - **阴影贴图的光锥必须覆盖整个场景**：`fwd` / `back` 范围不够会把远端几何裁掉、影子整段消失；自阴影摩尔纹（acne）用「沿法线偏移采样点」的 slope-scaled bias 压制，比加常量偏移更能压住斜面上的条纹。
 - **GPGPU 粒子会聚成球壳**：每个粒子的刚度要在速度纹理的 w 通道里随机化，否则所有粒子同步运动，看起来像一层壳。
+- **`!scene3DOnly` 下不能给含原点的 DOUBLE 顶点配 `modelMatrix`**：Cesium 会对几何做 `GeometryPipeline.projectTo2D`（为了二维/哥伦布视图），局部坐标里的 `(0,0,0)` 转不成经纬度，直接抛 `DeveloperError: Could not project point to 2D`。DEM 三角网、设计面、水面这类自定义几何一律直接建在**世界坐标**（`Cartesian3.fromDegrees`），不要用「ENU 局部坐标 + modelMatrix」。
+- **`new Cesium.Geometry({ attributes })` 要用 `new Cesium.GeometryAttributes()`**：直接写字面量对象会报缺少 `bitangent` / `tangent` / `color`（TS2739），必须建实例后逐个赋值。
+- **`RectangleGeometry` 收的是经纬度不是米**：把以米为单位的跨度直接塞进去会抛 `Expected north to be less than or equal to 1.5707963, actual 245`，需先除以 `111320·cosφ`（经度）与 `110540`（纬度）。
+- **Cesium 材质贴图 `flipY = false`**：`t = 0` 对应画布第一行，所以「北」行的 `st.y` 应该是 `0` 而不是 `1 - v`，写反了贴图和指北针会南北颠倒。
+- **同一材质里的多张纹理要走同一条上传路径**：一张用 `HTMLCanvasElement`、另一张用 `ImageBitmap` 时，两边的采样行为不一致——卷帘右半边与「纯基准期」截图直方图几乎完全相同，逐像素相关系数却接近 0。统一都过 `createImageBitmap` 后相关系数回到 1.000。
+- **shader 里的开关别忘了乘在整个 terms 上**：`1.0 - smoothstep(...) * uCompare` 在 `uCompare = 0` 时等于 `1`，整块被 `mix` 成白色；正确写法是 `(1.0 - smoothstep(...)) * uCompare`。这类「看起来偶尔白屏」的问题先怀疑表达式括号，别急着怀疑纹理上传。
+- **OpenLayers `ImageStatic` 的 `imageExtent` 顺序是 `[minX, minY, maxX, maxY]`**：写成「西、北、东、南」（把 maxY 放前面）minY/maxY 颠倒，整个图层会静默不显示——不报错、只消失，很难查。
+- **调试 Cesium 渲染时先掐掉远程瓦片**：Esri 底图瓦片会在后台持续加载，同一状态前后两次截图平均差可达 17/255，任何基于像素差分的验证都会失效。用 Playwright 的 `page.route` 拦掉瓦片域名后噪声底为 0，差分结论才可信。
 
 ## 说明与限制
 
