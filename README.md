@@ -94,6 +94,7 @@ npm run preview
 
 三维地球与地理空间可视化引擎，基于 WebGL 的地球渲染。
 
+
 | 示例 | 说明 | 源文件 |
 | --- | --- | --- |
 | 基础地球 | 内置放大/缩小/复位/全屏工具栏，支持矢量、影像、地形、浅色、深色底图切换。 | `src/examples/cesium/BasicGlobe.vue` |
@@ -116,15 +117,16 @@ npm run preview
 | 城市白模 | 256 个街区 PolygonGraphics 按 extrudedHeight 拉伸，高度分色模拟 CBD 高楼群。 | `src/examples/cesium/CityModel.vue` |
 | 城市热力图 | 径向渐变叠加成密度场 → 256 级色带查表 → 自定义材质的 RectangleGeometry 贴回球面，半径/强度/色带实时可调。 | `src/examples/cesium/HeatmapOverlay.vue` |
 | 三维地形高程分析 | 程序化 DEM 建三角网：分层设色 / Horn 山体阴影 / 坡度 / 坡向 / Marching Squares 等高线，垂直夸张与太阳方位实时可调，鼠标读取任意点高程。 | `src/examples/cesium/TerrainDEM.vue` |
-| 场地挖填方分析 | 设计面找坡（基准标高 + 双向排水坡度）→ 差值场红挖蓝填、零线即挖填分界，格网柱体法算土方量，二分法一键求土方平衡标高。 | `src/examples/cesium/CutFill.vue` |
-| 水库淹没分析 | 连通淹没（河道种子洪水填充）与全域淹没对照，山后洼地只有后者会被淹；水面随水位重建粗网格，支持水位上涨动画。 | `src/examples/cesium/FloodAnalysis.vue` |
-| 可视域分析 | 瞭望塔通视分析：视线逐格插值判定地形遮挡，视高 / 视距 / 方位角 / 视场角可调，点击地图搬移观察点，统计可视率与最远可视距离。 | `src/examples/cesium/Viewshed.vue` |
+| 场地挖填方分析 | 设计面找坡（基准标高 + 双向排水坡度）→ 差值场红挖蓝填、零线即挖填分界，格网柱体法算土方量，二分法一键求土方平衡标高；场地按真实地面高程嵌入全球三维地形。 | `src/examples/cesium/CutFill.vue` |
+| 水库淹没分析 | 连通淹没（河道种子洪水填充）与全域淹没对照，山后洼地只有后者会被淹；水面随水位重建粗网格；库区模型以千岛湖真实地形为背景，clippingPlanes 挖除矩形内真实地表后由岩层裙边封口。 | `src/examples/cesium/FloodAnalysis.vue` |
+| 可视域分析 | 瞭望塔通视分析：视线逐格插值判定地形遮挡，视高 / 视距 / 方位角 / 视场角可调，点击地图搬移观察点；分析块嵌进延庆山地真实地形，统计可视率与最远可视距离。 | `src/examples/cesium/Viewshed.vue` |
 | 时序影像产品 | 2001–2025 多期影像 + 时间轴播放 + 逐期指标曲线（建成区 / 植被 / 水域），支持与基准期 2001 卷帘对比，着色器内分割。 | `src/examples/cesium/TimeSeriesImagery.vue` |
 | 掩膜裁剪 | SDF 带符号距离场实现影像掩膜的羽化 / 描边 / 挖除，三种形状可调；叠加 globe.clippingPlanes 裁剪平面真实切掉地形。 | `src/examples/cesium/MaskClip.vue` |
 
 ### Three.js（24 个）
 
 通用的 WebGL 3D 渲染库，适合任意三维场景与特效。
+
 
 | 示例 | 说明 | 源文件 |
 | --- | --- | --- |
@@ -157,6 +159,7 @@ npm run preview
 
 功能强大的二维地图库，支持瓦片、矢量与丰富的交互。
 
+
 | 示例 | 说明 | 源文件 |
 | --- | --- | --- |
 | 基础地图 | 可平移缩放的二维底图，内置工具栏与矢量、影像、地形、浅色、深色底图切换。 | `src/examples/openlayers/BasicMap.vue` |
@@ -185,6 +188,7 @@ npm run preview
 ### WebGL（16 个）
 
 原生 WebGL 编程，直接操作着色器与缓冲区，零依赖。
+
 
 | 示例 | 说明 | 源文件 |
 | --- | --- | --- |
@@ -276,6 +280,11 @@ public/3dtiles/            3D Tiles 示例使用的本地瓦片集
 - **shader 里的开关别忘了乘在整个 terms 上**：`1.0 - smoothstep(...) * uCompare` 在 `uCompare = 0` 时等于 `1`，整块被 `mix` 成白色；正确写法是 `(1.0 - smoothstep(...)) * uCompare`。这类「看起来偶尔白屏」的问题先怀疑表达式括号，别急着怀疑纹理上传。
 - **OpenLayers `ImageStatic` 的 `imageExtent` 顺序是 `[minX, minY, maxX, maxY]`**：写成「西、北、东、南」（把 maxY 放前面）minY/maxY 颠倒，整个图层会静默不显示——不报错、只消失，很难查。
 - **调试 Cesium 渲染时先掐掉远程瓦片**：Esri 底图瓦片会在后台持续加载，同一状态前后两次截图平均差可达 17/255，任何基于像素差分的验证都会失效。用 Playwright 的 `page.route` 拦掉瓦片域名后噪声底为 0，差分结论才可信。
+- **自定义地形嵌进真实地球要「三件套」**：只开 `enableWorldTerrain` 的话分析块会埋进山体或悬空。正确做法：① 采样场地真实高程（`sampleTerrainMostDetailed`），把模型整体抬升 `realMax - dem.min + 6`，保证块体不低于范围内任何真实地面；② 沿矩形四边生成**裙边**（垂直侧壁）封住模型与地形的接缝；③ 用 `globe.clippingPlanes` 挖掉矩形内的真实地表，否则高于模型的山体会从模型底下穿模。三者缺一都会露馅。
+- **地形自适应要先等服务就位**：`enableWorldTerrain` 是异步的，紧跟着采样海拔会拿到光滑椭球的 0 米。轮询 `viewer.terrainProvider instanceof ArcGISTiledElevationTerrainProvider` 之后再采样。
+- **Esri ImageServer 的 `identify` 接口返回的是概览金字塔值**（WorldDTM_OV256），10km 范围内可能恒为同一个数，不能用它判断局地起伏；要全精度就老老实实走 `sampleTerrainMostDetailed`。
+- **垂直拉伸（exag）必须为 1 的两种场景**：水面高程要与 DEM 判定精确一致（exag≠1 时水岸线对不上）；`pickUV` 这类射线步进拾取拿的是渲染后的世界坐标（exag≠1 时读数偏差可达数百米）。要立体感宁可换真实地形，别拉 z 轴。
+- **dark 底图 + 无雾 = 三维也像二维**：真实地形开了、云也在转，但深色底图下远处山体融进黑背景，画面仍是平面感。影像底图 + `scene.fog` + `showGroundAtmosphere` 三件一起开，山才有前后景深。
 
 ## 说明与限制
 

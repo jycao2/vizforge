@@ -4,7 +4,14 @@ import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import MapControls from '@/components/MapControls.vue'
 import { CESIUM_BASEMAPS } from './basemaps'
-import { VIEWER_OPTIONS, useCesiumBasemap, useCesiumView } from './useCesium'
+import {
+  VIEWER_OPTIONS,
+  enableTerrainScene,
+  sampleMaxGroundHeight,
+  useCesiumBasemap,
+  useCesiumView,
+  waitRealTerrain,
+} from './useCesium'
 import { buildTerrainGeometry, makeImageMaterial, makeTextureUploader } from './demMesh'
 import { contourLine, makeDEM, type DEM } from '@/examples/shared/terrain'
 
@@ -20,6 +27,10 @@ import { contourLine, makeDEM, type DEM } from '@/examples/shared/terrain'
 const wrapRef = ref<HTMLDivElement>()
 const container = ref<HTMLDivElement>()
 let viewer: Cesium.Viewer | null = null
+/** 真实地面海拔偏移：开了全球地形后，分析块整体抬到场地的真实高程带上，
+ *  四周用裙边侧壁与真实地形衔接（buildTerrainGeometry 的 skirtDepth） */
+let groundOffset = 0
+let stopTerrain: (() => void) | null = null
 
 const LON = 116.35
 const LAT = 40.08
@@ -228,7 +239,7 @@ function buildTerrain() {
   terrainMat = makeImageMaterial(canvas)
   terrainPrim = new Cesium.Primitive({
     geometryInstances: new Cesium.GeometryInstance({
-      geometry: buildTerrainGeometry(dem, 1),
+      geometry: buildTerrainGeometry(dem, 1, groundOffset, 900),
     }),
     appearance: new Cesium.MaterialAppearance({
       material: terrainMat,
@@ -269,7 +280,7 @@ function buildPlane() {
       const k = j * pn + i
       const lon = dem.lon0 + (dem.lon1 - dem.lon0) * u
       const lat = dem.lat1 - (dem.lat1 - dem.lat0) * v
-      Cesium.Cartesian3.fromDegrees(lon, lat, designH(u, v), undefined, tmp)
+      Cesium.Cartesian3.fromDegrees(lon, lat, designH(u, v) + groundOffset, undefined, tmp)
       positions[k * 3] = tmp.x
       positions[k * 3 + 1] = tmp.y
       positions[k * 3 + 2] = tmp.z
@@ -364,11 +375,11 @@ function schedule(kind: 'tex' | 'plane') {
 
 /* ---------------- 视角 ---------------- */
 const home = {
-  destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.026, 4200),
-  orientation: { heading: 0, pitch: Cesium.Math.toRadians(-55), roll: 0 },
+  destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.024, 3900),
+  orientation: { heading: Cesium.Math.toRadians(-18), pitch: Cesium.Math.toRadians(-41), roll: 0 },
 }
 const { zoomIn, zoomOut, reset, toggleFullscreen } = useCesiumView(() => viewer, () => home)
-const { current: currentBasemap, apply: applyBasemap } = useCesiumBasemap(() => viewer, 'dark')
+const { current: currentBasemap, apply: applyBasemap } = useCesiumBasemap(() => viewer, 'imagery')
 
 watch([baseH, slopeX, slopeY, showGrid, showZero], () => schedule('tex'))
 watch(showPlane, () => schedule('plane'))
@@ -379,8 +390,8 @@ onMounted(() => {
   applyBasemap(currentBasemap.value)
   const scene = viewer.scene
   scene.globe.enableLighting = false
-  scene.fog.enabled = false
-  scene.globe.baseColor = Cesium.Color.fromCssColorString('#0b1218')
+
+  stopTerrain = enableTerrainScene(viewer)
 
   computeDiff()
   computeStats()
@@ -388,9 +399,21 @@ onMounted(() => {
   buildTerrain()
   buildPlane()
   viewer.camera.setView(home)
+
+  // 真实地形就位后，把场地抬到实际高程带（北京西山山前，场地约 40~49m）并重建
+  void (async () => {
+    if (!viewer || !(await waitRealTerrain(viewer))) return
+    const realMax = await sampleMaxGroundHeight(viewer, dem.lon0, dem.lat0, dem.lon1, dem.lat1)
+    if (viewer && !viewer.isDestroyed() && realMax > 0) {
+      groundOffset = Math.max(0, realMax - dem.min + 6)
+      buildTerrain()
+      buildPlane()
+    }
+  })()
 })
 
 onBeforeUnmount(() => {
+  stopTerrain?.()
   uploader.dispose()
   terrainMat = null
   terrainPrim = null

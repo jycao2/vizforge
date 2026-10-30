@@ -4,7 +4,13 @@ import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import MapControls from '@/components/MapControls.vue'
 import { CESIUM_BASEMAPS } from './basemaps'
-import { VIEWER_OPTIONS, useCesiumBasemap, useCesiumView } from './useCesium'
+import {
+  VIEWER_OPTIONS,
+  enableTerrainScene,
+  sampleGroundHeight,
+  useCesiumBasemap,
+  useCesiumView,
+} from './useCesium'
 import { buildTerrainGeometry, makeImageMaterial, makeTextureUploader } from './demMesh'
 import {
   HYPSOMETRIC,
@@ -71,6 +77,8 @@ canvas.width = TEX
 canvas.height = TEX
 const ctx = canvas.getContext('2d')!
 
+/** 真实地面海拔：开了全球地形后要把自定义地形整体抬到地面上 */
+let groundOffset = 0
 let dem: DEM = makeDEM({ lon: LON, lat: LAT, span: SPAN, relief: RELIEF, shape: 'mountain' })
 let shadeArr = hillshade(dem, sunAz.value, sunAlt.value, exag.value)
 
@@ -81,9 +89,9 @@ function rebuildDem() {
   let sum = 0
   for (let i = 0; i < dem.h.length; i++) sum += dem.h[i]
   stats.value = {
-    max: dem.max,
-    min: dem.min,
-    mean: sum / dem.h.length,
+    max: dem.max + groundOffset,
+    min: dem.min + groundOffset,
+    mean: sum / dem.h.length + groundOffset,
     relief: dem.max - dem.min,
     area: (SPAN / 1000) * (SPAN / 1000),
   }
@@ -134,7 +142,7 @@ function bake() {
     for (let px = 0; px < TEX; px++) {
       const u = px / (TEX - 1)
       // 双线性取该像素对应的高程与晕渲值（贴图分辨率高于格网，必须插值否则会有台阶）
-      const h = sampleH(dem, u, v)
+      const h = sampleH(dem, u, v) + groundOffset
       const gi = u * (n - 1)
       const gj = v * (n - 1)
       const i0 = Math.min(Math.floor(gi), n - 1)
@@ -233,6 +241,7 @@ function drawCompass() {
 /* ---------------- 图元 ---------------- */
 let terrainPrim: Cesium.Primitive | null = null
 let terrainMat: Cesium.Material | null = null
+let stopTerrain: (() => void) | null = null
 const uploader = makeTextureUploader()
 
 function buildPrimitive() {
@@ -245,7 +254,7 @@ function buildPrimitive() {
   terrainMat = makeImageMaterial(canvas)
   terrainPrim = new Cesium.Primitive({
     geometryInstances: new Cesium.GeometryInstance({
-      geometry: buildTerrainGeometry(dem, exag.value),
+      geometry: buildTerrainGeometry(dem, exag.value, groundOffset),
     }),
     appearance: new Cesium.MaterialAppearance({
       material: terrainMat,
@@ -299,7 +308,7 @@ function pickDem(ray: Cesium.Ray): Cesium.Cartesian3 | null {
       prevT = t
       continue
     }
-    const diff = c.height - sampleH(dem, u, v)
+    const diff = c.height - (sampleH(dem, u, v) + groundOffset)
     if (i > 1 && !Number.isNaN(prevDiff) && prevDiff > 0 && diff <= 0) {
       // 二分细化
       let lo = prevT
@@ -315,7 +324,7 @@ function pickDem(ray: Cesium.Ray): Cesium.Cartesian3 | null {
           Cesium.Math.toDegrees(cc.longitude),
           Cesium.Math.toDegrees(cc.latitude),
         )
-        if (cc.height - sampleH(dem, uu, vv) > 0) lo = mid
+        if (cc.height - (sampleH(dem, uu, vv) + groundOffset) > 0) lo = mid
         else hi = mid
       }
       Cesium.Cartesian3.multiplyByScalar(ray.direction, hi, a)
@@ -329,11 +338,11 @@ function pickDem(ray: Cesium.Ray): Cesium.Cartesian3 | null {
 
 /* ---------------- 视角 ---------------- */
 const home = {
-  destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.115, 15000),
-  orientation: { heading: 0, pitch: Cesium.Math.toRadians(-48), roll: 0 },
+  destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.072, 8200),
+  orientation: { heading: 0, pitch: Cesium.Math.toRadians(-34), roll: 0 },
 }
 const { zoomIn, zoomOut, reset, toggleFullscreen } = useCesiumView(() => viewer, () => home)
-const { current: currentBasemap, apply: applyBasemap } = useCesiumBasemap(() => viewer, 'dark')
+const { current: currentBasemap, apply: applyBasemap } = useCesiumBasemap(() => viewer, 'imagery')
 
 const statsText = computed(() => ({
   max: stats.value.max.toFixed(0),
@@ -362,13 +371,24 @@ onMounted(() => {
   applyBasemap(currentBasemap.value)
   const scene = viewer.scene
   scene.globe.enableLighting = false
-  scene.fog.enabled = false
   scene.highDynamicRange = true
-  scene.globe.baseColor = Cesium.Color.fromCssColorString('#0b1218')
 
+  stopTerrain = enableTerrainScene(viewer)
   rebuildDem()
   bake()
   buildPrimitive()
+
+  // 地形瓦片到位后取真实地面海拔，把 DEM 抬上去重建
+  void (async () => {
+    const g = await sampleGroundHeight(viewer!, LON, LAT)
+    if (viewer && !viewer.isDestroyed() && g > 0) {
+      groundOffset = g
+      stats.value = { ...stats.value }
+      rebuildDem()
+      bake()
+      buildPrimitive()
+    }
+  })()
 
   cursorEntity = viewer.entities.add({
     point: {
@@ -421,6 +441,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  stopTerrain?.()
   uploader.dispose()
   terrainMat = null
   terrainPrim = null

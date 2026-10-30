@@ -41,17 +41,33 @@ function geometryAttributes(
 }
 
 /** 地形三角网（世界坐标系），exag 为垂直夸张倍数 */
-export function buildTerrainGeometry(dem: DEM, exag = 1, hOffset = 0): Cesium.Geometry {
+/**
+ * DEM → 世界坐标三角网。
+ *
+ * @param skirtDepth 裙边深度（米）。> 0 时沿矩形四边向下生成一圈垂直「侧壁」，
+ *   把自定义分析块与真实地形（开了全球地形后地表起伏可达数百米）之间的接缝盖住，
+ *   否则块体边缘会悬空露出缝、或被山体穿模。Cesium 自带地形也是这么做的（RectangleGeometry 裙边）。
+ */
+export function buildTerrainGeometry(dem: DEM, exag = 1, hOffset = 0, skirtDepth = 0): Cesium.Geometry {
   const n = dem.n
   const count = n * n
+  const skirt = skirtDepth > 0
   const positions = new Float64Array(count * 3)
   const normals = new Float32Array(count * 3)
   const st = new Float32Array(count * 2)
-  const indices = new Uint32Array((n - 1) * (n - 1) * 6)
+  const indices: number[] = []
 
   const tmp = new Cesium.Cartesian3()
   const nrm = new Cesium.Cartesian3()
 
+  // 裙边：沿矩形周长一圈的顶点序号（北边→东边→南边→西边），相邻点连成侧壁
+  const borderIdx: number[] = []
+  if (skirt) {
+    for (let i = 0; i < n; i++) borderIdx.push(i) // 北边（j=0）自西向东
+    for (let j = 1; j < n - 1; j++) borderIdx.push(j * n + n - 1) // 东边自北向南
+    for (let i = n - 1; i >= 0; i--) borderIdx.push((n - 1) * n + i) // 南边自东向西
+    for (let j = n - 2; j >= 1; j--) borderIdx.push(j * n) // 西边自南向北
+  }
   for (let j = 0; j < n; j++) {
     const v = j / (n - 1)
     const lat = dem.lat1 - (dem.lat1 - dem.lat0) * v
@@ -73,27 +89,156 @@ export function buildTerrainGeometry(dem: DEM, exag = 1, hOffset = 0): Cesium.Ge
     }
   }
 
-  let p = 0
   for (let j = 0; j < n - 1; j++) {
     for (let i = 0; i < n - 1; i++) {
       const a = j * n + i
       const b = a + 1
       const c = a + n
       const d = a + n + 1
-      indices[p++] = a
-      indices[p++] = b
-      indices[p++] = c
-      indices[p++] = b
-      indices[p++] = d
-      indices[p++] = c
+      indices.push(a, b, c, b, d, c)
+    }
+  }
+
+  if (skirt) {
+    // 裙边顶点：经纬度同边界点，高度下落 skirtDepth；st 沿用边界点（纹理纵向拉伸，
+    // 侧壁呈现边缘像素的延续色，视觉上是「切开的土层」）
+    const base = positions.length / 3
+    const bottom = new Map<number, number>()
+    for (const k of borderIdx) {
+      const bi = base + bottom.size
+      bottom.set(k, bi)
+      positions[bi * 3] = positions[k * 3]
+      positions[bi * 3 + 1] = positions[k * 3 + 1]
+      positions[bi * 3 + 2] = positions[k * 3 + 2] - skirtDepth
+      normals[bi * 3] = normals[k * 3]
+      normals[bi * 3 + 1] = normals[k * 3 + 1]
+      normals[bi * 3 + 2] = normals[k * 3 + 2]
+      st[bi * 2] = st[k * 2]
+      st[bi * 2 + 1] = st[k * 2 + 1]
+    }
+    // 相邻边界点连成四边形；两个绕向都发（省去判断法线朝向，backface 剔除不挑食）
+    for (let s = 0; s < borderIdx.length; s++) {
+      const a = borderIdx[s]
+      const b = borderIdx[(s + 1) % borderIdx.length]
+      const aB = bottom.get(a)!
+      const bB = bottom.get(b)!
+      indices.push(a, b, aB, b, bB, aB)
+      indices.push(b, a, bB, a, aB, bB)
     }
   }
 
   return new Cesium.Geometry({
     attributes: geometryAttributes(positions, normals, st),
+    indices: new Uint32Array(indices),
+    primitiveType: Cesium.PrimitiveType.TRIANGLES,
+    boundingSphere: Cesium.BoundingSphere.fromVertices(positions),
+  })
+}
+
+/**
+ * 独立裙边几何：只有四壁、没有顶面。给「分析块嵌进真实地形」的场景用——
+ * 顶面走贴图材质，侧壁配一块深色岩层材质（buildSkirtMaterial），
+ * 比把边界像素纵向拉伸成条纹自然得多。
+ */
+export function buildSkirtGeometry(dem: DEM, exag = 1, hOffset = 0, skirtDepth = 1400): Cesium.Geometry {
+  const n = dem.n
+  const border: Array<{ lon: number; lat: number; h: number; u: number; v: number }> = []
+  for (let i = 0; i < n; i++) {
+    const u = i / (n - 1)
+    border.push({ lon: dem.lon0 + (dem.lon1 - dem.lon0) * u, lat: dem.lat1, h: dem.h[i], u, v: 0 })
+  }
+  for (let j = 1; j < n - 1; j++) {
+    const v = j / (n - 1)
+    border.push({
+      lon: dem.lon1,
+      lat: dem.lat1 - (dem.lat1 - dem.lat0) * v,
+      h: dem.h[j * n + n - 1],
+      u: 1,
+      v,
+    })
+  }
+  for (let i = n - 1; i >= 0; i--) {
+    const u = i / (n - 1)
+    const k = (n - 1) * n + i
+    border.push({ lon: dem.lon0 + (dem.lon1 - dem.lon0) * u, lat: dem.lat0, h: dem.h[k], u, v: 1 })
+  }
+  for (let j = n - 2; j >= 1; j--) {
+    const v = j / (n - 1)
+    border.push({
+      lon: dem.lon0,
+      lat: dem.lat1 - (dem.lat1 - dem.lat0) * v,
+      h: dem.h[j * n],
+      u: 0,
+      v,
+    })
+  }
+
+  const m = border.length
+  const positions = new Float64Array(m * 2 * 3)
+  const normals = new Float32Array(m * 2 * 3)
+  const st = new Float32Array(m * 2 * 2)
+  const indices = new Uint32Array(m * 12)
+  const tmp = new Cesium.Cartesian3()
+  const nrm = new Cesium.Cartesian3()
+  for (let s = 0; s < m; s++) {
+    const b = border[s]
+    const hTop = (b.h - dem.min) * exag + dem.min + hOffset
+    // 上缘
+    Cesium.Cartesian3.fromDegrees(b.lon, b.lat, hTop, undefined, tmp)
+    positions.set([tmp.x, tmp.y, tmp.z], s * 6)
+    Cesium.Ellipsoid.WGS84.geodeticSurfaceNormal(tmp, nrm)
+    normals.set([nrm.x, nrm.y, nrm.z], s * 6)
+    st.set([b.u, b.v], s * 4)
+    // 下缘（垂直下落 skirtDepth）
+    Cesium.Cartesian3.fromDegrees(b.lon, b.lat, hTop - skirtDepth, undefined, tmp)
+    positions.set([tmp.x, tmp.y, tmp.z], s * 6 + 3)
+    normals.set([nrm.x, nrm.y, nrm.z], s * 6 + 3)
+    st.set([b.u, b.v], s * 4 + 2)
+  }
+  let p = 0
+  for (let s = 0; s < m; s++) {
+    const s1 = (s + 1) % m
+    const aT = s * 2
+    const aB = s * 2 + 1
+    const bT = s1 * 2
+    const bB = s1 * 2 + 1
+    indices[p++] = aT
+    indices[p++] = bT
+    indices[p++] = aB
+    indices[p++] = bT
+    indices[p++] = bB
+    indices[p++] = aB
+    indices[p++] = bT
+    indices[p++] = aT
+    indices[p++] = bB
+    indices[p++] = aT
+    indices[p++] = aB
+    indices[p++] = bB
+  }
+  return new Cesium.Geometry({
+    attributes: geometryAttributes(positions, normals, st),
     indices,
     primitiveType: Cesium.PrimitiveType.TRIANGLES,
     boundingSphere: Cesium.BoundingSphere.fromVertices(positions),
+  })
+}
+
+/** 裙边侧壁材质：深色岩层断面，带一点纵向明暗（st.y 从上缘渐暗到下缘） */
+export function makeSkirtMaterial(): Cesium.Material {
+  return new Cesium.Material({
+    fabric: {
+      uniforms: {},
+      source: `
+        czm_material czm_getMaterial(czm_materialInput materialInput) {
+          czm_material m = czm_getDefaultMaterial(materialInput);
+          // 层理：沿周向的明暗条带，模拟岩层节理
+          float band = 0.85 + 0.12 * sin(materialInput.st.y * 240.0);
+          m.diffuse = vec3(0.27, 0.23, 0.18) * band;
+          m.alpha = 1.0;
+          return m;
+        }`,
+    },
+    translucent: false,
   })
 }
 

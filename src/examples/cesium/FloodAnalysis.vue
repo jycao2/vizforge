@@ -4,8 +4,22 @@ import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import MapControls from '@/components/MapControls.vue'
 import { CESIUM_BASEMAPS } from './basemaps'
-import { VIEWER_OPTIONS, useCesiumBasemap, useCesiumView } from './useCesium'
-import { buildTerrainGeometry, makeImageMaterial, makeTextureUploader } from './demMesh'
+import {
+  VIEWER_OPTIONS,
+  clipGlobeRectangle,
+  enableTerrainScene,
+  sampleMaxGroundHeight,
+  useCesiumBasemap,
+  useCesiumView,
+  waitRealTerrain,
+} from './useCesium'
+import {
+  buildSkirtGeometry,
+  buildTerrainGeometry,
+  makeImageMaterial,
+  makeSkirtMaterial,
+  makeTextureUploader,
+} from './demMesh'
 import { HYPSOMETRIC, hillshade, makeDEM, sampleH, uvToLonLat, type DEM } from '@/examples/shared/terrain'
 
 /* ============================================================
@@ -26,9 +40,14 @@ import { HYPSOMETRIC, hillshade, makeDEM, sampleH, uvToLonLat, type DEM } from '
 const wrapRef = ref<HTMLDivElement>()
 const container = ref<HTMLDivElement>()
 let viewer: Cesium.Viewer | null = null
+/** 真实地面海拔偏移 + 裙边侧壁：库区模型嵌进真实地形（千岛湖，约 103~323m） */
+let groundOffset = 0
+let stopTerrain: (() => void) | null = null
+let skirtPrim: Cesium.Primitive | null = null
 
-const LON = 106.32
-const LAT = 32.15
+// 千岛湖（浙江淳安）：真实地形为岛屿丘陵，幅差约 220m，水库淹没的天然背景板
+const LON = 119.0
+const LAT = 29.6
 const SPAN = 14000
 
 /* ---------------- 参数 ---------------- */
@@ -275,7 +294,7 @@ function buildWater() {
       const lon = dem.lon0 + (dem.lon1 - dem.lon0) * u
       const lat = dem.lat1 - (dem.lat1 - dem.lat0) * v
       const k = j * WATER_N + i
-      Cesium.Cartesian3.fromDegrees(lon, lat, level.value, undefined, tmp)
+      Cesium.Cartesian3.fromDegrees(lon, lat, level.value + groundOffset, undefined, tmp)
       positions[k * 3] = tmp.x
       positions[k * 3 + 1] = tmp.y
       positions[k * 3 + 2] = tmp.z
@@ -337,13 +356,19 @@ function buildWater() {
   scene.primitives.add(waterPrim)
 }
 
+/**
+ * 库区模型 = 顶面（贴图 DEM，exag=1 保证水位映射精确）+ 独立岩层裙边。
+ * 真实地形在矩形内被 clipGlobeRectangle 挖掉，模型以自身高程嵌入，四周由裙边封口。
+ */
 function buildAll() {
   const scene = viewer?.scene
   if (!scene) return
+  if (terrainPrim) scene.primitives.remove(terrainPrim)
+  if (skirtPrim) scene.primitives.remove(skirtPrim)
   terrainMat = makeImageMaterial(terrainCanvas)
   terrainPrim = new Cesium.Primitive({
     geometryInstances: new Cesium.GeometryInstance({
-      geometry: buildTerrainGeometry(dem, 1.4),
+      geometry: buildTerrainGeometry(dem, 1, groundOffset),
     }),
     appearance: new Cesium.MaterialAppearance({
       material: terrainMat,
@@ -353,6 +378,18 @@ function buildAll() {
     asynchronous: false,
   })
   scene.primitives.add(terrainPrim)
+  skirtPrim = new Cesium.Primitive({
+    geometryInstances: new Cesium.GeometryInstance({
+      geometry: buildSkirtGeometry(dem, 1, groundOffset, 1400),
+    }),
+    appearance: new Cesium.MaterialAppearance({
+      material: makeSkirtMaterial(),
+      translucent: false,
+      flat: true,
+    }),
+    asynchronous: false,
+  })
+  scene.primitives.add(skirtPrim)
   uploader.upload(terrainMat, terrainCanvas)
   buildWater()
 }
@@ -390,11 +427,11 @@ function tick(now: number) {
 
 /* ---------------- 视角 ---------------- */
 const home = {
-  destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.163, 26000),
-  orientation: { heading: 0, pitch: Cesium.Math.toRadians(-55), roll: 0 },
+  destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.135, 21000),
+  orientation: { heading: 0, pitch: Cesium.Math.toRadians(-48), roll: 0 },
 }
 const { zoomIn, zoomOut, reset, toggleFullscreen } = useCesiumView(() => viewer, () => home)
-const { current: currentBasemap, apply: applyBasemap } = useCesiumBasemap(() => viewer, 'dark')
+const { current: currentBasemap, apply: applyBasemap } = useCesiumBasemap(() => viewer, 'imagery')
 
 watch([level, mode], refresh)
 watch(playing, (on) => {
@@ -408,8 +445,8 @@ onMounted(() => {
   applyBasemap(currentBasemap.value)
   const scene = viewer.scene
   scene.globe.enableLighting = false
-  scene.fog.enabled = false
-  scene.globe.baseColor = Cesium.Color.fromCssColorString('#0b1218')
+
+  stopTerrain = enableTerrainScene(viewer)
 
   computeFlood()
   computeStats()
@@ -419,7 +456,13 @@ onMounted(() => {
 
   for (const vil of VILLAGES) {
     viewer.entities.add({
-      position: Cesium.Cartesian3.fromDegrees(vil.lon, vil.lat, 30),
+      position: Cesium.Cartesian3.fromDegrees(
+        vil.lon,
+        vil.lat,
+        sampleH(dem, (vil.lon - dem.lon0) / (dem.lon1 - dem.lon0), (dem.lat1 - vil.lat) / (dem.lat1 - dem.lat0)) +
+          groundOffset +
+          30,
+      ),
       label: {
         text: vil.name,
         font: '600 12px sans-serif',
@@ -449,10 +492,23 @@ onMounted(() => {
 
   raf = requestAnimationFrame(tick)
   viewer.camera.setView(home)
+
+  // 真实地形就位后，把库区模型抬到实际高程带并重建
+  void (async () => {
+    if (!viewer || !(await waitRealTerrain(viewer))) return
+    const realMax = await sampleMaxGroundHeight(viewer, dem.lon0, dem.lat0, dem.lon1, dem.lat1)
+    if (viewer && !viewer.isDestroyed() && realMax > 0) {
+      groundOffset = Math.max(0, realMax - dem.min + 6)
+      buildAll()
+      clipGlobeRectangle(viewer, dem.lon0, dem.lat0, dem.lon1, dem.lat1)
+    }
+  })()
 })
 
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf)
+  stopTerrain?.()
+  skirtPrim = null
   uploader.dispose()
   terrainMat = null
   waterMat = null

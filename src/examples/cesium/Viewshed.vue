@@ -4,8 +4,22 @@ import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import MapControls from '@/components/MapControls.vue'
 import { CESIUM_BASEMAPS } from './basemaps'
-import { VIEWER_OPTIONS, useCesiumBasemap, useCesiumView } from './useCesium'
-import { buildTerrainGeometry, makeImageMaterial, makeTextureUploader } from './demMesh'
+import {
+  VIEWER_OPTIONS,
+  clipGlobeRectangle,
+  enableTerrainScene,
+  sampleMaxGroundHeight,
+  useCesiumBasemap,
+  useCesiumView,
+  waitRealTerrain,
+} from './useCesium'
+import {
+  buildSkirtGeometry,
+  buildTerrainGeometry,
+  makeImageMaterial,
+  makeSkirtMaterial,
+  makeTextureUploader,
+} from './demMesh'
 import { HYPSOMETRIC, hillshade, makeDEM, sampleH, uvToLonLat, type DEM } from '@/examples/shared/terrain'
 
 /* ============================================================
@@ -24,9 +38,14 @@ import { HYPSOMETRIC, hillshade, makeDEM, sampleH, uvToLonLat, type DEM } from '
 const wrapRef = ref<HTMLDivElement>()
 const container = ref<HTMLDivElement>()
 let viewer: Cesium.Viewer | null = null
+/** 真实地面海拔偏移 + 裙边侧壁：分析块嵌进真实地形（延庆北山地区，约 484~760m） */
+let groundOffset = 0
+let stopTerrain: (() => void) | null = null
+let skirtPrim: Cesium.Primitive | null = null
 
-const LON = 100.78
-const LAT = 30.92
+// 延庆北（北京延庆与赤城交界）：真实中低山，幅差约 276m，瞭望塔选址的典型场景
+const LON = 116.05
+const LAT = 40.45
 const SPAN = 9000
 const N = 129
 
@@ -178,10 +197,12 @@ function buildPrimitive() {
   const scene = viewer?.scene
   if (!scene) return
   if (prim) scene.primitives.remove(prim)
+  if (skirtPrim) scene.primitives.remove(skirtPrim)
   mat = makeImageMaterial(canvas)
   prim = new Cesium.Primitive({
     geometryInstances: new Cesium.GeometryInstance({
-      geometry: buildTerrainGeometry(dem, 1.5),
+      // exag 必须是 1：通视计算用的是 DEM 原始高程，渲染抬高会让视线判定失真
+      geometry: buildTerrainGeometry(dem, 1, groundOffset),
     }),
     appearance: new Cesium.MaterialAppearance({
       material: mat,
@@ -191,6 +212,18 @@ function buildPrimitive() {
     asynchronous: false,
   })
   scene.primitives.add(prim)
+  skirtPrim = new Cesium.Primitive({
+    geometryInstances: new Cesium.GeometryInstance({
+      geometry: buildSkirtGeometry(dem, 1, groundOffset, 1100),
+    }),
+    appearance: new Cesium.MaterialAppearance({
+      material: makeSkirtMaterial(),
+      translucent: false,
+      flat: true,
+    }),
+    asynchronous: false,
+  })
+  scene.primitives.add(skirtPrim)
   uploader.upload(mat, canvas)
 }
 
@@ -202,7 +235,7 @@ function syncObserver() {
   const [lon, lat] = uvToLonLat(dem, obs.value.u, obs.value.v)
   const ground = sampleH(dem, obs.value.u, obs.value.v)
   obsEntity.position = new Cesium.ConstantPositionProperty(
-    Cesium.Cartesian3.fromDegrees(lon, lat, ground + eyeH.value + 12),
+    Cesium.Cartesian3.fromDegrees(lon, lat, ground + eyeH.value + 12 + groundOffset),
   )
   ;(obsEntity.label as Cesium.LabelGraphics).text = new Cesium.ConstantProperty(
     `观察点 · 视高 ${eyeH.value}m`,
@@ -250,7 +283,7 @@ function pickUV(winPos: Cesium.Cartesian2): [number, number] | null {
       prevT = t
       continue
     }
-    const diff = c.height - sampleH(dem, u, v)
+    const diff = c.height - (sampleH(dem, u, v) + groundOffset)
     if (i > 1 && !Number.isNaN(prevDiff) && prevDiff > 0 && diff <= 0) {
       // 落点即交点附近，直接线性取
       return [u, v]
@@ -263,11 +296,11 @@ function pickUV(winPos: Cesium.Cartesian2): [number, number] | null {
 
 /* ---------------- 视角 ---------------- */
 const home = {
-  destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.12, 19000),
-  orientation: { heading: 0, pitch: Cesium.Math.toRadians(-55), roll: 0 },
+  destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.095, 15500),
+  orientation: { heading: 0, pitch: Cesium.Math.toRadians(-50), roll: 0 },
 }
 const { zoomIn, zoomOut, reset, toggleFullscreen } = useCesiumView(() => viewer, () => home)
-const { current: currentBasemap, apply: applyBasemap } = useCesiumBasemap(() => viewer, 'dark')
+const { current: currentBasemap, apply: applyBasemap } = useCesiumBasemap(() => viewer, 'imagery')
 
 watch([eyeH, radius, heading, fov, obs], refresh, { deep: true })
 
@@ -277,8 +310,8 @@ onMounted(() => {
   applyBasemap(currentBasemap.value)
   const scene = viewer.scene
   scene.globe.enableLighting = false
-  scene.fog.enabled = false
-  scene.globe.baseColor = Cesium.Color.fromCssColorString('#0b1218')
+
+  stopTerrain = enableTerrainScene(viewer)
 
   bakeBase()
   computeViewshed()
@@ -316,9 +349,23 @@ onMounted(() => {
   )
 
   viewer.camera.setView(home)
+
+  // 真实地形就位后，把分析块抬到实际高程带并重建
+  void (async () => {
+    if (!viewer || !(await waitRealTerrain(viewer))) return
+    const realMax = await sampleMaxGroundHeight(viewer, dem.lon0, dem.lat0, dem.lon1, dem.lat1)
+    if (viewer && !viewer.isDestroyed() && realMax > 0) {
+      groundOffset = Math.max(0, realMax - dem.min + 6)
+      buildPrimitive()
+      syncObserver()
+      clipGlobeRectangle(viewer, dem.lon0, dem.lat0, dem.lon1, dem.lat1)
+    }
+  })()
 })
 
 onBeforeUnmount(() => {
+  stopTerrain?.()
+  skirtPrim = null
   uploader.dispose()
   mat = null
   prim = null

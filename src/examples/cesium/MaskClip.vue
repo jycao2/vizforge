@@ -4,7 +4,7 @@ import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import MapControls from '@/components/MapControls.vue'
 import { CESIUM_BASEMAPS } from './basemaps'
-import { VIEWER_OPTIONS, useCesiumBasemap, useCesiumView } from './useCesium'
+import { VIEWER_OPTIONS, enableTerrainScene, useCesiumBasemap, useCesiumView } from './useCesium'
 import { makeImageMaterial, makeRectanglePrimitive, makeTextureUploader } from './demMesh'
 
 /* ============================================================
@@ -24,6 +24,7 @@ import { makeImageMaterial, makeRectanglePrimitive, makeTextureUploader } from '
 const wrapRef = ref<HTMLDivElement>()
 const container = ref<HTMLDivElement>()
 let viewer: Cesium.Viewer | null = null
+let stopTerrain: (() => void) | null = null
 
 const LON = 116.32
 const LAT = 40.06
@@ -325,7 +326,9 @@ onMounted(() => {
   applyBasemap(currentBasemap.value)
   const scene = viewer.scene
   scene.globe.enableLighting = false
-  scene.fog.enabled = false
+
+  // 真实地形 + 雾：裁剪挖开的坑能看到山体剖面，掩膜效果才立体
+  stopTerrain = enableTerrainScene(viewer)
 
   bakeSDF()
   updateArea()
@@ -347,6 +350,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  stopTerrain?.()
   uploader.dispose()
   clipCollection = null
   mat = null
