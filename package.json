@@ -1,0 +1,61 @@
+{
+  "name": "vizforge",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "VizForge · 可视化实验室 — 74 runnable visualization examples built with Vue 3 + TypeScript: Cesium 3D globe, Three.js scenes, OpenLayers maps and raw WebGL2 shaders, every example shipped with readable source you can copy.",
+  "license": "MIT",
+  "author": "jycao2",
+  "homepage": "https://jycao2.github.io/vizforge/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jycao2/vizforge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jycao2/vizforge/issues"
+  },
+  "keywords": [
+    "vue3",
+    "typescript",
+    "cesium",
+    "threejs",
+    "openlayers",
+    "webgl",
+    "webgl2",
+    "gis",
+    "visualization",
+    "shaders",
+    "examples",
+    "showcase",
+    "vite",
+    "pinia",
+    "3d-globe",
+    "heatmap",
+    "gpgpu",
+    "raymarching",
+    "shadow-map",
+    "digital-earth"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview --host",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "cesium": "^1.118.0",
+    "highlight.js": "^11.12.0",
+    "ol": "^9.2.4",
+    "pinia": "^2.2.2",
+    "three": "^0.160.0",
+    "vue": "^3.4.38",
+    "vue-router": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/three": "^0.160.0",
+    "@vitejs/plugin-vue": "^5.1.2",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2",
+    "vite-plugin-cesium": "^1.2.21",
+    "vue-tsc": "^2.0.29"
+  }
+}

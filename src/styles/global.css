@@ -1,0 +1,59 @@
+:root {
+  --bg-app: #0d1117;
+  --bg-panel: #151b24;
+  --bg-panel-2: #1b232f;
+  --bg-hover: #222d3b;
+  --border: #2a3340;
+  --text: #e6edf3;
+  --text-dim: #9aa7b4;
+  --accent: #4f9dff;
+  --accent-2: #ff5e62;
+  --radius: 8px;
+  --sidebar-w: 264px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  background: var(--bg-app);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #2f3a47;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* OpenLayers / Cesium 内置控件与自定义工具栏重复，统一隐藏 */
+.ol-zoom,
+.ol-rotate {
+  display: none !important;
+}

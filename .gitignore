@@ -1,0 +1,64 @@
+# ---- 依赖 ----
+node_modules/
+.pnp
+.pnp.js
+
+# ---- 构建产物 ----
+dist/
+dist-ssr/
+dist-*/
+dist-pages*/
+build/Release
+*.local
+.vite/
+
+# ---- 日志 ----
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ---- 测试 / 覆盖率 ----
+coverage/
+.nyc_output/
+__snapshots__/
+
+# ---- 缓存 ----
+.cache/
+.temp/
+tmp/
+.eslintcache
+*.tsbuildinfo
+
+# ---- 环境变量（示例数据均为合成数据，项目本身不需要任何 Key）----
+.env
+.env.*
+!.env.example
+
+# ---- 编辑器 / IDE ----
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.project
+.classpath
+
+# ---- 操作系统 ----
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# 注意：public/3dtiles/ 是 3D Tiles 示例使用的本地瓦片集（约 64 KB），属于源码资源，不忽略。

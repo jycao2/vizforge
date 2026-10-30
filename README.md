@@ -1,0 +1,249 @@
+# VizForge · 可视化实验室
+
+[![Deploy to GitHub Pages](https://github.com/jycao2/vizforge/actions/workflows/deploy.yml/badge.svg)](https://github.com/jycao2/vizforge/actions/workflows/deploy.yml)
+[![Demo](https://img.shields.io/badge/demo-online-brightgreen?logo=githubpages)](https://jycao2.github.io/vizforge/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Vue 3](https://img.shields.io/badge/Vue-3.4-brightgreen?logo=vuedotjs)](https://vuejs.org/)
+[![WebGL 2](https://img.shields.io/badge/WebGL-2-blue?logo=webgl)](https://developer.mozilla.org/docs/Web/API/WebGL2RenderingContext)
+
+**在线体验（GitHub Pages，无需安装）：https://jycao2.github.io/vizforge/**
+
+一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **74 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
+
+每个示例页右上角都有「查看源码」按钮，点开就是该示例的完整实现，可一键复制——它不是一个封装好的组件库，而是一本可以直接拆开看的、跑得起来的代码手册。从 Cesium 三维地球、Three.js 实时镜面、OpenLayers 缓冲区分析，到体积云光线步进、GPGPU 粒子流场、SDF 光线步进、阴影贴图，都能在这里直接读源码。
+
+> **Keywords**：Vue 3 · TypeScript · Vite · Pinia · Cesium · Three.js · OpenLayers · WebGL2 · GLSL shader · GIS · 三维地球 · 数字孪生 · 数据可视化 · 热力图 · 等值线 · 风场粒子 · 体积云 · GPGPU · 光线步进 · 阴影贴图 · 日照分析 · 前端可视化示例集
+
+---
+
+## 特性
+
+- **74 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
+- **源码即看即拷**：基于 Vite 的 `import.meta.glob(..., { query: '?raw' })` 直接读取组件原始文本，配合 highlight.js 高亮，改完代码刷新即同步，不存在「文档和实现对不上」。
+- **零后端、免 Token**：纯前端静态站点，不依赖 Cesium Ion Token，不依赖任何自建服务。
+- **统一交互外壳**：每个示例自带参数面板（滑杆 / 开关 / 按钮）与画布工具条（放大、缩小、复位、全屏），切换示例时资源完整释放，长时间浏览不会泄漏。
+- **按需懒加载**：示例组件全部异步加载，Cesium / Three / OL 各自的重量级依赖只在进入对应页面时才下载。
+
+## 在线 Demo 与自动部署
+
+- **Demo 地址**：https://jycao2.github.io/vizforge/ （GitHub Pages，纯静态托管）
+- **自动部署**：`.github/workflows/deploy.yml`。**每次推送到 `main`** 都会自动跑一次 `npm ci` → `vue-tsc` 类型检查 → `vite build` → 部署到 Pages；也可以在仓库的 Actions 页面手动触发。类型检查不通过就不会部署，不会把坏掉的版本推上线。
+- **换仓库名时**：同步修改 `vite.config.ts` 里的 `REPO_NAME`。Pages 的站点路径是 `https://<用户名>.github.io/<仓库名>/`，构建产物的 `base` 必须与之保持一致，否则资源 404。
+- **首次启用**：仓库 Settings → Pages → Source 选择 **GitHub Actions**（只需设置一次）。
+
+## 快速开始
+
+环境要求：**Node.js >= 18**（推荐 20+），浏览器需支持 **WebGL 2**（体积云、GPGPU 等示例必需）。
+
+```bash
+# 安装依赖
+npm install
+
+# 启动开发服务器（默认 http://localhost:5173）
+npm run dev
+
+# 类型检查 + 生产构建（输出到 dist/）
+npm run build
+
+# 仅类型检查
+npm run typecheck
+
+# 预览构建产物
+npm run preview
+```
+
+## 界面说明
+
+| 区域 | 作用 |
+| --- | --- |
+| 左侧栏 | 按技术栈分组的全部示例，底部实时统计技术栈数与示例总数 |
+| 首页 | 四张技术栈卡片，点击直接进入该栈的第一个示例 |
+| 示例页头部 | 面包屑（技术栈 / 示例名）+ 一句话原理说明 + 「查看源码」开关 |
+| 示例页画布 | 场景本体，带工具条（放大 / 缩小 / 复位 / 全屏，Cesium 的缩放以屏幕中心地物为锚点） |
+| 参数面板 | 该示例可调的参数，改动即时生效 |
+| 源码面板 | 完整源码 + 行号 + 复制按钮；展开时会派发 `resize` 事件让画布自适应 |
+
+路由为 hash 模式：`#/e/:techId/:exampleId`，例如 `#/e/cesium/typhoon`。
+
+## 示例清单
+
+### Cesium（19 个）
+
+三维地球与地理空间可视化引擎，基于 WebGL 的地球渲染。
+
+| 示例 | 说明 | 源文件 |
+| --- | --- | --- |
+| 基础地球 | 内置放大/缩小/复位/全屏工具栏，支持矢量、影像、地形、浅色、深色底图切换。 | `src/examples/cesium/BasicGlobe.vue` |
+| 实体与标注 | 添加点、标签、多边形与折线等实体要素并飞入视角。 | `src/examples/cesium/Entities.vue` |
+| 相机飞行 | 在世界多个城市之间自动巡航飞行，演示相机动画。 | `src/examples/cesium/CameraFlight.vue` |
+| 点击拾取坐标 | 在地球上点击，实时拾取经纬度与高度并打点标记。 | `src/examples/cesium/Picking.vue` |
+| 交互绘制多边形 | 左键加点、右键结束，动态预览并生成多边形面。 | `src/examples/cesium/DrawPolygon.vue` |
+| 加载 glTF 模型 | 通过 Model.fromGltfAsync 加载并定位一个 glTF 模型。 | `src/examples/cesium/ModelLoad.vue` |
+| 3D Tiles 建筑 | 加载 3D Tiles 瓦片集，按建筑高度分色，演示倾斜/白模数据的渲染。 | `src/examples/cesium/Tiles3D.vue` |
+| 轨迹回放 | SampledPositionProperty + Path 让实体沿航线移动并留下发光轨迹，可暂停/倍速/重播。 | `src/examples/cesium/Trajectory.vue` |
+| 距离面积量算 | 左键加点、右键结束，实时计算大地线长度与多边形面积并标注在地图上。 | `src/examples/cesium/Measure.vue` |
+| 天气特效 | PostProcessStage 全屏 GLSL 后期，可切换下雨、下雪、大雾三种天气。 | `src/examples/cesium/Weather.vue` |
+| 卫星轨道 | 按轨道倾角与升交点赤经生成三条圆轨道，三颗卫星同时绕地运行。 | `src/examples/cesium/Satellite.vue` |
+| 卷帘对比 | 利用 scene.splitPosition 左右分屏，拖动分隔条对比两种底图。 | `src/examples/cesium/Swipe.vue` |
+| OD 飞线 | 抛物线弧 + PolylineGlow 发光，配合 CallbackProperty 驱动的流动光点，最经典的大屏飞线。 | `src/examples/cesium/FlyLine.vue` |
+| 雷达扫描 | 扩散圆环 + 旋转扫描扇面，用 CallbackProperty 逐帧重算半径与顶点。 | `src/examples/cesium/Radar.vue` |
+| 点击信息弹窗 | scene.pick 拾取实体，postRender 里把世界坐标投影为屏幕坐标，让 DOM 弹窗跟随地图。 | `src/examples/cesium/Popup.vue` |
+| 日照阴影分析 | 街区体块 + 真实太阳位置：clock 驱动 Cesium 解算日照与 shadowMap 投影，采样点用射线-长方体求交判定遮挡。 | `src/examples/cesium/SunShadow.vue` |
+| 台风路径与风圈 | 西北太平洋台风过程：Catmull-Rom 样条路径、三层风圈随强度联动、程序化四臂螺旋云系，播放倍速与跟随视角齐备。 | `src/examples/cesium/Typhoon.vue` |
+| 城市白模 | 256 个街区 PolygonGraphics 按 extrudedHeight 拉伸，高度分色模拟 CBD 高楼群。 | `src/examples/cesium/CityModel.vue` |
+| 城市热力图 | 径向渐变叠加成密度场 → 256 级色带查表 → 自定义材质的 RectangleGeometry 贴回球面，半径/强度/色带实时可调。 | `src/examples/cesium/HeatmapOverlay.vue` |
+
+### Three.js（21 个）
+
+通用的 WebGL 3D 渲染库，适合任意三维场景与特效。
+
+| 示例 | 说明 | 源文件 |
+| --- | --- | --- |
+| 旋转立方体 | 使用 MeshNormalMaterial 渲染一个持续旋转的立方体。 | `src/examples/three/Cube.vue` |
+| 光照球体 | 基于 MeshStandardMaterial 与方向光、环境光渲染的球体。 | `src/examples/three/LightsSphere.vue` |
+| 粒子星空 | 使用 Points 渲染上千个粒子组成的旋转星空。 | `src/examples/three/Particles.vue` |
+| 轨道控制器 | 使用 OrbitControls 实现拖拽旋转、滚轮缩放、右键平移。 | `src/examples/three/OrbitControls.vue` |
+| 加载 glTF 模型 | 用 GLTFLoader 加载 Duck.glb，自动居中缩放并支持交互。 | `src/examples/three/GltfModel.vue` |
+| 射线拾取 | 用 Raycaster 检测鼠标命中的物体并高亮显示。 | `src/examples/three/Raycaster.vue` |
+| 阴影与光照 | DirectionalLight 投射 PCF 软阴影，几何体落地投影随动画实时更新。 | `src/examples/three/Shadow.vue` |
+| 实例化渲染 | InstancedMesh 一次 draw call 渲染 6000 个立方体，逐实例矩阵与颜色。 | `src/examples/three/Instancing.vue` |
+| 泛光后期 | EffectComposer + UnrealBloomPass 实现发光后期，可调节泛光强度。 | `src/examples/three/Bloom.vue` |
+| 着色器水波 | ShaderMaterial 自定义顶点位移与片元配色，实时生成正弦波水面。 | `src/examples/three/WaterShader.vue` |
+| 骨骼动画 | GLTFLoader + AnimationMixer 播放 Soldier.glb 的多个动作片段。 | `src/examples/three/Skeleton.vue` |
+| 环境反射 | PMREMGenerator + RoomEnvironment 生成 IBL 环境贴图，金属材质呈现真实反射。 | `src/examples/three/EnvMap.vue` |
+| 点云渲染 | 14 万点单次 draw call：斐波那契球面采样 + vertexColors，可调点大小。 | `src/examples/three/PointCloud.vue` |
+| 大气散射天空 | Sky 着色器按太阳高度角/方位角实时解算天光，拖到负角度可见日落霞光。 | `src/examples/three/Sky.vue` |
+| 描边选中 | OutlinePass 后期描边：点击模型高亮发光，模型点选的标准做法。 | `src/examples/three/Outline.vue` |
+| HTML 标签 | CSS2DRenderer 把 DOM 元素投影到 3D 坐标上，做数据看板的节点说明。 | `src/examples/three/CSS2D.vue` |
+| 布料模拟 | Verlet 积分 + PBD 约束松弛：40×26 质点的平纹布料，风力湍流、球体碰撞、拖拽拉扯与双击撕裂。 | `src/examples/three/Cloth.vue` |
+| 大坝开闸放水 | 重力坝 + 5 孔弧形闸门：点选闸门绕铰链抬升，水舌沿 ogee 溢流面下泄，坝趾水花与雾化随开度联动。 | `src/examples/three/Dam.vue` |
+| 发动机拆解 | 程序化建模的直列四缸发动机：曲柄连杆运动学、双凸轮轴气门升程、正时链传动，可拖动拆解并点选任意部件查看说明。 | `src/examples/three/Engine.vue` |
+| 六轴机械臂码垛 | 工业机器人上位机仿真：腰/肩/肘/腕解析逆解、传送带按节拍送料、双指夹爪取放，把料箱码满一托盘后整托出库。 | `src/examples/three/RobotArm.vue` |
+| 实时镜面 | Reflector 用虚拟相机（真实相机关于镜平面的镜像）先渲一遍场景再按屏幕坐标采样回来，金属与玻璃体的 IBL 反射由程序化房间环境提供。 | `src/examples/three/Mirror.vue` |
+
+### OpenLayers（18 个）
+
+功能强大的二维地图库，支持瓦片、矢量与丰富的交互。
+
+| 示例 | 说明 | 源文件 |
+| --- | --- | --- |
+| 基础地图 | 可平移缩放的二维底图，内置工具栏与矢量、影像、地形、浅色、深色底图切换。 | `src/examples/openlayers/BasicMap.vue` |
+| 矢量图层 | 在地图上叠加随机生成的矢量点要素并自定义样式。 | `src/examples/openlayers/VectorLayer.vue` |
+| 动画标记 | 利用 postrender 事件实现脉冲扩散的动态标记。 | `src/examples/openlayers/AnimatedMarker.vue` |
+| 绘制与测量 | 交互绘制线/面，并实时计算长度与面积。 | `src/examples/openlayers/DrawMeasure.vue` |
+| 聚合标注 | 300 个点按距离聚合，缩小时显示数量、放大后展开。 | `src/examples/openlayers/Cluster.vue` |
+| 热力图 | 基于加权点生成热力图，叠加在深色底图上。 | `src/examples/openlayers/Heatmap.vue` |
+| GeoJSON 省界 | 加载中国省级行政区 GeoJSON，矢量样式化并支持点击高亮查询。 | `src/examples/openlayers/GeoJson.vue` |
+| WMS 图层 | 接入 NASA GIBS 的 TileWMS 服务，切换真彩色/地表温度并调整透明度。 | `src/examples/openlayers/Wms.vue` |
+| 要素编辑 | Modify + Snap 交互：拖拽顶点或边线修改几何，要素之间自动吸附。 | `src/examples/openlayers/Modify.vue` |
+| 框选查询 | Shift + 拖拽拉框，统计并高亮框内所有要素。 | `src/examples/openlayers/Select.vue` |
+| 卷帘对比 | 通过 precompose/postcompose 裁剪画布，实现左右底图卷帘对比。 | `src/examples/openlayers/Swipe.vue` |
+| 轨迹回放 | 沿路线插值移动标记，实时统计已行驶里程，可暂停与倍速。 | `src/examples/openlayers/Track.vue` |
+| 鹰眼图 | OverviewMap 控件：小地图红框表示主图可视范围，可拖动快速定位。 | `src/examples/openlayers/Minimap.vue` |
+| POI 图标标注 | 内联 SVG 图标 + 文字背景标注，declutter 自动避让，悬停放大并联动提示。 | `src/examples/openlayers/IconLabel.vue` |
+| 气温等值线 | 程序化气温场 + Marching Squares 提等值线：交点缝合为折线、沿走向排布数值标注，色带与等值线同源。 | `src/examples/openlayers/Contour.vue` |
+| 风场粒子流 | Windy 风格风场动画：西风急流 + 涡旋合成风场，屏幕网格双线性插值驱动数千粒子，拖尾衰减并按风速分档着色。 | `src/examples/openlayers/WindField.vue` |
+| 图层显隐控制 | 面/线/点三个图层叠在一起，用开关面板独立控制显隐，最典型的 GIS 图层面板。 | `src/examples/openlayers/LayerSwitch.vue` |
+| 缓冲区分析 | 点缓冲按球面大地线推算 256 边形，线缓冲用相邻段平均法向做 miter 平移 + 端点半圆帽；面积/长度取球面真值，再叠加统计受影响点位。 | `src/examples/openlayers/BufferAnalysis.vue` |
+
+### WebGL（16 个）
+
+原生 WebGL 编程，直接操作着色器与缓冲区，零依赖。
+
+| 示例 | 说明 | 源文件 |
+| --- | --- | --- |
+| 旋转三角形 | 原生 WebGL 绘制并通过矩阵实现持续旋转的三角形。 | `src/examples/webgl/Triangle.vue` |
+| 着色器渐变 | 全屏片元着色器实现的动态流光渐变背景。 | `src/examples/webgl/ShaderGradient.vue` |
+| 纹理矩形 | 用 Canvas 程序化生成纹理并贴到旋转矩形上。 | `src/examples/webgl/TextureQuad.vue` |
+| 3D 立方体 | 透视投影 + 深度测试，渲染持续旋转的彩色立方体。 | `src/examples/webgl/Cube3D.vue` |
+| 点精灵 | gl.POINTS 与 gl_PointCoord 实现柔边圆形粒子。 | `src/examples/webgl/PointSprites.vue` |
+| Phong 光照 | 手写 Blinn-Phong 着色：环境光 + 漫反射 + 高光 + 边缘光。 | `src/examples/webgl/Phong.vue` |
+| 帧缓冲后处理 | 场景先渲染到 FBO，再用 5×5 采样做模糊与暗角后处理。 | `src/examples/webgl/Fbo.vue` |
+| 实例化绘制 | ANGLE_instanced_arrays 单次绘制 2000 个立方体，并显示实时帧率。 | `src/examples/webgl/InstancingGL.vue` |
+| 透明混合 | 开关深度测试与绘制顺序，直观看到透明物体的遮挡关系变化。 | `src/examples/webgl/Blend.vue` |
+| 立方体天空盒 | 程序化生成 6 张面纹理上传为 TEXTURE_CUBE_MAP，拖拽鼠标 360° 环视。 | `src/examples/webgl/Skybox.vue` |
+| 噪声地形 | 值噪声 fBm 生成 101×101 高度场，CPU 差分求法线，高度着色 + 线框切换。 | `src/examples/webgl/Terrain.vue` |
+| GPGPU 粒子流场 | 位置/速度存进 RGBA32F 纹理，MRT 一次写回两组，FBO 乒乓迭代；顶点用 gl_VertexID 反查纹素，14 万粒子全在 GPU 上跑。 | `src/examples/webgl/Gpgpu.vue` |
+| 分形探索器 | Mandelbrot / Julia 双模式：逐像素迭代 z←z²+c，对数平滑消除色带，滚轮以光标为中心缩放到 1e-9。 | `src/examples/webgl/Mandelbrot.vue` |
+| 体积云光线步进 | WebGL2 三维纹理 + 光线步进：程序化 64³ 噪声生成云场，二次步进求光学厚度，Beer-Lambert 透射与 HG 相位函数还原银边。 | `src/examples/webgl/VolumeCloud.vue` |
+| SDF 光线步进 | 全屏四边形 + 片元着色器：距离场步进求交、四点梯度法线、软阴影与 AO。 | `src/examples/webgl/Raymarch.vue` |
+| 阴影贴图 | 双 pass：光空间把线性深度打包进 RGBA8（不依赖深度纹理扩展），主 pass 解包比对 + 3×3 PCF，可调偏移看 acne 如何被压住。 | `src/examples/webgl/ShadowMap.vue` |
+
+## 目录结构
+
+```
+src/
+├─ components/
+│  ├─ Sidebar.vue          左侧示例导航（从 store 读取目录）
+│  └─ MapControls.vue      画布工具条：放大 / 缩小 / 复位 / 全屏
+├─ stores/
+│  └─ examples.ts          示例目录（唯一需要手动维护的注册表）
+├─ views/
+│  ├─ Home.vue             首页技术栈卡片
+│  └─ ExamplePage.vue      示例页：懒加载组件 + 源码面板
+├─ examples/
+│  ├─ basemap-defs.ts      底图统一定义（Cesium / OpenLayers 共用）
+│  ├─ cesium/              19 个示例 + useCesium.ts（Viewer 脚手架、锚点缩放）+ basemaps.ts
+│  ├─ three/               21 个示例 + useThree.ts（Renderer / 相机 / OrbitControls / 自适应）
+│  ├─ openlayers/          18 个示例 + useOl.ts（Map 脚手架）+ basemaps.ts
+│  └─ webgl/               16 个示例 + gl.ts（着色器编译、FBO、纹理、矩阵工具）
+├─ utils/highlight.ts      highlight.js 封装
+├─ types/                  ExampleMeta / TechCategory 等类型
+└─ styles/global.css       主题变量（面板、边框、强调色）与公共样式
+public/3dtiles/            3D Tiles 示例使用的本地瓦片集
+```
+
+## 新增一个示例（三步）
+
+1. 在 `src/examples/<技术栈>/` 下新建 `Foo.vue`；
+2. 在 `src/stores/examples.ts` 对应技术栈的 `examples` 数组里加一条：
+
+   ```ts
+   {
+     id: 'foo',                      // 路由里用的短 id，全栈唯一
+     title: '某某效果',
+     description: '一句话讲清实现方式与可调参数。',
+     file: 'three/Foo.vue',
+   }
+   ```
+
+3. 完成。组件和源码都由 `import.meta.glob` 自动收集，不需要再登记任何加载器。
+
+写示例时的几个约定：
+
+- 复用对应技术栈的脚手架（`useCesium` / `useThree` / `useOl` / `gl.ts`），不要每个文件重复搭一遍渲染循环；
+- 在 `onBeforeUnmount` 里销毁 viewer / renderer / 事件监听 / 定时器 / 位图，切换示例不能留下悬挂的 RAF；
+- 控制面板沿用 `global.css` 里的 `.panel` `.stat` `.tip` 等类，保持视觉统一；
+- 描述里写清「用了什么算法 / 什么原理」，而不是只写效果名。
+
+## 实现要点与踩坑记录
+
+这些都是本项目里真实踩过并修掉的坑，做法已固化在对应示例的注释里：
+
+- **Cesium 动态贴图闪烁**：反复给 `ImageMaterialProperty.image` 赋 dataURL，Cesium 会先把纹理退回 `defaultTexture` 再异步 `fetchImage()`，加载完成前的帧整块渲染成默认图 → 地面一闪一闪。正解：`createImageBitmap(canvas)` 解码完成后再赋给 `material.uniforms.image`，同帧原子替换；材质初始值用 `Material.DefaultImageId`，避免其异步加载完成时把常驻纹理销毁。
+- **canvas `ctx.filter = 'blur()'` 不保证进入纹理上传**：`getImageData()` 能读到模糊像素，GPU 纹理里却可能没有（且时有时无）。需要半影时不要用画布滤镜，改用「凸包核心 + 两层绕形心外扩的低透明度叠加」。
+- **Entity 的动态材质会重建几何**：材质属性一变，`GeometryVisualizer` 就重建图元，那一帧不画。高频更新的贴图应挂在静态 `Primitive` 上，只换 uniform。
+- **Cesium 倾斜视角下 `camera.zoomIn/zoomOut` 会把地球推出画面**：那是沿视线后退。改成以 `scene.globe.pick` 命中的屏幕中心点为锚点、沿「锚点→相机」改变距离（`useCesium.ts` 的 `zoomCesiumCamera`）。
+- **Cesium 自带的太阳与阴影对自定义几何无效**：`SunLight.directionWC` 恒为 `undefined`，`viewer.shadows` 对 entity 多边形不起作用。日照分析是自己按方位角/高度角算太阳向量，再在 fabric 材质里用 `czm_viewRotation * uSun` 自算漫反射，落影则用「底面四点 + 顶面四点投影取凸包」解析求出后烘进贴图。
+- **`RectangleGraphics.stRotation` 旋转的是整个 UV**：贴图会越界被 `REPEAT` 采样，台风图因此变成方框。要让贴图自转，必须用 `Primitive` + 三角/椭圆几何，在 shader 里转 UV，并把 `minificationFilter` 设为 `LINEAR` 关掉 mipmap。
+- **OpenLayers 9 移除了 `ol/sphere.circular()`**：点缓冲改为自己按「起点 + 方位角 + 距离」的球面大地线公式推 256 边形（在 Web Mercator 投影坐标里直接画圆，中高纬会明显拉伸失真）；线缓冲用相邻段的**平均法向**做 miter 平移（并 clamp miter 系数）+ 端点半圆帽；面积与长度取 `ol/sphere` 的 `getArea` / `getLength` 球面真值。
+- **底图选型**：CARTO basemaps 已强制要求 API Key（返回「API KEY REQUIRED」水印瓦片），OSM 官方瓦片对非规范客户端返回 403。本项目统一使用 Esri ArcGIS Online 公开服务：无需 Token，且响应头带 `Access-Control-Allow-Origin: *`，Cesium 才能把瓦片当纹理用。
+- **Three.js `Reflector.material` 类型上是 `Material`**：想改 uniforms 需要 `as THREE.ShaderMaterial` 断言。
+- **阴影贴图的光锥必须覆盖整个场景**：`fwd` / `back` 范围不够会把远端几何裁掉、影子整段消失；自阴影摩尔纹（acne）用「沿法线偏移采样点」的 slope-scaled bias 压制，比加常量偏移更能压住斜面上的条纹。
+- **GPGPU 粒子会聚成球壳**：每个粒子的刚度要在速度纹理的 w 通道里随机化，否则所有粒子同步运动，看起来像一层壳。
+
+## 说明与限制
+
+- 需要联网：底图瓦片来自 Esri 公开服务，`ModelLoad` 示例引用的 glTF 模型为外部 URL；`Tiles3D` 使用的是 `public/3dtiles/` 下的本地瓦片集，可离线运行。
+- 示例中的点位、轨迹、气象、建筑等数据均为**程序化合成**（固定随机种子），用于演示算法与渲染，不代表真实业务数据。
+- 项目定位是学习与参考：代码以「可读、可拆、可拷」为第一目标，未做通用组件抽象与生产级错误兜底。
+
+## 技术栈
+
+Vue 3 · TypeScript · Pinia · Vue Router · Vite · Cesium 1.118 · Three.js 0.160 · OpenLayers 9 · highlight.js
+
+## 许可
+
+[MIT License](LICENSE) © 2026 jycao2 —— 代码可自由使用、修改与分发（包括商业用途），只需保留版权声明。
+
+需要注意：底图瓦片来自 Esri ArcGIS Online 公开服务，示例中的 glTF 模型引用自外部 URL，二者遵循各自的使用条款，不包含在本项目的 MIT 授权范围内。
