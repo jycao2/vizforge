@@ -28,7 +28,8 @@
 
 - **Demo 地址**：https://jycao2.github.io/vizforge/ （GitHub Pages，纯静态托管）
 - **自动部署**：`.github/workflows/deploy.yml`。**每次推送到 `main`** 都会自动跑一次 `npm ci` → `vue-tsc` 类型检查 → `vite build` → 部署到 Pages；也可以在仓库的 Actions 页面手动触发。类型检查不通过就不会部署，不会把坏掉的版本推上线。
-- **换仓库名时**：同步修改 `vite.config.ts` 里的 `REPO_NAME`。Pages 的站点路径是 `https://<用户名>.github.io/<仓库名>/`，构建产物的 `base` 必须与之保持一致，否则资源 404。
+- **换仓库名 / 换域名无需改配置**：构建时用的是相对 `base`（`./`），页面里所有资源都相对 `index.html` 解析。因为本项目是 hash 路由的 SPA，页面路径恒为 `/<仓库名>/index.html`，所以同一份产物放在任何子路径下都能跑。用自定义域名（站点在根路径）时同样无需改动。
+- **为什么不用 `/<仓库名>/` 作为 base**：`vite-plugin-cesium` 会把 Cesium 静态资源拷到 `outDir + base + '/cesium'`；若 base 是 `/vizforge/`，资源就落到 `dist/vizforge/cesium/`，而 Pages 把上传的 `dist` 根映射成 `/vizforge/`，浏览器请求的 `/vizforge/cesium/Cesium.js` 实际找的是 `dist/cesium/` —— 404。相对 base 下资源落到 `dist/cesium/`，正好命中。
 - **首次启用**：仓库 Settings → Pages → Source 选择 **GitHub Actions**（只需设置一次）。
 
 ## 快速开始
