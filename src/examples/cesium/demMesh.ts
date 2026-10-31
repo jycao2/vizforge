@@ -183,17 +183,19 @@ export function buildSkirtGeometry(dem: DEM, exag = 1, hOffset = 0, skirtDepth =
   for (let s = 0; s < m; s++) {
     const b = border[s]
     const hTop = (b.h - dem.min) * exag + dem.min + hOffset
+    // 周长参数化坐标 x（沿墙走），y 留给纵向：上缘 0、下缘 1，材质里做层理与向下变暗
+    const t = s / m
     // 上缘
     Cesium.Cartesian3.fromDegrees(b.lon, b.lat, hTop, undefined, tmp)
     positions.set([tmp.x, tmp.y, tmp.z], s * 6)
     Cesium.Ellipsoid.WGS84.geodeticSurfaceNormal(tmp, nrm)
     normals.set([nrm.x, nrm.y, nrm.z], s * 6)
-    st.set([b.u, b.v], s * 4)
+    st.set([t, 0], s * 4)
     // 下缘（垂直下落 skirtDepth）
     Cesium.Cartesian3.fromDegrees(b.lon, b.lat, hTop - skirtDepth, undefined, tmp)
     positions.set([tmp.x, tmp.y, tmp.z], s * 6 + 3)
     normals.set([nrm.x, nrm.y, nrm.z], s * 6 + 3)
-    st.set([b.u, b.v], s * 4 + 2)
+    st.set([t, 1], s * 4 + 2)
   }
   let p = 0
   for (let s = 0; s < m; s++) {
@@ -223,7 +225,7 @@ export function buildSkirtGeometry(dem: DEM, exag = 1, hOffset = 0, skirtDepth =
   })
 }
 
-/** 裙边侧壁材质：深色岩层断面，带一点纵向明暗（st.y 从上缘渐暗到下缘） */
+/** 裙边侧壁材质：岩层断面——水平层理 + 越往下越暗，读起来像「切开的山体」 */
 export function makeSkirtMaterial(): Cesium.Material {
   return new Cesium.Material({
     fabric: {
@@ -231,9 +233,13 @@ export function makeSkirtMaterial(): Cesium.Material {
       source: `
         czm_material czm_getMaterial(czm_materialInput materialInput) {
           czm_material m = czm_getDefaultMaterial(materialInput);
-          // 层理：沿周向的明暗条带，模拟岩层节理
-          float band = 0.85 + 0.12 * sin(materialInput.st.y * 240.0);
-          m.diffuse = vec3(0.27, 0.23, 0.18) * band;
+          vec2 uv = materialInput.st;
+          // 水平层理：沿周长方向轻微起伏 + 纵向多条暗带（模拟岩层/土层）
+          float strata = 0.86 + 0.1 * sin(uv.y * 46.0 + sin(uv.x * 26.0) * 1.6);
+          // 自上而下逐渐变暗，给侧壁一点体积感
+          float depth = mix(1.0, 0.42, smoothstep(0.0, 1.0, uv.y));
+          vec3 rock = mix(vec3(0.30, 0.25, 0.19), vec3(0.20, 0.17, 0.13), uv.y);
+          m.diffuse = rock * strata * depth;
           m.alpha = 1.0;
           return m;
         }`,

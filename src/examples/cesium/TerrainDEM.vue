@@ -371,7 +371,8 @@ onMounted(() => {
   applyBasemap(currentBasemap.value)
   const scene = viewer.scene
   scene.globe.enableLighting = false
-  scene.highDynamicRange = true
+  // 不开 highDynamicRange：HDR 会启用 czm_tonemapping 分支，部分驱动/软件回退下
+  // 该 fragment shader 编译失败，整页黑屏并弹「Rendering has stopped」。
 
   stopTerrain = enableTerrainScene(viewer)
   rebuildDem()

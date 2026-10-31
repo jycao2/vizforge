@@ -146,12 +146,15 @@ function balance() {
     }
     return net
   }
+  // 净方量随设计标高单调递减：net > 0（挖多于填）说明标高还可再抬 → lo 上移。
+  // 之前写反（net>0 时收 hi），净值一旦为负就一路把 lo 推到上界，结果跳到 dem.max+60。
   for (let it = 0; it < 60; it++) {
     const mid = (lo + hi) / 2
-    if (evalNet(mid) > 0) hi = mid
-    else lo = mid
+    if (evalNet(mid) > 0) lo = mid
+    else hi = mid
   }
-  baseH.value = Math.round(((lo + hi) / 2) * 100) / 100
+  const balanced = (lo + hi) / 2
+  baseH.value = Math.round(Cesium.Math.clamp(balanced, 30, 95) * 100) / 100
 }
 
 /* ---------------- 着色 ---------------- */

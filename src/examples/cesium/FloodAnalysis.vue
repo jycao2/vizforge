@@ -427,8 +427,8 @@ function tick(now: number) {
 
 /* ---------------- 视角 ---------------- */
 const home = {
-  destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.135, 21000),
-  orientation: { heading: 0, pitch: Cesium.Math.toRadians(-48), roll: 0 },
+  destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.1607, 13000),
+  orientation: { heading: 0, pitch: Cesium.Math.toRadians(-36), roll: 0 },
 }
 const { zoomIn, zoomOut, reset, toggleFullscreen } = useCesiumView(() => viewer, () => home)
 const { current: currentBasemap, apply: applyBasemap } = useCesiumBasemap(() => viewer, 'imagery')

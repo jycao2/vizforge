@@ -296,8 +296,8 @@ function pickUV(winPos: Cesium.Cartesian2): [number, number] | null {
 
 /* ---------------- 视角 ---------------- */
 const home = {
-  destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.095, 15500),
-  orientation: { heading: 0, pitch: Cesium.Math.toRadians(-50), roll: 0 },
+  destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.1265, 11000),
+  orientation: { heading: 0, pitch: Cesium.Math.toRadians(-38), roll: 0 },
 }
 const { zoomIn, zoomOut, reset, toggleFullscreen } = useCesiumView(() => viewer, () => home)
 const { current: currentBasemap, apply: applyBasemap } = useCesiumBasemap(() => viewer, 'imagery')
