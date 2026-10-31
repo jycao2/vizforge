@@ -282,19 +282,35 @@ export function makeImageMaterial(
 export function makeTextureUploader(uniformName = 'image') {
   let seq = 0
   let live: ImageBitmap | null = null
+  /**
+   * 回收旧位图必须延后：Cesium 是在下一次 render 里才把 uniform 的 ImageBitmap
+   * 上传成纹理，如果在换帧那一刻就 close()，Material.update 会拿到一个宽度为 0
+   * 的已释放位图，直接抛 `DeveloperError: Expected width to be greater than 0`
+   * （实测：播放动画 + 切到卷帘对比时必现，整页渲染中断）。
+   */
+  const retire = (b: ImageBitmap | null) => {
+    if (!b) return
+    setTimeout(() => {
+      try {
+        b.close()
+      } catch {
+        /* 已释放 */
+      }
+    }, 1500)
+  }
   return {
     upload(mat: Cesium.Material | null, canvas: HTMLCanvasElement) {
       if (!mat) return
       const mine = ++seq
       createImageBitmap(canvas).then((bmp) => {
         if (mine !== seq) {
-          bmp.close()
+          bmp.close() // 从未挂到 uniform 上，可以立即释放
           return
         }
         const old = live
         live = bmp
         mat.uniforms[uniformName] = bmp
-        old?.close()
+        retire(old)
       })
     },
     dispose() {

@@ -272,16 +272,23 @@ function applyFrame() {
 /* ---------------- 播放 ---------------- */
 let raf = 0
 let last = 0
+let frameAcc = 0
 function tick(now: number) {
   if (playing.value) {
-    if (!last) last = now
+    // 同 FloodAnalysis：帧号要按「未取整的累计值」推进，否则每帧只加 0.02 期，
+    // Math.round 之后永远回到同一期，播放看起来完全没反应。
+    if (!last) {
+      last = now
+      frameAcc = frameIdx.value
+    }
     const dt = Math.min((now - last) / 1000, 0.2)
     last = now
-    let next = frameIdx.value + dt * speed.value
-    if (next >= YEARS.length - 0.001) next = 0
-    frameIdx.value = Math.round(next)
+    frameAcc += dt * speed.value
+    if (frameAcc >= YEARS.length - 0.001) frameAcc = 0
+    frameIdx.value = Math.floor(frameAcc)
   } else {
     last = 0
+    frameAcc = frameIdx.value
   }
   raf = requestAnimationFrame(tick)
 }

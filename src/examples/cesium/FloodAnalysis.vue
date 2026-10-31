@@ -411,16 +411,26 @@ function refresh() {
 /* ---------------- 水位动画 ---------------- */
 let raf = 0
 let last = 0
+/**
+ * 播放水位上涨。
+ * 注意：增量必须累加到一个"未取整"的浮点量上——直接把 level.value（已四舍五入到 0.1m）
+ * 当累加基准时，每帧只涨 2.4*0.016≈0.04m，round 回去永远是同一个值，动画会卡死不动。
+ */
+let levelAcc = 0
 function tick(now: number) {
   if (playing.value) {
-    if (!last) last = now
+    if (!last) {
+      last = now
+      levelAcc = level.value
+    }
     const dt = Math.min((now - last) / 1000, 0.1)
     last = now
-    let lv = level.value + riseRate.value * dt
-    if (lv > dem.max) lv = dem.min + 5
-    level.value = Math.round(lv * 10) / 10
+    levelAcc += riseRate.value * dt
+    if (levelAcc > dem.max) levelAcc = dem.min + 5
+    level.value = Math.round(levelAcc * 10) / 10
   } else {
     last = 0
+    levelAcc = level.value
   }
   raf = requestAnimationFrame(tick)
 }

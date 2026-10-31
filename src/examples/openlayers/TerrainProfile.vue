@@ -108,6 +108,8 @@ const profStat = ref({ max: 0, min: 0, climb: 0, drop: 0, maxSlope: 0 })
 function sampleLine(coords3857: Coordinate[]): Sample[] {
   const out: Sample[] = []
   let dist = 0
+  let prevX = Number.NaN
+  let prevY = Number.NaN
   for (let i = 0; i < SAMPLE_N; i++) {
     const f = i / (SAMPLE_N - 1)
     const segF = f * (coords3857.length - 1)
@@ -116,10 +118,12 @@ function sampleLine(coords3857: Coordinate[]): Sample[] {
     const x = coords3857[si][0] + (coords3857[si + 1][0] - coords3857[si][0]) * t
     const y = coords3857[si][1] + (coords3857[si + 1][1] - coords3857[si][1]) * t
     if (i > 0) {
-      const dx = x - coords3857[si][0]
-      const dy = y - coords3857[si][1]
-      dist += Math.hypot(dx, dy) // 近似：投影平面长度（中纬度误差 <0.5%）
+      // 累加的是「本采样点 ← 上一个采样点」的距离。
+      // 原写法减的是「本段起点」，同一段内会重复累加 f*segLen，320 个点能把 9km 放大成 800km。
+      dist += Math.hypot(x - prevX, y - prevY)
     }
+    prevX = x
+    prevY = y
     const [lon, lat] = toLonLat([x, y])
     const u = (lon - dem.lon0) / (dem.lon1 - dem.lon0)
     const v = (dem.lat1 - lat) / (dem.lat1 - dem.lat0)

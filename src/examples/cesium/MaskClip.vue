@@ -109,7 +109,8 @@ function bakeSDF() {
       const u = px / (TEX - 1)
       const xm = (u - 0.5) * SPAN_X
       const dist = sdShape(xm, ym)
-      const enc = 0.5 + 0.5 * Math.max(-1, Math.min(1, dist / RANGE))
+      // sdShape 是标准 SDF 约定（内部为负）；shader 里 d>0 代表内部，故这里取反再编码
+      const enc = 0.5 - 0.5 * Math.max(-1, Math.min(1, dist / RANGE))
       const t = (py * TEX + px) << 2
       d[t] = enc * 255
       d[t + 1] = enc * 255
@@ -260,7 +261,8 @@ function applyTerrainClip() {
     // 保证法线指向多边形"外侧"（与 指向中心 的方向相反）
     Cesium.Cartesian3.subtract(mid, center, e1)
     if (Cesium.Cartesian3.dot(nrm, e1) < 0) Cesium.Cartesian3.negate(nrm, nrm)
-    if (!keepInside) Cesium.Cartesian3.negate(nrm, nrm)
+    // 法线朝外时 Cesium 裁掉的是矩形内部；「保留内部」需要法线朝内
+    if (keepInside) Cesium.Cartesian3.negate(nrm, nrm)
     planes.push(new Cesium.ClippingPlane(Cesium.Cartesian3.clone(nrm), -Cesium.Cartesian3.dot(nrm, a)))
   }
   if (!clipCollection) {
@@ -281,8 +283,14 @@ function refresh(rebuild = false) {
     pending = false
     bakeSDF()
     updateArea()
-    if (rebuild || !mat) buildPrimitive()
-    else uploader.upload(mat, canvas)
+    if (rebuild || !mat) {
+      buildPrimitive()
+    } else {
+      // uMode / uFeather 不参与 SDF 烘焙，只换贴图不会更新它们，必须显式同步
+      mat.uniforms.uMode = MODES.findIndex((m) => m.id === mode.value)
+      mat.uniforms.uFeather = feather.value
+      uploader.upload(mat, canvas)
+    }
     applyTerrainClip()
   })
 }
@@ -310,9 +318,11 @@ function pickUV(winPos: Cesium.Cartesian2): [number, number] | null {
 }
 
 /* ---------------- 视角 ---------------- */
+// 机位：视线落点必须落在掩膜中心。俯角 -55° 时地面命中距离 = 高度 / tan55°，
+// 之前 dLat 只给了 0.055（约 6km），而 34km 高度要 23.8km 才命中，掩膜被推到画面右下角。
 const home = {
-  destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.055, 34000),
-  orientation: { heading: 0, pitch: Cesium.Math.toRadians(-58), roll: 0 },
+  destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.2138, 34000),
+  orientation: { heading: 0, pitch: Cesium.Math.toRadians(-55), roll: 0 },
 }
 const { zoomIn, zoomOut, reset, toggleFullscreen } = useCesiumView(() => viewer, () => home)
 const { current: currentBasemap, apply: applyBasemap } = useCesiumBasemap(() => viewer, 'imagery')

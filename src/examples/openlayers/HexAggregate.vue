@@ -92,20 +92,20 @@ const showCount = ref(true)
 function pixelToHex(x: number, y: number, size: number): [number, number] {
   const q = ((Math.sqrt(3) / 3) * x - (1 / 3) * y) / size
   const r = ((2 / 3) * y) / size
-  // 立方坐标取整
-  let cx = q
-  let cz = r
-  let cy = -cx - cz
-  const rx = Math.round(cx)
-  const ry = Math.round(cy)
-  const rz = Math.round(cz)
-  const dx = Math.abs(rx - cx)
-  const dy = Math.abs(ry - cy)
-  const dz = Math.abs(rz - cz)
-  if (dx > dy && dx > dz) cx = -ry - rz
-  else if (dy > dz) cy = -rx - rz
-  else cz = -rx - ry
-  return [cx, cz]
+  const s = -q - r
+  // 立方坐标三向取整，再把偏差最大的那一维用另外两维反推修正
+  let rx = Math.round(q)
+  let ry = Math.round(s)
+  let rz = Math.round(r)
+  const dx = Math.abs(rx - q)
+  const dy = Math.abs(ry - s)
+  const dz = Math.abs(rz - r)
+  if (dx > dy && dx > dz) rx = -ry - rz
+  else if (dy > dz) ry = -rx - rz
+  else rz = -rx - ry
+  // 返回修正后的整数轴坐标。原实现返回的是未取整的浮点 cx/cz，
+  // 于是每个点都落进独一无二的格子，聚合结果永远「一点一格、峰值 1」。
+  return [rx, rz]
 }
 
 /** 轴坐标 → 中心像素（pointy-top） */
