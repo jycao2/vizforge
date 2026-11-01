@@ -7,34 +7,82 @@ import { provideMapHost } from '@/components/mapHost'
 export interface HomeView {
   destination: Cesium.Cartesian3
   orientation?: Cesium.HeadingPitchRollValues
+  /**
+   * 内容包围球：给了它，复位与缩放都以「内容」为锚点，而不是以屏幕中心射线为准。
+   * 手写 destination 只能保证「相机在哪」，保证不了「内容在画面中间」——
+   * 场景一多，总有几个偏到边角，缩放两下更是直接推出去。
+   */
+  focus?: {
+    center: Cesium.Cartesian3
+    radius: number
+    /** 复位时的相机距离，缺省 radius * 2.6 */
+    range?: number
+  }
+}
+
+/**
+ * 以焦点为中心算相机位姿。
+ *
+ * 不用 flyToBoundingSphere：它的 range 语义（距球心 / 距球面）与手写 destination 对不上，
+ * 而且焦点取地心时 ENU 坐标系会退化。这里直接用「ENU 视线方向反推相机位置」，可控且可解释。
+ */
+function focusPose(home: HomeView, range: number) {
+  const f = home.focus!
+  const heading = home.orientation?.heading ?? 0
+  const pitch = home.orientation?.pitch ?? Cesium.Math.toRadians(-35)
+  const enu = Cesium.Transforms.eastNorthUpToFixedFrame(f.center)
+  const local = new Cesium.Cartesian3(
+    Math.cos(pitch) * Math.sin(heading),
+    Math.cos(pitch) * Math.cos(heading),
+    Math.sin(pitch),
+  )
+  const view = Cesium.Matrix4.multiplyByPointAsVector(enu, local, new Cesium.Cartesian3())
+  const dest = Cesium.Cartesian3.subtract(
+    f.center,
+    Cesium.Cartesian3.multiplyByScalar(view, range, new Cesium.Cartesian3()),
+    new Cesium.Cartesian3(),
+  )
+  return { destination: dest, orientation: { heading, pitch, roll: 0 } }
+}
+
+/** 以内容为锚点取景（内容必然居中） */
+function viewFocus(viewer: Viewer, home: HomeView, range: number, duration: number) {
+  if (!home.focus) return false
+  // 页面可能在 onMounted 里起了飞行动画，不掐掉它会在 focus 之后把相机再拽走
+  viewer.camera.cancelFlight()
+  const pose = focusPose(home, range)
+  if (duration > 0) viewer.camera.flyTo({ ...pose, duration })
+  else viewer.camera.setView(pose)
+  return true
 }
 
 /**
  * 以「屏幕中心的地物点」为锚点缩放。
  * 直接用 camera.zoomIn/zoomOut 是沿视线后退，倾斜视角下地球会越缩越偏出画面；
  * 这里保持锚点不动、沿「锚点→相机」方向改变距离，地球始终居中。
+ *
+ * 注意两个会「缩一下就没」的坑：
+ *  1. globe.pick 在瓦片没加载完时返回 undefined，此时若拿「相机正下方地面」当锚点，
+ *     视线中心与锚点根本不是同一个点，一缩放内容就整体滑出画面 —— 宁可不动；
+ *  2. 距离不设上下限，缩到底就是贴地/钻地，放到底地球只剩一个点。
  */
 export function zoomCesiumCamera(viewer: Viewer, scale: number) {
   const cam = viewer.camera
   const scene = viewer.scene
-  const h = cam.positionCartographic.height
-  const targetH = Cesium.Math.clamp(h * scale, 8, 2.4e7)
-
+  const canvas = scene.canvas
   const ray = new Cesium.Ray(cam.positionWC, cam.directionWC)
-  const hit = scene.globe.pick(ray, scene)
+
+  // 依次尝试：视线与地形求交 → 视线与椭球求交；都失败（看向天空）就不动
   const target =
-    hit ??
-    Cesium.Cartesian3.fromRadians(
-      cam.positionCartographic.longitude,
-      cam.positionCartographic.latitude,
-      0,
+    scene.globe.pick(ray, scene) ??
+    cam.pickEllipsoid(
+      new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2),
+      scene.globe.ellipsoid,
     )
+  if (!target) return
 
   const dist = Cesium.Cartesian3.distance(cam.positionWC, target)
-  // 无遮挡时按高度比例推拉；命中地面时按当前距离比例，避免贴地时跳变
-  const next = hit
-    ? Cesium.Math.clamp(dist * scale, 6, 2.4e7)
-    : Cesium.Math.clamp(targetH, 6, 2.4e7)
+  const next = Cesium.Math.clamp(dist * scale, 25, 2e7)
 
   const dir = Cesium.Cartesian3.normalize(
     Cesium.Cartesian3.subtract(cam.positionWC, target, new Cesium.Cartesian3()),
@@ -45,9 +93,10 @@ export function zoomCesiumCamera(viewer: Viewer, scale: number) {
     Cesium.Cartesian3.multiplyByScalar(dir, next, new Cesium.Cartesian3()),
     new Cesium.Cartesian3(),
   )
-  cam.setView({
+  cam.flyTo({
     destination: pos,
     orientation: { heading: cam.heading, pitch: cam.pitch, roll: cam.roll },
+    duration: 0.45,
   })
 }
 
@@ -59,18 +108,81 @@ export function useCesiumView(getViewer: () => Viewer | null, getHome: () => Hom
     return v ? { kind: 'cesium', instance: v } : null
   })
 
-  function zoomIn() {
-    const v = getViewer()
-    if (v) zoomCesiumCamera(v, 1 / 1.6)
+  // 仅开发期：给巡检脚本一个取景评估入口（生产构建里会被摇掉）
+  if (import.meta.env.DEV) {
+    ;(window as unknown as Record<string, unknown>).__vzViewer = getViewer
   }
-  function zoomOut() {
-    const v = getViewer()
-    if (v) zoomCesiumCamera(v, 1.6)
+
+  /** 页面的 home 可能依赖还没算出来的数据（如排污口坐标、tileset 包围球），取不到就当没有 */
+  function safeHome(): HomeView | null {
+    try {
+      return getHome()
+    } catch {
+      return null
+    }
   }
+
+  /** 有 focus 时围绕内容缩放：range 相对当前距离，并夹在 [0.9r, 9r] */
+  function zoomBy(ratio: number) {
+    const v = getViewer()
+    if (!v) return
+    const home = safeHome()
+    if (!home) return
+    if (home.focus) {
+      const { center, radius, range } = home.focus
+      const dist = Cesium.Cartesian3.distance(v.camera.positionWC, center)
+      const next = Cesium.Math.clamp(
+        dist * ratio,
+        // 下限别贴着包围球：再往里就是穿模和满屏马赛克
+        Math.max(radius * 1.3, 30),
+        radius * 9,
+      )
+      if (range !== undefined && dist > range * 6) {
+        // 相机被拖得太远时，向 home 距离收敛，避免一次次缩放都在"太空"里
+        viewFocus(v, home, Math.max(range, radius * 1.6), 0.5)
+        return
+      }
+      viewFocus(v, home, next, 0.5)
+      return
+    }
+    zoomCesiumCamera(v, ratio)
+  }
+
+  const zoomIn = () => zoomBy(1 / 1.6)
+  const zoomOut = () => zoomBy(1.6)
+
   function reset() {
-    const home = getHome()
-    getViewer()?.camera.flyTo({ ...home, duration: 1.2 })
+    const v = getViewer()
+    if (!v) return
+    const home = safeHome()
+    if (!home) return
+    const f = home.focus
+    if (f) {
+      viewFocus(v, home, f.range ?? f.radius * 2.6, 1.1)
+      return
+    }
+    v.camera.flyTo({ ...home, duration: 1.2 })
   }
+
+  /**
+   * 首次进入：如果页面给了 focus，就按包围球取景（覆盖页面里那句 setView(home)）。
+   * 轮询而不是 onMounted，是因为 viewer 在各页 onMounted 里才创建，时机不统一。
+   */
+  {
+    // 等页面把数据准备好（有的 focus 要等地形采样 / 瓦片加载），最多等 6 秒
+    let tries = 0
+    const tick = () => {
+      const v = getViewer()
+      const home = v && !v.isDestroyed() ? safeHome() : null
+      if (v && home && home.focus) {
+        viewFocus(v, home, home.focus.range ?? home.focus.radius * 2.6, 0)
+        return
+      }
+      if (tries++ < 360) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }
+
   async function toggleFullscreen(el?: HTMLElement) {
     if (!el) return
     if (document.fullscreenElement) await document.exitFullscreen()

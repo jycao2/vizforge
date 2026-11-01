@@ -33,6 +33,11 @@ const LAT = 29.912
 const home = {
   destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.00181, 110),
   orientation: { heading: 0, pitch: Cesium.Math.toRadians(-14), roll: 0 },
+  focus: {
+    center: Cesium.Cartesian3.fromDegrees(LON, LAT, 40),
+    radius: 240,
+    range: 360,
+  },
 }
 
 const { zoomIn, zoomOut, reset, toggleFullscreen } = useCesiumView(

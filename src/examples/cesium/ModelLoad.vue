@@ -4,7 +4,7 @@ import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import MapControls from '@/components/MapControls.vue'
 import { CESIUM_BASEMAPS, DEFAULT_BASEMAP, applyCesiumBasemap } from './basemaps'
-import { zoomCesiumCamera, useCesiumHost } from './useCesium'
+import { useCesiumView } from './useCesium'
 
 const wrapRef = ref<HTMLDivElement>()
 const container = ref<HTMLDivElement>()
@@ -12,8 +12,6 @@ const currentBasemap = ref(DEFAULT_BASEMAP)
 const loading = ref(true)
 const error = ref('')
 let viewer: Cesium.Viewer | null = null
-
-useCesiumHost(() => viewer)
 
 let baseLayer: Cesium.ImageryLayer | null = null
 let destroyed = false
@@ -32,17 +30,11 @@ const LAT = 39.907
 const HOME = {
   destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.02, 2500),
   orientation: { heading: 0, pitch: Cesium.Math.toRadians(-40), roll: 0 },
+  focus: { center: Cesium.Cartesian3.fromDegrees(LON, LAT), radius: 1500, range: 5200 },
 }
 
-function zoomIn() {
-  if (viewer) zoomCesiumCamera(viewer, 1 / 1.6)
-}
-function zoomOut() {
-  if (viewer) zoomCesiumCamera(viewer, 1.6)
-}
-function reset() {
-  viewer?.camera.flyTo({ ...HOME, duration: 1.2 })
-}
+const { zoomIn, zoomOut, reset } = useCesiumView(() => viewer, () => HOME)
+
 async function toggleFullscreen() {
   const el = wrapRef.value
   if (!el) return

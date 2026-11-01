@@ -451,6 +451,12 @@ function homeView() {
   return {
     destination: Cesium.Cartesian3.fromDegrees(slon, slat - 0.054, 5400),
     orientation: { heading: Cesium.Math.toRadians(-8), pitch: Cesium.Math.toRadians(-42), roll: 0 },
+    // 焦点跟着排污口走：羽流只有 1~2km，缩放时不能把镜头锚到几百公里外
+    focus: {
+      center: Cesium.Cartesian3.fromDegrees(slon, slat, waterLevel),
+      radius: 1800,
+      range: 5600,
+    },
   }
 }
 const { zoomIn, zoomOut, toggleFullscreen } = useCesiumView(() => viewer, () => homeView())

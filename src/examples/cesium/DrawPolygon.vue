@@ -4,7 +4,7 @@ import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import MapControls from '@/components/MapControls.vue'
 import { CESIUM_BASEMAPS, DEFAULT_BASEMAP, applyCesiumBasemap } from './basemaps'
-import { zoomCesiumCamera, useCesiumHost } from './useCesium'
+import { useCesiumView } from './useCesium'
 
 const wrapRef = ref<HTMLDivElement>()
 const container = ref<HTMLDivElement>()
@@ -12,8 +12,6 @@ const currentBasemap = ref(DEFAULT_BASEMAP)
 const count = ref(0)
 const tip = ref('左键添加顶点，右键结束绘制')
 let viewer: Cesium.Viewer | null = null
-
-useCesiumHost(() => viewer)
 
 let baseLayer: Cesium.ImageryLayer | null = null
 
@@ -30,7 +28,15 @@ let dynamicEntity: Cesium.Entity | null = null
 const HOME = {
   destination: Cesium.Cartesian3.fromDegrees(116.391, 39.907, 220000),
   orientation: { heading: 0, pitch: Cesium.Math.toRadians(-70), roll: 0 },
+  // 绘制类示例留出足够画布：包围球按 60km 算，缩放不会一下退到看不清
+  focus: {
+    center: Cesium.Cartesian3.fromDegrees(116.391, 39.907),
+    radius: 60000,
+    range: 232000,
+  },
 }
+
+const { zoomIn, zoomOut, reset: resetView } = useCesiumView(() => viewer, () => HOME)
 
 function pickGround(pos: Cesium.Cartesian2): Cesium.Cartesian3 | null {
   if (!viewer) return null
@@ -77,15 +83,6 @@ function finish() {
   resetDrawing()
 }
 
-function zoomIn() {
-  if (viewer) zoomCesiumCamera(viewer, 1 / 1.6)
-}
-function zoomOut() {
-  if (viewer) zoomCesiumCamera(viewer, 1.6)
-}
-function resetView() {
-  viewer?.camera.flyTo({ ...HOME, duration: 1.2 })
-}
 async function toggleFullscreen() {
   const el = wrapRef.value
   if (!el) return

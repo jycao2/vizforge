@@ -21,6 +21,12 @@ const home = {
     pitch: Cesium.Math.toRadians(-32),
     roll: 0,
   },
+  // 给了 focus：复位与缩放都锚在这块瓦片集上，不会把它推出画面
+  focus: {
+    center: Cesium.Cartesian3.fromDegrees(-75.6113, 40.042, 30),
+    radius: 90,
+    range: 520,
+  },
 }
 
 const { zoomIn, zoomOut, reset, toggleFullscreen } = useCesiumView(

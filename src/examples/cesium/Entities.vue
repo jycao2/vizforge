@@ -4,14 +4,12 @@ import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import MapControls from '@/components/MapControls.vue'
 import { CESIUM_BASEMAPS, DEFAULT_BASEMAP, applyCesiumBasemap } from './basemaps'
-import { zoomCesiumCamera, useCesiumHost } from './useCesium'
+import { useCesiumView } from './useCesium'
 
 const wrapRef = ref<HTMLDivElement>()
 const container = ref<HTMLDivElement>()
 const currentBasemap = ref(DEFAULT_BASEMAP)
 let viewer: Cesium.Viewer | null = null
-
-useCesiumHost(() => viewer)
 
 let baseLayer: Cesium.ImageryLayer | null = null
 
@@ -26,17 +24,15 @@ const LAT = 39.907
 const HOME = {
   destination: Cesium.Cartesian3.fromDegrees(LON, LAT, 900000),
   orientation: { heading: 0, pitch: Cesium.Math.toRadians(-60), roll: 0 },
+  // 要素从北京铺到 117.6°E，跨度 ~100km；按包围球取景，复位/缩放都不会把它们甩出去
+  focus: {
+    center: Cesium.Cartesian3.fromDegrees(LON + 0.6, LAT + 0.18),
+    radius: 70000,
+    range: 150000,
+  },
 }
 
-function zoomIn() {
-  if (viewer) zoomCesiumCamera(viewer, 1 / 1.6)
-}
-function zoomOut() {
-  if (viewer) zoomCesiumCamera(viewer, 1.6)
-}
-function reset() {
-  viewer?.camera.flyTo({ ...HOME, duration: 1.2 })
-}
+const { zoomIn, zoomOut, reset } = useCesiumView(() => viewer, () => HOME)
 async function toggleFullscreen() {
   const el = wrapRef.value
   if (!el) return
@@ -113,7 +109,7 @@ onMounted(() => {
     },
   })
 
-  viewer.camera.flyTo({ ...HOME, duration: 1.5 })
+  reset()
 })
 
 onBeforeUnmount(() => {

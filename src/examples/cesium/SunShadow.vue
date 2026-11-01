@@ -319,6 +319,11 @@ const home = {
     pitch: -Math.atan2(532, 622),
     roll: 0,
   },
+  focus: {
+    center: Cesium.Cartesian3.fromDegrees(LON, LAT, 40),
+    radius: 470,
+    range: 820,
+  },
 }
 
 const { zoomIn, zoomOut, reset, toggleFullscreen } = useCesiumView(

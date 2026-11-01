@@ -375,6 +375,12 @@ function schedule(kind: 'tex' | 'plane') {
 const home = {
   destination: Cesium.Cartesian3.fromDegrees(LON, LAT - 0.024, 3900),
   orientation: { heading: Cesium.Math.toRadians(-18), pitch: Cesium.Math.toRadians(-41), roll: 0 },
+  // 场地 2.4km 见方，焦点取场地中心
+  focus: {
+    center: Cesium.Cartesian3.fromDegrees(LON, LAT),
+    radius: SPAN * 0.72,
+    range: 4300,
+  },
 }
 const { zoomIn, zoomOut, reset, toggleFullscreen } = useCesiumView(() => viewer, () => home)
 const { current: currentBasemap, apply: applyBasemap } = useCesiumBasemap(() => viewer, 'imagery')
