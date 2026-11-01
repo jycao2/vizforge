@@ -211,6 +211,13 @@ export const useExamplesStore = defineStore('examples', {
               '二维平流-扩散-降解方程：半拉格朗日回溯对流 + 五点差分扩散 + 指数衰减，风生流由风向/风速驱动；太湖真实地形定水域，浓度场烘成纹理后用贴地图元分类渲染，排污口可点击迁移，取水口浓度超标即报警。',
             file: 'cesium/WaterPollution.vue',
           },
+          {
+            id: 'smart-city',
+            title: '智慧城市运营',
+            description:
+              '路网车流 + IoT 感知 + 告警联动：520 辆车用 PointPrimitiveCollection 批量推进（单 draw call），主干路网 clampToGround 贴地；六类设备带脉冲光环与实时读数，超阈值自动入告警队列，KPI 面板展示在线车辆/平均车速/拥堵路段/设备告警。',
+            file: 'cesium/SmartCity.vue',
+          },
         ],
       },
       {

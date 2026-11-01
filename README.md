@@ -8,7 +8,7 @@
 
 **在线体验（GitHub Pages，无需安装）：https://jycao2.github.io/vizforge/**
 
-一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **90 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
+一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **91 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
 
 每个示例页右上角都有「查看源码」按钮，点开就是该示例的完整实现，可一键复制——它不是一个封装好的组件库，而是一本可以直接拆开看的、跑得起来的代码手册。从 Cesium 的 DEM 地形/挖填方/淹没/可视域/时序影像/掩膜裁剪，到 Three.js 智慧工厂/海上风电场，再到 OpenLayers 的地形剖面/路网等时圈/IDW 插值/蜂窝聚合，以及体积云光线步进、GPGPU 粒子流场、SDF 光线步进、阴影贴图，都能在这里直接读源码。
 
@@ -20,7 +20,7 @@
 
 [![首页](docs/screenshots/home.png)](https://jycao2.github.io/vizforge/)
 
-**首页**：四条技术栈 90 个示例的总览入口，点卡片进入对应示例。
+**首页**：四条技术栈 91 个示例的总览入口，点卡片进入对应示例。
 
 | [Cesium · 台风路径与风圈](https://jycao2.github.io/vizforge/#/e/cesium/typhoon) | [Cesium · 日照阴影分析](https://jycao2.github.io/vizforge/#/e/cesium/sun-shadow) |
 | --- | --- |
@@ -37,6 +37,8 @@
 | [![掩膜裁剪](docs/screenshots/cesium-mask-clip.png)](https://jycao2.github.io/vizforge/#/e/cesium/mask-clip) | [![三维推箱子](docs/screenshots/three-sokoban.png)](https://jycao2.github.io/vizforge/#/e/three/sokoban) |
 | **[Three.js · 百万级城市](https://jycao2.github.io/vizforge/#/e/three/mega-city)** | **[Cesium · 水污染扩散](https://jycao2.github.io/vizforge/#/e/cesium/water-pollution)** |
 | [![百万级城市](docs/screenshots/three-mega-city.png)](https://jycao2.github.io/vizforge/#/e/three/mega-city) | [![水污染扩散](docs/screenshots/cesium-water-pollution.png)](https://jycao2.github.io/vizforge/#/e/cesium/water-pollution) |
+| **[Cesium · 智慧城市运营](https://jycao2.github.io/vizforge/#/e/cesium/smart-city)** |  |
+| [![智慧城市运营](docs/screenshots/cesium-smart-city.png)](https://jycao2.github.io/vizforge/#/e/cesium/smart-city) |  |
 
 更多：时序影像、可视域、掩膜裁剪、地形剖面、IDW 插值、蜂窝聚合、缓冲区分析、阴影贴图等另外 68 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
 
@@ -44,7 +46,7 @@
 
 ## 特性
 
-- **90 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
+- **91 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
 - **源码即看即拷**：基于 Vite 的 `import.meta.glob(..., { query: '?raw' })` 直接读取组件原始文本，配合 highlight.js 高亮，改完代码刷新即同步，不存在「文档和实现对不上」。
 - **零后端、免 Token**：纯前端静态站点，不依赖 Cesium Ion Token，不依赖任何自建服务。
 - **统一交互外壳**：每个示例自带参数面板（滑杆 / 开关 / 按钮）与画布工具条（放大、缩小、复位、全屏），切换示例时资源完整释放，长时间浏览不会泄漏。
@@ -94,7 +96,7 @@ npm run preview
 
 ## 示例清单
 
-### Cesium（26 个）
+### Cesium（27 个）
 
 三维地球与地理空间可视化引擎，基于 WebGL 的地球渲染。
 
@@ -127,6 +129,7 @@ npm run preview
 | 时序影像产品 | 2001–2025 多期影像 + 时间轴播放 + 逐期指标曲线（建成区 / 植被 / 水域），支持与基准期 2001 卷帘对比，着色器内分割。 | `src/examples/cesium/TimeSeriesImagery.vue` |
 | 掩膜裁剪 | SDF 带符号距离场实现影像掩膜的羽化 / 描边 / 挖除，三种形状可调；叠加 globe.clippingPlanes 裁剪平面真实切掉地形。 | `src/examples/cesium/MaskClip.vue` |
 | 水污染扩散 | 二维平流-扩散-降解方程：半拉格朗日回溯对流 + 五点差分扩散 + 指数衰减，风生流由风向/风速驱动；太湖真实地形定水域，浓度场烘成纹理后用贴地图元分类渲染，排污口可点击迁移，取水口浓度超标即报警。 | `src/examples/cesium/WaterPollution.vue` |
+| 智慧城市运营 | 路网车流 + IoT 感知 + 告警联动：520 辆车用 PointPrimitiveCollection 批量推进（单 draw call），主干路网 clampToGround 贴地；六类设备带脉冲光环与实时读数，超阈值自动入告警队列，KPI 面板展示在线车辆/平均车速/拥堵路段/设备告警。 | `src/examples/cesium/SmartCity.vue` |
 
 ### Three.js（26 个）
 
