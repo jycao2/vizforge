@@ -204,6 +204,13 @@ export const useExamplesStore = defineStore('examples', {
               'SDF 带符号距离场实现影像掩膜的羽化 / 描边 / 挖除，三种形状可调；叠加 globe.clippingPlanes 裁剪平面真实切掉地形。',
             file: 'cesium/MaskClip.vue',
           },
+          {
+            id: 'water-pollution',
+            title: '水污染扩散',
+            description:
+              '二维平流-扩散-降解方程：半拉格朗日回溯对流 + 五点差分扩散 + 指数衰减，风生流由风向/风速驱动；太湖真实地形定水域，浓度场烘成纹理后用贴地图元分类渲染，排污口可点击迁移，取水口浓度超标即报警。',
+            file: 'cesium/WaterPollution.vue',
+          },
         ],
       },
       {
