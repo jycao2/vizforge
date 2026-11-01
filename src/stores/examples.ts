@@ -470,6 +470,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'openlayers/Wmts.vue',
           },
           {
+            id: 'choropleth',
+            title: '分级统计专题图',
+            description:
+              '同一份人口数据，等间距 / 分位数 / Jenks 自然断点三种分级方法并排对比，3~7 级可调，图例显示每级区间与要素数；换一种分级，同一份数据会画出完全不同的图 —— 专题图的结论取决于分级方式。',
+            file: 'openlayers/Choropleth.vue',
+          },
+          {
             id: 'modify',
             title: '要素编辑',
             description: 'Modify + Snap 交互：拖拽顶点或边线修改几何，要素之间自动吸附。',

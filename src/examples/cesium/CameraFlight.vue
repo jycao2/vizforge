@@ -3,9 +3,13 @@ import { onMounted, onBeforeUnmount, ref } from 'vue'
 import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import { createCesiumImagery, DEFAULT_BASEMAP } from './basemaps'
+import { useCesiumHost } from './useCesium'
 
 const container = ref<HTMLDivElement>()
 let viewer: Cesium.Viewer | null = null
+
+useCesiumHost(() => viewer)
+
 let timer: number | undefined
 let index = 0
 

@@ -4,13 +4,16 @@ import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import MapControls from '@/components/MapControls.vue'
 import { CESIUM_BASEMAPS, DEFAULT_BASEMAP, applyCesiumBasemap } from './basemaps'
-import { zoomCesiumCamera } from './useCesium'
+import { zoomCesiumCamera, useCesiumHost } from './useCesium'
 
 const wrapRef = ref<HTMLDivElement>()
 const container = ref<HTMLDivElement>()
 const currentBasemap = ref(DEFAULT_BASEMAP)
 const info = ref('在地球上点击任意位置，拾取经纬度与高度')
 let viewer: Cesium.Viewer | null = null
+
+useCesiumHost(() => viewer)
+
 let baseLayer: Cesium.ImageryLayer | null = null
 let handler: Cesium.ScreenSpaceEventHandler | null = null
 

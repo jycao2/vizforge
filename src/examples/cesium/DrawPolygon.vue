@@ -4,7 +4,7 @@ import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import MapControls from '@/components/MapControls.vue'
 import { CESIUM_BASEMAPS, DEFAULT_BASEMAP, applyCesiumBasemap } from './basemaps'
-import { zoomCesiumCamera } from './useCesium'
+import { zoomCesiumCamera, useCesiumHost } from './useCesium'
 
 const wrapRef = ref<HTMLDivElement>()
 const container = ref<HTMLDivElement>()
@@ -12,6 +12,9 @@ const currentBasemap = ref(DEFAULT_BASEMAP)
 const count = ref(0)
 const tip = ref('左键添加顶点，右键结束绘制')
 let viewer: Cesium.Viewer | null = null
+
+useCesiumHost(() => viewer)
+
 let baseLayer: Cesium.ImageryLayer | null = null
 
 function setBasemap(id: string) {

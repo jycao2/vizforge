@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import type { BasemapOption } from '@/types/map'
+import { useMapHost, type MapHostKind } from './mapHost'
+import type { MeasureHandle, MeasureKind } from './measureShared'
 
 const props = withDefaults(
   defineProps<{
@@ -23,6 +25,75 @@ const emit = defineEmits<{
 const rootRef = ref<HTMLDivElement>()
 const panelOpen = ref(false)
 
+/**
+ * 量测：地图实例由页面脚手架 provide 进来（见 mapHost.ts），
+ * 所以 40 多个示例不用各写一遍接入代码。
+ * 两个实现按需动态加载 —— 否则 OL 页面会把 Cesium 打进同一个 chunk，反之亦然。
+ */
+const host = useMapHost()
+const kind = ref<MapHostKind | null>(null)
+const measuring = ref<MeasureKind | null>(null)
+const readout = ref('')
+const readoutSub = ref('')
+let handle: MeasureHandle | null = null
+
+const MEASURES: Array<{ id: MeasureKind; tip: string; label: string }> = [
+  { id: 'line', tip: '测距', label: '测距' },
+  { id: 'area', tip: '测面', label: '测面' },
+  { id: 'height', tip: '测高（三维）', label: '测高' },
+]
+
+// 地图在父组件 onMounted 里才创建，比本组件晚 —— 先轮询拿类型，拿到就定型
+let kindTimer = 0
+let kindTries = 0
+
+function probeKind() {
+  const k = host?.()?.kind ?? null
+  if (k) {
+    kind.value = k
+    if (kindTimer) clearInterval(kindTimer)
+  }
+}
+
+function onMeasureUpdate(u: { text: string; detail?: string; done: boolean }) {
+  readout.value = u.text
+  readoutSub.value = u.detail ?? ''
+}
+
+async function toggleMeasure(id: MeasureKind) {
+  if (measuring.value === id) {
+    stopMeasure()
+    return
+  }
+  stopMeasure()
+  const h = host?.()
+  if (!h) return
+  measuring.value = id
+  readout.value = '准备测量…'
+  readoutSub.value = ''
+
+  if (h.kind === 'ol') {
+    if (id === 'height') {
+      // 二维没有地形高程，不给测高
+      measuring.value = null
+      return
+    }
+    const { startOlMeasure } = await import('@/examples/openlayers/measureOl')
+    handle = startOlMeasure(h.instance as never, id, onMeasureUpdate)
+  } else {
+    const { startCesiumMeasure } = await import('@/examples/cesium/measureCesium')
+    handle = startCesiumMeasure(h.instance as never, id, onMeasureUpdate)
+  }
+}
+
+function stopMeasure() {
+  handle?.dispose()
+  handle = null
+  measuring.value = null
+  readout.value = ''
+  readoutSub.value = ''
+}
+
 function togglePanel() {
   panelOpen.value = !panelOpen.value
 }
@@ -36,16 +107,28 @@ function onDocPointerDown(ev: PointerEvent) {
   if (el && !el.contains(ev.target as Node)) panelOpen.value = false
 }
 function onKeydown(ev: KeyboardEvent) {
-  if (ev.key === 'Escape') panelOpen.value = false
+  if (ev.key === 'Escape') {
+    panelOpen.value = false
+    if (measuring.value) stopMeasure()
+  }
 }
 
 onMounted(() => {
   document.addEventListener('pointerdown', onDocPointerDown, true)
   window.addEventListener('keydown', onKeydown)
+  probeKind()
+  if (!kind.value) {
+    kindTimer = window.setInterval(() => {
+      probeKind()
+      if (++kindTries > 24) clearInterval(kindTimer)
+    }, 80)
+  }
 })
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', onDocPointerDown, true)
   window.removeEventListener('keydown', onKeydown)
+  if (kindTimer) clearInterval(kindTimer)
+  stopMeasure()
 })
 </script>
 
@@ -76,6 +159,40 @@ onBeforeUnmount(() => {
         </svg>
       </button>
 
+      <!-- 量测：二维给测距/测面，三维再加测高 -->
+      <template v-if="kind">
+        <span class="dock-sep"></span>
+        <button
+          v-for="m in MEASURES.filter((x) => kind === 'cesium' || x.id !== 'height')"
+          :key="m.id"
+          class="tool"
+          :class="{ on: measuring === m.id }"
+          :data-tip="m.tip"
+          :aria-label="m.tip"
+          @click="toggleMeasure(m.id)"
+        >
+          <svg v-if="m.id === 'line'" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M4.6 17.6 9.4 9.4l5.1 4 4.9-8.3" />
+            <circle cx="4.6" cy="17.6" r="1.5" />
+            <circle cx="19.4" cy="5.1" r="1.5" />
+          </svg>
+          <svg
+            v-else-if="m.id === 'area'"
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            aria-hidden="true"
+          >
+            <path d="M5 15.6 8.6 5.4h7.9l3.4 9-6.9 4.4z" />
+            <path d="M8.6 5.4 13 18.8M5 15.6 19.9 14.4" opacity="0.42" />
+          </svg>
+          <svg v-else viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M4 19.4h16M4 4.6h16" opacity="0.45" />
+            <path d="M12 16.6V7.4M9.4 10 12 7.4l2.6 2.6M9.4 14 12 16.6l2.6-2.6" />
+          </svg>
+        </button>
+      </template>
+
       <template v-if="basemaps.length">
         <span class="dock-sep"></span>
         <button
@@ -93,6 +210,17 @@ onBeforeUnmount(() => {
         </button>
       </template>
     </div>
+
+    <Transition name="measure-pop">
+      <div v-if="measuring" class="measure-readout">
+        <span class="mr-tag">{{ measuring === 'line' ? '测距' : measuring === 'area' ? '测面' : '测高' }}</span>
+        <div class="mr-body">
+          <b>{{ readout }}</b>
+          <span v-if="readoutSub">{{ readoutSub }}</span>
+        </div>
+        <button class="mr-close" aria-label="结束测量" @click="stopMeasure">×</button>
+      </div>
+    </Transition>
 
     <Transition name="bm-pop">
       <div v-if="panelOpen && basemaps.length" class="bm-panel" role="dialog" aria-label="底图选择">
@@ -230,6 +358,82 @@ onBeforeUnmount(() => {
   height: 1px;
   margin: 3px 0;
   background: rgba(255, 255, 255, 0.12);
+}
+
+/* ---- 量测读数条（工具栏左侧） ---- */
+.measure-readout {
+  position: absolute;
+  top: 0;
+  right: calc(100% + 10px);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 9px;
+  border-radius: 10px;
+  background: rgba(20, 27, 38, 0.94);
+  border: 1px solid rgba(79, 157, 255, 0.42);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(10px) saturate(1.15);
+  white-space: nowrap;
+}
+.mr-tag {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(79, 157, 255, 0.2);
+  color: #8cc4ff;
+  font-size: 10px;
+  flex: none;
+}
+.mr-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.mr-body b {
+  color: #eaf2fb;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+}
+.mr-body span {
+  color: #8fa4b9;
+  font-size: 9.5px;
+  line-height: 1.35;
+  margin-top: 1px;
+}
+.mr-close {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #a9bccf;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+.mr-close:hover {
+  background: rgba(224, 97, 75, 0.24);
+  color: #ffb4a4;
+}
+
+.measure-pop-enter-active,
+.measure-pop-leave-active {
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s ease;
+  transform-origin: right top;
+}
+.measure-pop-enter-from,
+.measure-pop-leave-to {
+  opacity: 0;
+  transform: translateX(8px);
 }
 
 /* ---- 底图面板 ---- */

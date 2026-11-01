@@ -12,6 +12,7 @@ import { getArea, getLength } from 'ol/sphere'
 import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style'
 import type { DrawEvent } from 'ol/interaction/Draw'
 import MapControls from '@/components/MapControls.vue'
+import { useOlHost } from './useOl'
 import { OL_BASEMAPS, DEFAULT_BASEMAP, createOlSource, applyOlBasemap } from './basemaps'
 
 const wrapRef = ref<HTMLDivElement>()
@@ -20,6 +21,9 @@ const currentBasemap = ref(DEFAULT_BASEMAP)
 const results = ref<string[]>([])
 const activeTool = ref<'' | 'LineString' | 'Polygon'>('')
 let map: Map | null = null
+
+useOlHost(() => map)
+
 let baseLayer: TileLayer<TileSource> | null = null
 let draw: Draw | null = null
 let source: VectorSource | null = null

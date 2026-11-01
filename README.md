@@ -8,7 +8,7 @@
 
 **在线体验（GitHub Pages，无需安装）：https://jycao2.github.io/vizforge/**
 
-一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **94 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
+一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **95 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
 
 每个示例页右上角都有「查看源码」按钮，点开就是该示例的完整实现，可一键复制——它不是一个封装好的组件库，而是一本可以直接拆开看的、跑得起来的代码手册。从 Cesium 的 DEM 地形/挖填方/淹没/可视域/时序影像/掩膜裁剪，到 Three.js 智慧工厂/海上风电场，再到 OpenLayers 的地形剖面/路网等时圈/IDW 插值/蜂窝聚合，以及体积云光线步进、GPGPU 粒子流场、SDF 光线步进、阴影贴图，都能在这里直接读源码。
 
@@ -20,7 +20,7 @@
 
 [![首页](docs/screenshots/home.png)](https://jycao2.github.io/vizforge/)
 
-**首页**：四条技术栈 94 个示例的总览入口，点卡片进入对应示例。
+**首页**：四条技术栈 95 个示例的总览入口，点卡片进入对应示例。
 
 | [Cesium · 台风路径与风圈](https://jycao2.github.io/vizforge/#/e/cesium/typhoon) | [Cesium · 日照阴影分析](https://jycao2.github.io/vizforge/#/e/cesium/sun-shadow) |
 | --- | --- |
@@ -41,6 +41,8 @@
 | [![智慧城市运营](docs/screenshots/cesium-smart-city.png)](https://jycao2.github.io/vizforge/#/e/cesium/smart-city) | [![GeoServer 图层服务](docs/screenshots/ol-geoserver.png)](https://jycao2.github.io/vizforge/#/e/openlayers/geoserver) |
 | **[OpenLayers · WFS 矢量图层](https://jycao2.github.io/vizforge/#/e/openlayers/wfs)** | **[OpenLayers · WMTS 切片服务](https://jycao2.github.io/vizforge/#/e/openlayers/wmts)** |
 | [![WFS 矢量图层](docs/screenshots/ol-wfs.png)](https://jycao2.github.io/vizforge/#/e/openlayers/wfs) | [![WMTS 切片服务](docs/screenshots/ol-wmts.png)](https://jycao2.github.io/vizforge/#/e/openlayers/wmts) |
+| **[OpenLayers · 分级统计专题图](https://jycao2.github.io/vizforge/#/e/openlayers/choropleth)** |  |
+| [![分级统计专题图](docs/screenshots/ol-choropleth.png)](https://jycao2.github.io/vizforge/#/e/openlayers/choropleth) |  |
 
 更多：时序影像、可视域、掩膜裁剪、地形剖面、IDW 插值、蜂窝聚合、缓冲区分析、阴影贴图等另外 68 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
 
@@ -48,7 +50,7 @@
 
 ## 特性
 
-- **94 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
+- **95 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
 - **源码即看即拷**：基于 Vite 的 `import.meta.glob(..., { query: '?raw' })` 直接读取组件原始文本，配合 highlight.js 高亮，改完代码刷新即同步，不存在「文档和实现对不上」。
 - **零后端、免 Token**：纯前端静态站点，不依赖 Cesium Ion Token，不依赖任何自建服务。
 - **统一交互外壳**：每个示例自带参数面板（滑杆 / 开关 / 按钮）与画布工具条（放大、缩小、复位、全屏），切换示例时资源完整释放，长时间浏览不会泄漏。
@@ -167,7 +169,7 @@ npm run preview
 | 三维推箱子 | 可玩的三维 Sokoban：方向键/WASD 推箱，木箱带金属包角与木纹、地砖逐块倒角、目标环呼吸脉动；角色行走有起伏、转身插值，拖拽旋转视角、滚轮缩放，含撤销/重来与 4 张开箱即玩的关卡（BFS 校验可解）。 | `src/examples/three/Sokoban.vue` |
 | 百万级城市 | 程序化生成 10 万~100 万栋楼，实测三种渲染方式的差异：分块 InstancedMesh（视锥剔除逐块生效）/ 单块实例化（draw call=1 但不可剔除）/ 逐实例 Mesh（draw call 爆炸）；实时显示 FPS、draw call、三角面与生成耗时。 | `src/examples/three/MegaCity.vue` |
 
-### OpenLayers（25 个）
+### OpenLayers（26 个）
 
 功能强大的二维地图库，支持瓦片、矢量与丰富的交互。
 
@@ -185,6 +187,7 @@ npm run preview
 | GeoServer 图层服务 | 完整走一遍 GIS 服务链路：GetCapabilities 能力文档、5 个图层的 WMS GetMap 出图（浏览器内光栅化，离线可用）、CQL_FILTER 属性过滤、GetFeatureInfo 点查、WFS GetFeature 导出 GeoJSON；面板实时显示瓦片数/耗时/要素数，并给出可直接对拍真实 GeoServer 的标准请求 URL。 | `src/examples/openlayers/GeoServer.vue` |
 | WFS 矢量图层 | 要素级服务：GetFeature 拉 GeoJSON 并按属性符号化（人口分级 / 等级线宽 / PM2.5 色阶），点选看属性表；改属性、拖几何、删要素、点图新增后走 WFS-T Transaction 写回服务端，计数器与地图同步刷新；附 DescribeFeatureType 字段定义。 | `src/examples/openlayers/Wfs.vue` |
 | WMTS 切片服务 | 切片与实时渲染的实测对比：同一组图层，WMTS 模式命中预切缓存（亚毫秒，绿色柱），WMS 直出模式每次现场渲染（数毫秒，橙色柱）；展示 TileMatrixSet / TileMatrix / TileRow / TileCol 语义，实时命中率、缓存张数与最近 40 次瓦片耗时分布。 | `src/examples/openlayers/Wmts.vue` |
+| 分级统计专题图 | 同一份人口数据，等间距 / 分位数 / Jenks 自然断点三种分级方法并排对比，3~7 级可调，图例显示每级区间与要素数；换一种分级，同一份数据会画出完全不同的图 —— 专题图的结论取决于分级方式。 | `src/examples/openlayers/Choropleth.vue` |
 | 要素编辑 | Modify + Snap 交互：拖拽顶点或边线修改几何，要素之间自动吸附。 | `src/examples/openlayers/Modify.vue` |
 | 框选查询 | Shift + 拖拽拉框，统计并高亮框内所有要素。 | `src/examples/openlayers/Select.vue` |
 | 卷帘对比 | 通过 precompose/postcompose 裁剪画布，实现左右底图卷帘对比。 | `src/examples/openlayers/Swipe.vue` |

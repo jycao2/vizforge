@@ -6,12 +6,16 @@ import TileLayer from 'ol/layer/Tile'
 import type TileSource from 'ol/source/Tile'
 import { fromLonLat } from 'ol/proj'
 import MapControls from '@/components/MapControls.vue'
+import { useOlHost } from './useOl'
 import { OL_BASEMAPS, DEFAULT_BASEMAP, createOlSource, applyOlBasemap } from './basemaps'
 
 const wrapRef = ref<HTMLDivElement>()
 const container = ref<HTMLDivElement>()
 const currentBasemap = ref(DEFAULT_BASEMAP)
 let map: Map | null = null
+
+useOlHost(() => map)
+
 let baseLayer: TileLayer<TileSource> | null = null
 
 const CENTER = fromLonLat([116.391, 39.907])

@@ -13,12 +13,16 @@ import { Style, Circle as CircleStyle, Fill, Stroke } from 'ol/style'
 import type { Map as OlMap, MapEvent } from 'ol'
 import type { FeatureLike } from 'ol/Feature'
 import MapControls from '@/components/MapControls.vue'
+import { useOlHost } from './useOl'
 import { OL_BASEMAPS, DEFAULT_BASEMAP, createOlSource, applyOlBasemap } from './basemaps'
 
 const wrapRef = ref<HTMLDivElement>()
 const container = ref<HTMLDivElement>()
 const currentBasemap = ref(DEFAULT_BASEMAP)
 let map: OlMap | null = null
+
+useOlHost(() => map)
+
 let baseLayer: TileLayer<TileSource> | null = null
 let markerLayer: VectorLayer<Feature<Point>> | undefined
 

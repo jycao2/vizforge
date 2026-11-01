@@ -11,6 +11,7 @@ import { Point } from 'ol/geom'
 import { fromLonLat } from 'ol/proj'
 import type { FeatureLike } from 'ol/Feature'
 import MapControls from '@/components/MapControls.vue'
+import { useOlHost } from './useOl'
 import { OL_BASEMAPS, createOlSource, applyOlBasemap } from './basemaps'
 
 const wrapRef = ref<HTMLDivElement>()
@@ -18,6 +19,9 @@ const container = ref<HTMLDivElement>()
 // 热力图默认配深色底图，对比更强
 const currentBasemap = ref('dark')
 let map: Map | null = null
+
+useOlHost(() => map)
+
 let baseLayer: TileLayer<TileSource> | null = null
 
 function setBasemap(id: string) {

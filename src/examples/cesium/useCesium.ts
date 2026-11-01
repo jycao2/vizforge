@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import * as Cesium from 'cesium'
 import type { Viewer } from 'cesium'
 import { applyCesiumBasemap, DEFAULT_BASEMAP } from './basemaps'
+import { provideMapHost } from '@/components/mapHost'
 
 export interface HomeView {
   destination: Cesium.Cartesian3
@@ -52,6 +53,12 @@ export function zoomCesiumCamera(viewer: Viewer, scale: number) {
 
 /** 视图操作：放大 / 缩小 / 复位 / 全屏，供 MapControls 直接绑定 */
 export function useCesiumView(getViewer: () => Viewer | null, getHome: () => HomeView) {
+  // 把 viewer 暴露给工具栏（测距/测面/测高），页面无需额外传参
+  provideMapHost(() => {
+    const v = getViewer()
+    return v ? { kind: 'cesium', instance: v } : null
+  })
+
   function zoomIn() {
     const v = getViewer()
     if (v) zoomCesiumCamera(v, 1 / 1.6)
@@ -70,6 +77,17 @@ export function useCesiumView(getViewer: () => Viewer | null, getHome: () => Hom
     else await el.requestFullscreen()
   }
   return { zoomIn, zoomOut, reset, toggleFullscreen }
+}
+
+/**
+ * 只把 viewer 交给工具栏（量测用），不接管相机。
+ * 给那些自己实现缩放的示例用，一行接入。
+ */
+export function useCesiumHost(getViewer: () => Viewer | null): void {
+  provideMapHost(() => {
+    const v = getViewer()
+    return v ? { kind: 'cesium', instance: v } : null
+  })
 }
 
 /** 底图切换：维护当前底图 id 与图层引用 */

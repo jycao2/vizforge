@@ -11,12 +11,16 @@ import { Point } from 'ol/geom'
 import { fromLonLat } from 'ol/proj'
 import { Style, Circle as CircleStyle, Fill, Stroke } from 'ol/style'
 import MapControls from '@/components/MapControls.vue'
+import { useOlHost } from './useOl'
 import { OL_BASEMAPS, DEFAULT_BASEMAP, createOlSource, applyOlBasemap } from './basemaps'
 
 const wrapRef = ref<HTMLDivElement>()
 const container = ref<HTMLDivElement>()
 const currentBasemap = ref(DEFAULT_BASEMAP)
 let map: Map | null = null
+
+useOlHost(() => map)
+
 let baseLayer: TileLayer<TileSource> | null = null
 
 function setBasemap(id: string) {
