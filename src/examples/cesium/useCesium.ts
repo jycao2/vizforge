@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { onBeforeUnmount, ref } from 'vue'
 import * as Cesium from 'cesium'
 import type { Viewer } from 'cesium'
 import { applyCesiumBasemap, DEFAULT_BASEMAP } from './basemaps'
@@ -66,7 +66,7 @@ function viewFocus(viewer: Viewer, home: HomeView, range: number, duration: numb
  *     视线中心与锚点根本不是同一个点，一缩放内容就整体滑出画面 —— 宁可不动；
  *  2. 距离不设上下限，缩到底就是贴地/钻地，放到底地球只剩一个点。
  */
-export function zoomCesiumCamera(viewer: Viewer, scale: number) {
+export function zoomCesiumCamera(viewer: Viewer, scale: number, smooth = true) {
   const cam = viewer.camera
   const scene = viewer.scene
   const canvas = scene.canvas
@@ -93,11 +93,13 @@ export function zoomCesiumCamera(viewer: Viewer, scale: number) {
     Cesium.Cartesian3.multiplyByScalar(dir, next, new Cesium.Cartesian3()),
     new Cesium.Cartesian3(),
   )
-  cam.flyTo({
+  const view = {
     destination: pos,
     orientation: { heading: cam.heading, pitch: cam.pitch, roll: cam.roll },
-    duration: 0.45,
-  })
+  }
+  // 滚轮是连续事件，用 flyTo 会一路排队；按钮点击才需要补间
+  if (smooth) cam.flyTo({ ...view, duration: 0.45 })
+  else cam.setView(view)
 }
 
 /** 视图操作：放大 / 缩小 / 复位 / 全屏，供 MapControls 直接绑定 */
@@ -122,8 +124,8 @@ export function useCesiumView(getViewer: () => Viewer | null, getHome: () => Hom
     }
   }
 
-  /** 有 focus 时围绕内容缩放：range 相对当前距离，并夹在 [0.9r, 9r] */
-  function zoomBy(ratio: number) {
+  /** 有 focus 时围绕内容缩放：range 相对当前距离，并夹在 [1.3r, 9r] */
+  function zoomBy(ratio: number, smooth = true) {
     const v = getViewer()
     if (!v) return
     const home = safeHome()
@@ -139,13 +141,13 @@ export function useCesiumView(getViewer: () => Viewer | null, getHome: () => Hom
       )
       if (range !== undefined && dist > range * 6) {
         // 相机被拖得太远时，向 home 距离收敛，避免一次次缩放都在"太空"里
-        viewFocus(v, home, Math.max(range, radius * 1.6), 0.5)
+        viewFocus(v, home, Math.max(range, radius * 1.6), smooth ? 0.5 : 0)
         return
       }
-      viewFocus(v, home, next, 0.5)
+      viewFocus(v, home, next, smooth ? 0.5 : 0)
       return
     }
-    zoomCesiumCamera(v, ratio)
+    zoomCesiumCamera(v, ratio, smooth)
   }
 
   const zoomIn = () => zoomBy(1 / 1.6)
@@ -164,6 +166,41 @@ export function useCesiumView(getViewer: () => Viewer | null, getHome: () => Hom
     v.camera.flyTo({ ...home, duration: 1.2 })
   }
 
+  /* ---------------- 滚轮缩放：接管掉 Cesium 的默认实现 ---------------- */
+  /**
+   * Cesium 的默认滚轮缩放是「沿视线方向后退」（camera.zoomOut → moveBackward）。
+   * 视线只是一条擦过球面的直线，相机沿它越退越远，球心与视线的夹角就越大 ——
+   * 倾斜视角下滚几下，地球整颗飘出画面。这里换成和按钮相同的锚点缩放：
+   * 锚点（屏幕中心命中的地面点）在屏幕上不动，只改「锚点→相机」的距离。
+   */
+  let attached: Viewer | null = null
+
+  const onWheel = (e: WheelEvent) => {
+    if (!attached || attached.isDestroyed()) return
+    e.preventDefault()
+    // 触控板一次能发几百的 deltaY，夹一下免得一下跳到底
+    const k = e.deltaMode === 1 ? 0.05 : 0.0015
+    const ratio = Math.exp(Cesium.Math.clamp(e.deltaY, -240, 240) * k)
+    zoomBy(ratio, false)
+  }
+
+  function attachWheel() {
+    const v = getViewer()
+    if (!v || v.isDestroyed() || v === attached) return
+    attached = v
+    // 关掉默认缩放（顺带也关掉了会「后退」的双击缩放），改由下面自己处理
+    v.scene.screenSpaceCameraController.enableZoom = false
+    v.scene.canvas.addEventListener('wheel', onWheel, { passive: false })
+  }
+
+  onBeforeUnmount(() => {
+    if (attached && !attached.isDestroyed()) {
+      attached.scene.canvas.removeEventListener('wheel', onWheel)
+      attached.scene.screenSpaceCameraController.enableZoom = true
+    }
+    attached = null
+  })
+
   /**
    * 首次进入：如果页面给了 focus，就按包围球取景（覆盖页面里那句 setView(home)）。
    * 轮询而不是 onMounted，是因为 viewer 在各页 onMounted 里才创建，时机不统一。
@@ -172,6 +209,7 @@ export function useCesiumView(getViewer: () => Viewer | null, getHome: () => Hom
     // 等页面把数据准备好（有的 focus 要等地形采样 / 瓦片加载），最多等 6 秒
     let tries = 0
     const tick = () => {
+      attachWheel()
       const v = getViewer()
       const home = v && !v.isDestroyed() ? safeHome() : null
       if (v && home && home.focus) {
