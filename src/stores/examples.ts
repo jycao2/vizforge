@@ -232,6 +232,13 @@ export const useExamplesStore = defineStore('examples', {
               '四个朝外的竖直裁剪面取交集挖出 400 m 基坑，井壁与坑底用 WallGraphics / RectangleGraphics 补（Cesium 只切面不留壁），土壁用条纹材质分层；也可切到单平面剖切看断面。760 m 管网逐顶点采样真实高程再减埋深，检查井为圆柱；地下模式用 translucency 透视地表。',
             file: 'cesium/Excavation.vue',
           },
+          {
+            id: 'particles',
+            title: '粒子特效',
+            description:
+              '火炬（火核 + 火焰 + 黑烟三系统叠加）、喷泉（球形发射器）、烟羽（锥形发射器）三个场景：发射率 / 尺寸 / 生命期 / 风速实时可调，发射器可在圆形、球形、锥形、立方之间切换。重力走 updateCallback 手动积分（1.118 的 ParticleSystem 已无 gravity 选项），贴图由 canvas 径向渐变现场生成。',
+            file: 'cesium/Particles.vue',
+          },
         ],
       },
       {

@@ -8,7 +8,7 @@
 
 **在线体验（GitHub Pages，无需安装）：https://jycao2.github.io/vizforge/**
 
-一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **98 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
+一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **99 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
 
 每个示例页右上角都有「查看源码」按钮，点开就是该示例的完整实现，可一键复制——它不是一个封装好的组件库，而是一本可以直接拆开看的、跑得起来的代码手册。从 Cesium 的 DEM 地形/挖填方/淹没/可视域/时序影像/掩膜裁剪，到 Three.js 智慧工厂/海上风电场，再到 OpenLayers 的地形剖面/路网等时圈/IDW 插值/蜂窝聚合，以及体积云光线步进、GPGPU 粒子流场、SDF 光线步进、阴影贴图，都能在这里直接读源码。
 
@@ -20,7 +20,7 @@
 
 [![首页](docs/screenshots/home.png)](https://jycao2.github.io/vizforge/)
 
-**首页**：四条技术栈 98 个示例的总览入口，点卡片进入对应示例。
+**首页**：四条技术栈 99 个示例的总览入口，点卡片进入对应示例。
 
 | [Cesium · 台风路径与风圈](https://jycao2.github.io/vizforge/#/e/cesium/typhoon) | [Cesium · 日照阴影分析](https://jycao2.github.io/vizforge/#/e/cesium/sun-shadow) |
 | --- | --- |
@@ -43,18 +43,18 @@
 | [![WFS 矢量图层](docs/screenshots/ol-wfs.png)](https://jycao2.github.io/vizforge/#/e/openlayers/wfs) | [![WMTS 切片服务](docs/screenshots/ol-wmts.png)](https://jycao2.github.io/vizforge/#/e/openlayers/wmts) |
 | **[OpenLayers · 分级统计专题图](https://jycao2.github.io/vizforge/#/e/openlayers/choropleth)** | **[OpenLayers · 路网路径规划](https://jycao2.github.io/vizforge/#/e/openlayers/route-plan)** |
 | [![分级统计专题图](docs/screenshots/ol-choropleth.png)](https://jycao2.github.io/vizforge/#/e/openlayers/choropleth) | [![路网路径规划](docs/screenshots/ol-route-plan.png)](https://jycao2.github.io/vizforge/#/e/openlayers/route-plan) |
-| **[Cesium · 后期处理特效](https://jycao2.github.io/vizforge/#/e/cesium/post-processing)** |  |
-| [![后期处理特效](docs/screenshots/cesium-post-processing.png)](https://jycao2.github.io/vizforge/#/e/cesium/post-processing) |  |
-| **[Cesium · 地形剖切与地下管廊](https://jycao2.github.io/vizforge/#/e/cesium/excavation)** |  |
-| [![地形剖切与地下管廊](docs/screenshots/cesium-excavation.png)](https://jycao2.github.io/vizforge/#/e/cesium/excavation) |  |
+| **[Cesium · 后期处理特效](https://jycao2.github.io/vizforge/#/e/cesium/post-processing)** | **[Cesium · 地形剖切与地下管廊](https://jycao2.github.io/vizforge/#/e/cesium/excavation)** |
+| [![后期处理特效](docs/screenshots/cesium-post-processing.png)](https://jycao2.github.io/vizforge/#/e/cesium/post-processing) | [![地形剖切与地下管廊](docs/screenshots/cesium-excavation.png)](https://jycao2.github.io/vizforge/#/e/cesium/excavation) |
+| **[Cesium · 粒子特效](https://jycao2.github.io/vizforge/#/e/cesium/particles)** |  |
+| [![粒子特效](docs/screenshots/cesium-particles.png)](https://jycao2.github.io/vizforge/#/e/cesium/particles) |  |
 
-更多：时序影像、可视域、掩膜裁剪、地形剖面、IDW 插值、蜂窝聚合、缓冲区分析、阴影贴图等另外 66 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
+更多：时序影像、可视域、掩膜裁剪、地形剖面、IDW 插值、蜂窝聚合、缓冲区分析、阴影贴图等另外 68 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
 
 ---
 
 ## 特性
 
-- **98 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
+- **99 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
 - **源码即看即拷**：基于 Vite 的 `import.meta.glob(..., { query: '?raw' })` 直接读取组件原始文本，配合 highlight.js 高亮，改完代码刷新即同步，不存在「文档和实现对不上」。
 - **零后端、免 Token**：纯前端静态站点，不依赖 Cesium Ion Token，不依赖任何自建服务。
 - **统一交互外壳**：每个示例自带参数面板（滑杆 / 开关 / 按钮）与画布工具条（放大、缩小、复位、全屏），切换示例时资源完整释放，长时间浏览不会泄漏。
@@ -104,7 +104,7 @@ npm run preview
 
 ## 示例清单
 
-### Cesium（29 个）
+### Cesium（30 个）
 
 三维地球与地理空间可视化引擎，基于 WebGL 的地球渲染。
 
@@ -140,6 +140,7 @@ npm run preview
 | 智慧城市运营 | 路网车流 + IoT 感知 + 告警联动：520 辆车用 PointPrimitiveCollection 批量推进（单 draw call），主干路网 clampToGround 贴地；六类设备带脉冲光环与实时读数，超阈值自动入告警队列，KPI 面板展示在线车辆/平均车速/拥堵路段/设备告警。 | `src/examples/cesium/SmartCity.vue` |
 | 后期处理特效 | 全屏后期特效链：夜视 / 黑白 / 景深取自 PostProcessStageLibrary，描边（Sobel）/ 像素化 / 扫描线是自己写的 GLSL 片段着色器（colorTexture 即整帧，v_textureCoordinates 是屏幕 uv）；曝光段常驻打底，效果段按加入顺序串联，FXAA 可开关，景深依赖 WEBGL_depth_texture 不支持时按钮自动禁用。 | `src/examples/cesium/PostProcessing.vue` |
 | 地形剖切与地下管廊 | 四个朝外的竖直裁剪面取交集挖出 400 m 基坑，井壁与坑底用 WallGraphics / RectangleGraphics 补（Cesium 只切面不留壁），土壁用条纹材质分层；也可切到单平面剖切看断面。760 m 管网逐顶点采样真实高程再减埋深（clampToGround 会把管线贴回地表），检查井为圆柱；地下模式用 translucency 透视地表，此时必须关掉 depthTestAgainstTerrain。 | `src/examples/cesium/Excavation.vue` |
+| 粒子特效 | 火炬（火核 + 火焰 + 黑烟三系统叠加）、喷泉（球形发射器）、烟羽（锥形发射器）三个场景：发射率 / 尺寸 / 生命期 / 风速实时可调，发射器可在圆形、球形、锥形、立方之间切换。Cesium 1.118 的 ParticleSystem 已没有 gravity 选项，重力走 updateCallback 手动积分；贴图由 canvas 径向渐变现场生成，零外部资源。 | `src/examples/cesium/Particles.vue` |
 
 ### Three.js（26 个）
 
@@ -308,6 +309,8 @@ public/3dtiles/            3D Tiles 示例使用的本地瓦片集
 - **分析结果要「贴地」，不要自己搭一块悬空的块**：早期版本用「自建三角网 + 按场地高程整体抬高 + 垂直裙边」把分析块放到真实地形上，结果放大后必然露馅——块体像浮在地面的板，边缘出现竖向剖切面。正确做法是分开两件事：**计算用真实高程，渲染用贴地图元**。① 用 `Cesium.sampleTerrain`（65×65、层级 12，约 400ms）把真实地面高程采样进 DEM，分析的基底就是真实地形；② 结果纹理用 `GroundPrimitive` + `RectangleGeometry` + `MaterialAppearance`（`classificationType: TERRAIN`）分类渲染，Cesium 会把它贴在真实地表上，缩放/倾斜都不会分离。
 - **贴地图元必须带 alpha**：不透明的贴图在放大后就是一整块纯色，地面细节全被盖住。把分析色块的 alpha 写进 canvas（可见区 ~0.6、遮挡区 ~0.5、未覆盖 ~0.15），并给四周做 `smoothstep` 边缘羽化，矩形范围才会自然淡入地形，而不是「切一刀」。
 - **`GroundPrimitive` 同步构建要额外初始化**：`asynchronous: false` 时必须先 `await Cesium.GroundPrimitive.initializeTerrainHeights()`，否则抛 `DeveloperError`；保持默认异步构建最省事（首帧后出现）。
+- **Cesium 的粒子系统全靠 `clock` 推进**：`ParticleSystem` 用 `frameState.time` 的增量算 dt，而 Viewer 的 `clock.shouldAnimate` 默认是 `false`——时钟不走，dt 恒为 0，一颗粒子都不会发射，也不报错（`_particles` 长度为 0，只有贴图池看不出问题）。示例里第一句就是 `viewer.clock.shouldAnimate = true`。
+- **1.118 的 `ParticleSystem` 已经没有 `gravity` 选项**：重力要在 `updateCallback` 里自己积分（`velocity += g * dt`，position / velocity 都是世界坐标）。想要「垂直下落」得先求当地法线，直接写 `(0,0,-9.8)` 在赤道以外会歪成斜坡；热浮力就用负重力。
 - **地形自适应要先等服务就位**：`enableWorldTerrain` 是异步的，紧跟着采样海拔会拿到光滑椭球的 0 米。轮询 `viewer.terrainProvider instanceof ArcGISTiledElevationTerrainProvider` 之后再采样。
 - **Esri ImageServer 的 `identify` 接口返回的是概览金字塔值**（WorldDTM_OV256），10km 范围内可能恒为同一个数，不能用它判断局地起伏；要全精度就老老实实走 `sampleTerrainMostDetailed`。
 - **垂直拉伸（exag）必须为 1 的两种场景**：水面高程要与 DEM 判定精确一致（exag≠1 时水岸线对不上）；`pickUV` 这类射线步进拾取拿的是渲染后的世界坐标（exag≠1 时读数偏差可达数百米）。要立体感宁可换真实地形，别拉 z 轴。
