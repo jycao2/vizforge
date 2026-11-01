@@ -622,6 +622,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'webgl/TextureQuad.vue',
           },
           {
+            id: 'image-filter',
+            title: '图像滤镜链',
+            description:
+              '最高频的 WebGL 用法：图片当纹理，单趟片元着色器串起亮度 / 对比度 / 饱和度 / 色相 / 色调分离 / 暗角，全部实时可调。亮度按 Rec.709 权重算，饱和度与灰阶 mix，色相走 YIQ 旋转矩阵以保持亮度。',
+            file: 'webgl/ImageFilter.vue',
+          },
+          {
             id: 'cube-3d',
             title: '3D 立方体',
             description: '透视投影 + 深度测试，渲染持续旋转的彩色立方体。',
