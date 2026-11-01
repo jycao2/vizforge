@@ -296,6 +296,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'three/Instancing.vue',
           },
           {
+            id: 'pbr',
+            title: 'PBR 材质',
+            description:
+              'Cook-Torrance 直接光照：GGX 法线分布 + Smith 几何遮蔽 + Schlick 菲涅尔，能量守恒（反射掉的不能再参与漫反射）。上排金属、下排电介质，五种粗糙度横向对比——粗糙度只改高光形状，不改亮度。',
+            file: 'webgl/Pbr.vue',
+          },
+          {
             id: 'normal-map',
             title: '法线贴图',
             description:
@@ -634,6 +641,13 @@ export const useExamplesStore = defineStore('examples', {
             title: '纹理矩形',
             description: '用 Canvas 程序化生成纹理并贴到旋转矩形上。',
             file: 'webgl/TextureQuad.vue',
+          },
+          {
+            id: 'pbr',
+            title: 'PBR 材质',
+            description:
+              'Cook-Torrance 直接光照：GGX 法线分布 + Smith 几何遮蔽 + Schlick 菲涅尔，能量守恒（反射掉的不能再参与漫反射）。上排金属、下排电介质，五种粗糙度横向对比——粗糙度只改高光形状，不改亮度。',
+            file: 'webgl/Pbr.vue',
           },
           {
             id: 'normal-map',

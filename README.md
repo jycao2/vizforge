@@ -8,7 +8,7 @@
 
 **在线体验（GitHub Pages，无需安装）：https://jycao2.github.io/vizforge/**
 
-一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **104 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
+一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **105 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
 
 每个示例页右上角都有「查看源码」按钮，点开就是该示例的完整实现，可一键复制——它不是一个封装好的组件库，而是一本可以直接拆开看的、跑得起来的代码手册。从 Cesium 的 DEM 地形/挖填方/淹没/可视域/时序影像/掩膜裁剪，到 Three.js 智慧工厂/海上风电场，再到 OpenLayers 的地形剖面/路网等时圈/IDW 插值/蜂窝聚合，以及体积云光线步进、GPGPU 粒子流场、SDF 光线步进、阴影贴图，都能在这里直接读源码。
 
@@ -20,7 +20,7 @@
 
 [![首页](docs/screenshots/home.png)](https://jycao2.github.io/vizforge/)
 
-**首页**：四条技术栈 104 个示例的总览入口，点卡片进入对应示例。
+**首页**：四条技术栈 105 个示例的总览入口，点卡片进入对应示例。
 
 | [Cesium · 台风路径与风圈](https://jycao2.github.io/vizforge/#/e/cesium/typhoon) | [Cesium · 日照阴影分析](https://jycao2.github.io/vizforge/#/e/cesium/sun-shadow) |
 | --- | --- |
@@ -48,13 +48,13 @@
 | **[Cesium · 粒子特效](https://jycao2.github.io/vizforge/#/e/cesium/particles)** |  |
 | [![粒子特效](docs/screenshots/cesium-particles.png)](https://jycao2.github.io/vizforge/#/e/cesium/particles) |  |
 
-更多：时序影像、可视域、掩膜裁剪、地形剖面、IDW 插值、蜂窝聚合、缓冲区分析、阴影贴图等另外 63 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
+更多：时序影像、可视域、掩膜裁剪、地形剖面、IDW 插值、蜂窝聚合、缓冲区分析、阴影贴图等另外 62 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
 
 ---
 
 ## 特性
 
-- **104 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
+- **105 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
 - **源码即看即拷**：基于 Vite 的 `import.meta.glob(..., { query: '?raw' })` 直接读取组件原始文本，配合 highlight.js 高亮，改完代码刷新即同步，不存在「文档和实现对不上」。
 - **零后端、免 Token**：纯前端静态站点，不依赖 Cesium Ion Token，不依赖任何自建服务。
 - **统一交互外壳**：每个示例自带参数面板（滑杆 / 开关 / 按钮）与画布工具条（放大、缩小、复位、全屏），切换示例时资源完整释放，长时间浏览不会泄漏。
@@ -211,7 +211,7 @@ npm run preview
 | 降雨量空间插值 | IDW 反距离加权 + 等雨量线，幂参数 p 与邻站数 k 实时可调，留一交叉验证（LOO-CV）用 MAE / RMSE 给参数打分。 | `src/examples/openlayers/IdwInterpolation.vue` |
 | 蜂窝聚合分析 | 共享单车轨迹点做 Hexbin 分箱：pointy-top 轴坐标系 + 立方取整，六边形尺寸实时可调，密度色带与计数标注。 | `src/examples/openlayers/HexAggregate.vue` |
 
-### WebGL（21 个）
+### WebGL（22 个）
 
 原生 WebGL 编程，直接操作着色器与缓冲区，零依赖。
 
@@ -226,6 +226,7 @@ npm run preview
 | 泛光 Bloom | 亮部提取（软阈值）→ 1/4 分辨率两趟模糊 → 加法合成。加法而非 lerp，光才会叠加；阈值按「超出量加权」而非硬截断，边缘不出硬边。阈值 / 强度 / 半径实时可调。 | `src/examples/webgl/Bloom.vue` |
 | HDR 色调映射 | 五个自发光 0.3~14 的灯箱 + 一颗金属球，对比直接截断 / 线性 / Reinhard / ACES / Filmic 五条曲线：前两条把 1 以上压成死白，ACES 高光滚降最自然。曝光与 gamma 校正可开关。 | `src/examples/webgl/ToneMapping.vue` |
 | 法线贴图 | 几何只是平面，凹凸全来自 RGB 法线图：高度图中心差分生成法线，解码 `rgb*2-1` 后乘强度、经切线空间 TBN 转到世界空间。着色 / 法线图 / 高度图三种视图可切换，光源方位与强度实时可调。 | `src/examples/webgl/NormalMap.vue` |
+| PBR 材质 | Cook-Torrance 直接光照：GGX 法线分布 + Smith 几何遮蔽 + Schlick 菲涅尔，能量守恒（反射掉的不再参与漫反射）。上排金属、下排电介质，五种粗糙度横向对比——粗糙度只改高光形状，不改亮度。 | `src/examples/webgl/Pbr.vue` |
 | 3D 立方体 | 透视投影 + 深度测试，渲染持续旋转的彩色立方体。 | `src/examples/webgl/Cube3D.vue` |
 | 点精灵 | gl.POINTS 与 gl_PointCoord 实现柔边圆形粒子。 | `src/examples/webgl/PointSprites.vue` |
 | Phong 光照 | 手写 Blinn-Phong 着色：环境光 + 漫反射 + 高光 + 边缘光。 | `src/examples/webgl/Phong.vue` |
