@@ -296,6 +296,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'three/Instancing.vue',
           },
           {
+            id: 'tone-mapping',
+            title: 'HDR 色调映射',
+            description:
+              '五个自发光 0.5~8 的灯箱加一颗金属球，对比直接截断 / 线性 / Reinhard / ACES / Filmic 五条曲线：前两条把 1 以上压成死白，ACES 的高光滚降最自然。曝光与 gamma 校正可开关。',
+            file: 'webgl/ToneMapping.vue',
+          },
+          {
             id: 'bloom',
             title: '泛光后期',
             description: 'EffectComposer + UnrealBloomPass 实现发光后期，可调节泛光强度。',
@@ -620,6 +627,13 @@ export const useExamplesStore = defineStore('examples', {
             title: '纹理矩形',
             description: '用 Canvas 程序化生成纹理并贴到旋转矩形上。',
             file: 'webgl/TextureQuad.vue',
+          },
+          {
+            id: 'tone-mapping',
+            title: 'HDR 色调映射',
+            description:
+              '五个自发光 0.5~8 的灯箱加一颗金属球，对比直接截断 / 线性 / Reinhard / ACES / Filmic 五条曲线：前两条把 1 以上压成死白，ACES 的高光滚降最自然。曝光与 gamma 校正可开关。',
+            file: 'webgl/ToneMapping.vue',
           },
           {
             id: 'bloom',
