@@ -622,6 +622,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'webgl/TextureQuad.vue',
           },
           {
+            id: 'gaussian-blur',
+            title: '两趟高斯模糊',
+            description:
+              '可分离高斯：二维卷积拆成水平 + 垂直两次 1D，采样数从 N² 降到 2N；模糊本身是低通，再降到 1/2 或 1/4 分辨率执行，成本只剩 1/4、1/16。迭代次数可调，中间一条分界线对比清晰与模糊。',
+            file: 'webgl/GaussianBlur.vue',
+          },
+          {
             id: 'image-filter',
             title: '图像滤镜链',
             description:

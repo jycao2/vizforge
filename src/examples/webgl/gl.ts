@@ -233,3 +233,113 @@ export function createCube(): {
     indices: new Uint16Array(indices),
   }
 }
+
+/* ---------------- 全屏四边形与离屏渲染（后处理示例共用） ---------------- */
+
+/** 全屏四边形（TRIANGLE_STRIP），顶点属性名用 aPos，取值 [-1,1] */
+export function createQuad(gl: WebGLRenderingContext): WebGLBuffer | null {
+  const buf = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf)
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW)
+  return buf
+}
+
+export interface Framebuffer {
+  fbo: WebGLFramebuffer
+  tex: WebGLTexture
+  depth: WebGLRenderbuffer | null
+  width: number
+  height: number
+}
+
+/**
+ * 建一个离屏帧缓冲：颜色挂纹理（后续可当 sampler2D 采样），可选 16 位深度。
+ * WebGL1 的纹理必须 NPOT 友好，所以统一 CLAMP_TO_EDGE + LINEAR、不生成 mipmap。
+ */
+export function createFramebuffer(
+  gl: WebGLRenderingContext,
+  width: number,
+  height: number,
+  depth = true,
+): Framebuffer {
+  const tex = gl.createTexture()!
+  gl.bindTexture(gl.TEXTURE_2D, tex)
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+
+  const fbo = gl.createFramebuffer()!
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fbo)
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0)
+
+  let depthBuf: WebGLRenderbuffer | null = null
+  if (depth) {
+    depthBuf = gl.createRenderbuffer()
+    gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuf)
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height)
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuf)
+  }
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  return { fbo, tex, depth: depthBuf, width, height }
+}
+
+/** 尺寸变化时重建附件（canvas 尺寸随窗口变，FBO 也要跟着变） */
+export function resizeFramebuffer(
+  gl: WebGLRenderingContext,
+  fb: Framebuffer,
+  width: number,
+  height: number,
+): void {
+  if (fb.width === width && fb.height === height) return
+  fb.width = width
+  fb.height = height
+  gl.bindTexture(gl.TEXTURE_2D, fb.tex)
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+  if (fb.depth) {
+    gl.bindRenderbuffer(gl.RENDERBUFFER, fb.depth)
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height)
+  }
+}
+
+export function deleteFramebuffer(gl: WebGLRenderingContext, fb: Framebuffer | null): void {
+  if (!fb) return
+  gl.deleteTexture(fb.tex)
+  if (fb.depth) gl.deleteRenderbuffer(fb.depth)
+  gl.deleteFramebuffer(fb.fbo)
+}
+
+/** 绑定离屏（或 null 表示屏幕）并设置视口 */
+export function bindFramebuffer(
+  gl: WebGLRenderingContext,
+  fb: Framebuffer | null,
+  screenW: number,
+  screenH: number,
+): void {
+  if (fb) {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb.fbo)
+    gl.viewport(0, 0, fb.width, fb.height)
+  } else {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+    gl.viewport(0, 0, screenW, screenH)
+  }
+}
+
+/** canvas → 纹理（注意 FLIP_Y：canvas 第 0 行在顶部，纹理 v=0 在底部） */
+export function textureFromCanvas(
+  gl: WebGLRenderingContext,
+  canvas: HTMLCanvasElement,
+  flipY = true,
+): WebGLTexture {
+  const tex = gl.createTexture()!
+  gl.bindTexture(gl.TEXTURE_2D, tex)
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipY)
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas)
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+  return tex
+}
