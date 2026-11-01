@@ -435,6 +435,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'three/SmartFactory.vue',
           },
           {
+            id: 'globe',
+            title: '球面地球',
+            description:
+              '25 个真实经纬度城市点 + 大圆航线：经纬网每 15°，城市点用加色混合的圆形贴图，飞线在大圆插值后按 sin 抬升中段，光点沿同一条折线取点循环。大气光晕是背面球 + 菲涅尔着色（视线越贴切线越亮），悬停城市点显示经纬度。',
+            file: 'three/Globe.vue',
+          },
+          {
             id: 'pipeline',
             title: '长输管道数字孪生',
             description:

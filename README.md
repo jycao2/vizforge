@@ -8,7 +8,7 @@
 
 **在线体验（GitHub Pages，无需安装）：https://jycao2.github.io/vizforge/**
 
-一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **112 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
+一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **113 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
 
 每个示例页右上角都有「查看源码」按钮，点开就是该示例的完整实现，可一键复制——它不是一个封装好的组件库，而是一本可以直接拆开看的、跑得起来的代码手册。从 Cesium 的 DEM 地形/挖填方/淹没/可视域/时序影像/掩膜裁剪，到 Three.js 智慧工厂/海上风电场，再到 OpenLayers 的地形剖面/路网等时圈/IDW 插值/蜂窝聚合，以及体积云光线步进、GPGPU 粒子流场、SDF 光线步进、阴影贴图，都能在这里直接读源码。
 
@@ -20,7 +20,7 @@
 
 [![首页](docs/screenshots/home.png)](https://jycao2.github.io/vizforge/)
 
-**首页**：四条技术栈 112 个示例的总览入口，点卡片进入对应示例。
+**首页**：四条技术栈 113 个示例的总览入口，点卡片进入对应示例。
 
 | [Cesium · 台风路径与风圈](https://jycao2.github.io/vizforge/#/e/cesium/typhoon) | [Cesium · 日照阴影分析](https://jycao2.github.io/vizforge/#/e/cesium/sun-shadow) |
 | --- | --- |
@@ -49,6 +49,8 @@
 | [![粒子特效](docs/screenshots/cesium-particles.png)](https://jycao2.github.io/vizforge/#/e/cesium/particles) | [![MVT 矢量瓦片](docs/screenshots/ol-vector-tile.png)](https://jycao2.github.io/vizforge/#/e/openlayers/vector-tile) |
 | **[OpenLayers · 坐标系纠偏](https://jycao2.github.io/vizforge/#/e/openlayers/coordinate-crs)** | **[OpenLayers · OD 迁徙图](https://jycao2.github.io/vizforge/#/e/openlayers/od-flow)** |
 | [![坐标系纠偏](docs/screenshots/ol-coordinate-crs.png)](https://jycao2.github.io/vizforge/#/e/openlayers/coordinate-crs) | [![OD 迁徙图](docs/screenshots/ol-od-flow.png)](https://jycao2.github.io/vizforge/#/e/openlayers/od-flow) |
+| **[Three.js · 球面地球](https://jycao2.github.io/vizforge/#/e/three/globe)** |  |
+| [![球面地球](docs/screenshots/three-globe.png)](https://jycao2.github.io/vizforge/#/e/three/globe) |  |
 
 更多：时序影像、可视域、掩膜裁剪、地形剖面、IDW 插值、蜂窝聚合、缓冲区分析、阴影贴图等另外 58 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
 
@@ -56,7 +58,7 @@
 
 ## 特性
 
-- **112 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
+- **113 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
 - **源码即看即拷**：基于 Vite 的 `import.meta.glob(..., { query: '?raw' })` 直接读取组件原始文本，配合 highlight.js 高亮，改完代码刷新即同步，不存在「文档和实现对不上」。
 - **零后端、免 Token**：纯前端静态站点，不依赖 Cesium Ion Token，不依赖任何自建服务。
 - **统一交互外壳**：每个示例自带参数面板（滑杆 / 开关 / 按钮）与画布工具条（放大、缩小、复位、全屏），切换示例时资源完整释放，长时间浏览不会泄漏。
@@ -144,7 +146,7 @@ npm run preview
 | 地形剖切与地下管廊 | 四个朝外的竖直裁剪面取交集挖出 400 m 基坑，井壁与坑底用 WallGraphics / RectangleGraphics 补（Cesium 只切面不留壁），土壁用条纹材质分层；也可切到单平面剖切看断面。760 m 管网逐顶点采样真实高程再减埋深（clampToGround 会把管线贴回地表），检查井为圆柱；地下模式用 translucency 透视地表，此时必须关掉 depthTestAgainstTerrain。 | `src/examples/cesium/Excavation.vue` |
 | 粒子特效 | 火炬（火核 + 火焰 + 黑烟三系统叠加）、喷泉（球形发射器）、烟羽（锥形发射器）三个场景：发射率 / 尺寸 / 生命期 / 风速实时可调，发射器可在圆形、球形、锥形、立方之间切换。Cesium 1.118 的 ParticleSystem 已没有 gravity 选项，重力走 updateCallback 手动积分；贴图由 canvas 径向渐变现场生成，零外部资源。 | `src/examples/cesium/Particles.vue` |
 
-### Three.js（26 个）
+### Three.js（27 个）
 
 通用的 WebGL 3D 渲染库，适合任意三维场景与特效。
 
@@ -199,6 +201,7 @@ npm run preview
 | MVT 矢量瓦片 | 页面里手写 protobuf 编码器（varint / zigzag / 几何命令），把水系、道路、建筑、POI 编成 MVT 字节流，再交给 `ol/format/MVT` 解码渲染——不联网、不引 pbf 依赖。水系是面带河流中心线偏移，道路按全球经纬网铺所以跨瓦片不断头，z≥15 生成建筑面与 POI 标注；可切图层、点选看属性。坑：`readFeatures` 传 `dataProjection` 会改写它的 extent，把视图的 EPSG:3857 投影一起污染，之后瓦片坐标全算歪。 | `src/examples/openlayers/VectorTile.vue` |
 | 坐标系纠偏 | WGS84 / GCJ-02 / BD-09 三套坐标的实测对比：同一批点位按所选坐标系表达后叠加到 WGS84 影像底图上，未纠偏与纠偏后各画一遍、用虚线连出位移，实时统计平均 / 最大偏移与方向。GCJ-02 用公开偏移算法（含国境判断），反解走过去初值 + 8 次不动点迭代；BD-09 在 GCJ-02 上再偏一次。实测：杭州 GCJ 偏移 520 m（东南）、BD-09 1149 m（东北），北京 BD-09 1377 m。 | `src/examples/openlayers/CoordinateCrs.vue` |
 | OD 迁徙图 | 6 个枢纽到 22 个城市的 OD 流向：弧线是投影坐标里的二次贝塞尔（控制点沿中垂线外推、弧高按跨度比例缩放，纯大圆弧在墨卡托下会被拉扁）；虚线平移 `lineDashOffset`、光点沿曲线插值并做端点淡出，两层叠出流动感。弧高 / 流速可调，弧线 / 流光可单独开关，点线可拾取 OD 方向。 | `src/examples/openlayers/OdFlow.vue` |
+| 球面地球 | 25 个真实经纬度城市点 + 大圆航线：经纬网每 15°（赤道与回归线单独加亮），城市点用加色混合的圆形贴图，飞线在大圆插值后按 sin 抬升中段，光点沿同一条折线取点循环；大气光晕是背面球 + 菲涅尔着色（视线越贴切线越亮）。悬停城市点显示经纬度，弧线密度三档可调。 | `src/examples/three/Globe.vue` |
 | 分级统计专题图 | 同一份人口数据，等间距 / 分位数 / Jenks 自然断点三种分级方法并排对比，3~7 级可调，图例显示每级区间与要素数；换一种分级，同一份数据会画出完全不同的图 —— 专题图的结论取决于分级方式。 | `src/examples/openlayers/Choropleth.vue` |
 | 路网路径规划 | 真实路网寻路：杭州西湖东侧 OpenStreetMap 数据（1394 路口 / 1538 路段，按道路等级映射限速，可切回 26×26 合成网格做对照）。A* 与 Dijkstra 同跑并对比访问节点数（实测 580 vs 1328），搜索顺序逐帧回放，能看到 Dijkstra 的同心圆扩散与 A* 朝目标收窄；权重可切最短距离 / 最快时间，点击地图重设起终点。 | `src/examples/openlayers/RoutePlan.vue` |
 | 要素编辑 | Modify + Snap 交互：拖拽顶点或边线修改几何，要素之间自动吸附。 | `src/examples/openlayers/Modify.vue` |
@@ -344,7 +347,7 @@ public/3dtiles/            3D Tiles 示例使用的本地瓦片集
 - 示例中的点位、轨迹、气象、建筑等数据均为**程序化合成**（固定随机种子），用于演示算法与渲染，不代表真实业务数据。
 - 项目定位是学习与参考：代码以「可读、可拆、可拷」为第一目标，未做通用组件抽象与生产级错误兜底。
 - 路网路径规划示例使用 **OpenStreetMap** 数据（© OpenStreetMap contributors, ODbL 1.0）：由 `scripts/fetch-osm-roadnet.mjs` 预先抓取指定 bbox 并精简成 51KB 的本地 JSON，页面不发起网络请求；换城市只需改脚本参数重跑一次（公开 Overpass 镜像在国内基本连不上，所以不做运行时拉取）。
-- 全站回归的测试方法与缺陷记录见 [docs/TEST-REPORT.md](docs/TEST-REPORT.md)（112 个示例冒烟 + 交互语义断言 + 压力测试）。
+- 全站回归的测试方法与缺陷记录见 [docs/TEST-REPORT.md](docs/TEST-REPORT.md)（113 个示例冒烟 + 交互语义断言 + 压力测试）。
 
 ## 技术栈
 
