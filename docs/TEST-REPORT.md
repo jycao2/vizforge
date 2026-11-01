@@ -1,8 +1,8 @@
 # VizForge 全站测试报告
 
-> 测试对象：`jycao2/vizforge`（Vue 3 + TS + Cesium / Three.js / OpenLayers / WebGL2，87 个示例）
-> 测试版本：commit `5c7ed08`（本轮修复前）
-> 测试时间：2026-10-31 09:15 — 10:40（GMT+8）
+> 测试对象：`jycao2/vizforge`（Vue 3 + TS + Cesium / Three.js / OpenLayers / WebGL2，96 个示例）
+> 测试版本：commit `5c7ed08`（第 1–4 轮，87 个示例）；新增 9 个示例后的复跑见[第 7 节](#7-新增-9-个示例后的复跑)
+> 测试时间：2026-10-31 09:15 — 10:40（GMT+8），复跑 2026-11-01
 > 测试环境：Windows 10 · Chrome（硬件渲染 + `--disable-gpu` SwiftShader 软件回退双跑）· 1440×810 / 900×600
 
 ## 1. 测试范围与方法
@@ -127,3 +127,24 @@
 1. `highDynamicRange` 在其他两个示例（`heatmap-overlay`、`sun-shadow`）仍在用，本轮未观察到问题，但若同类报错复现可优先怀疑此处。
 2. 纹理上传的延迟回收引入 2~3 帧的位图滞留，内存占用可忽略（720²×4B ≈ 2MB/张，最多同时 2 张）。
 3. 外部依赖（Esri 瓦片、glTF CDN）在弱网下会有 5~10s 空白期，属网络问题而非应用缺陷。
+
+## 7. 新增 9 个示例后的复跑
+
+新增三维推箱子、百万级城市、水污染扩散、智慧城市运营、GeoServer 图层服务、WFS 矢量图层、WMTS 切片服务、分级统计专题图、路网路径规划共 9 个示例（87 → 96），同时把挖填方 / 淹没 / 可视域三个分析示例改成「真实高程 + 贴地图元」渲染，因此全站复跑了一轮。
+
+| 复跑项 | 结果 |
+| --- | --- |
+| T1 冒烟（96 页） | **96/96 通过**，0 `pageerror` / 0 `console.error`，所有页面 canvas 有有效像素 |
+| 贴地渲染回归 | 三个分析示例推近到街景视高、拉到全域视高都贴合地形，不再出现竖向裙边或悬浮色块 |
+| 静态检查 | `vue-tsc --noEmit`、`vite build` 通过；README 路径/命令一致性校验通过 |
+
+新增示例的关键实测数据（页面参数面板上可见，逐项与实现对照过）：
+
+| 示例 | 实测 |
+| --- | --- |
+| three/mega-city | 分块实例化 100 万栋：27 draw call / 144 fps；逐实例 2 万栋：20001 draw call / 35 fps |
+| three/sokoban | 4 关开局均可用 BFS 在 1 / 14 / 18 / 11 步内解出 |
+| cesium/water-pollution | 排污口浓度随时间推进扩散，改风向/风速后流场与羽流方向随之改变，取水口超阈值即报警 |
+| cesium/smart-city | 520 辆车走一个 PointPrimitiveCollection，整页 draw call 不随车辆数线性增长 |
+| openlayers/wmts | 命中预切缓存 < 0.01 ms，WMS 直出 4.82 ms（同一组图层） |
+| openlayers/route-plan | 真实路网 A* 580 个访问节点 vs Dijkstra 1328 个（省 56%）；合成网格 387 vs 652 |

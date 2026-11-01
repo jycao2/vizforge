@@ -477,6 +477,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'openlayers/Choropleth.vue',
           },
           {
+            id: 'route-plan',
+            title: '路网路径规划',
+            description:
+              '真实路网寻路：杭州西湖东侧 OpenStreetMap 数据（1394 路口 / 1538 路段，按道路等级映射限速，可切回 26×26 合成网格做对照）。A* 与 Dijkstra 同跑并对比访问节点数（实测 580 vs 1328），搜索顺序逐帧回放，能看到 Dijkstra 的同心圆扩散与 A* 朝目标收窄；权重可切最短距离 / 最快时间，点击地图重设起终点。',
+            file: 'openlayers/RoutePlan.vue',
+          },
+          {
             id: 'modify',
             title: '要素编辑',
             description: 'Modify + Snap 交互：拖拽顶点或边线修改几何，要素之间自动吸附。',
