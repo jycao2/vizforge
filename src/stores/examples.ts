@@ -449,6 +449,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'openlayers/Wms.vue',
           },
           {
+            id: 'geoserver',
+            title: 'GeoServer 图层服务',
+            description:
+              '完整走一遍 GIS 服务链路：GetCapabilities 能力文档、5 个图层的 WMS GetMap 出图（浏览器内光栅化，离线可用）、CQL_FILTER 属性过滤、GetFeatureInfo 点查、WFS GetFeature 导出 GeoJSON；面板实时显示瓦片数/耗时/要素数，并给出可直接对拍真实 GeoServer 的标准请求 URL。',
+            file: 'openlayers/GeoServer.vue',
+          },
+          {
             id: 'modify',
             title: '要素编辑',
             description: 'Modify + Snap 交互：拖拽顶点或边线修改几何，要素之间自动吸附。',

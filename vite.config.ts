@@ -17,6 +17,14 @@ import { fileURLToPath, URL } from 'node:url'
  */
 export default defineConfig({
   base: process.env.GITHUB_ACTIONS ? './' : '/',
+  /**
+   * 依赖预构建缓存换个位置。
+   *
+   * 默认的 node_modules/.vite 在「config 变更后重新优化」时会被整目录清空，
+   * 而带删除保护的运行环境（一次性删 200+ 文件会被拦）会让 dev server 直接退出。
+   * 换到 .cache 下只影响本地开发，构建产物不变。
+   */
+  cacheDir: 'node_modules/.cache/vite',
   plugins: [vue(), cesium()],
   resolve: {
     alias: {
@@ -26,6 +34,59 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
+  },
+  optimizeDeps: {
+    /**
+     * 显式列出全部 OpenLayers 入口。
+     *
+     * 不写的话，dev server 运行中一旦从新加的文件里发现没预构建过的 ol 子模块，
+     * 就会触发「重新优化 + 重启」——中间要整目录删除 deps_temp（200+ 文件），
+     * 在带删除保护的运行环境里直接让进程退出。列全之后，新增示例不会再触发。
+     */
+    include: [
+      'ol',
+      'ol/Feature',
+      'ol/ImageTile',
+      'ol/Map',
+      'ol/View',
+      'ol/control',
+      'ol/control/OverviewMap',
+      'ol/coordinate',
+      'ol/events/condition',
+      'ol/format/GeoJSON',
+      'ol/geom',
+      'ol/geom/Circle',
+      'ol/geom/LineString',
+      'ol/geom/MultiLineString',
+      'ol/geom/Point',
+      'ol/geom/Polygon',
+      'ol/interaction/DragBox',
+      'ol/interaction/Draw',
+      'ol/interaction/Modify',
+      'ol/interaction/Select',
+      'ol/interaction/Snap',
+      'ol/layer/Heatmap',
+      'ol/layer/Image',
+      'ol/layer/Tile',
+      'ol/layer/Vector',
+      'ol/proj',
+      'ol/render/Event',
+      'ol/source/Cluster',
+      'ol/source/ImageCanvas',
+      'ol/source/ImageStatic',
+      'ol/source/Tile',
+      'ol/source/TileImage',
+      'ol/source/TileWMS',
+      'ol/source/Vector',
+      'ol/source/XYZ',
+      'ol/sphere',
+      'ol/style',
+      'ol/style/Circle',
+      'ol/style/Fill',
+      'ol/style/Stroke',
+      'ol/style/Style',
+      'ol/tilegrid',
+    ],
   },
   build: {
     chunkSizeWarningLimit: 2000,

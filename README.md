@@ -8,7 +8,7 @@
 
 **在线体验（GitHub Pages，无需安装）：https://jycao2.github.io/vizforge/**
 
-一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **91 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
+一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **92 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
 
 每个示例页右上角都有「查看源码」按钮，点开就是该示例的完整实现，可一键复制——它不是一个封装好的组件库，而是一本可以直接拆开看的、跑得起来的代码手册。从 Cesium 的 DEM 地形/挖填方/淹没/可视域/时序影像/掩膜裁剪，到 Three.js 智慧工厂/海上风电场，再到 OpenLayers 的地形剖面/路网等时圈/IDW 插值/蜂窝聚合，以及体积云光线步进、GPGPU 粒子流场、SDF 光线步进、阴影贴图，都能在这里直接读源码。
 
@@ -20,7 +20,7 @@
 
 [![首页](docs/screenshots/home.png)](https://jycao2.github.io/vizforge/)
 
-**首页**：四条技术栈 91 个示例的总览入口，点卡片进入对应示例。
+**首页**：四条技术栈 92 个示例的总览入口，点卡片进入对应示例。
 
 | [Cesium · 台风路径与风圈](https://jycao2.github.io/vizforge/#/e/cesium/typhoon) | [Cesium · 日照阴影分析](https://jycao2.github.io/vizforge/#/e/cesium/sun-shadow) |
 | --- | --- |
@@ -37,8 +37,8 @@
 | [![掩膜裁剪](docs/screenshots/cesium-mask-clip.png)](https://jycao2.github.io/vizforge/#/e/cesium/mask-clip) | [![三维推箱子](docs/screenshots/three-sokoban.png)](https://jycao2.github.io/vizforge/#/e/three/sokoban) |
 | **[Three.js · 百万级城市](https://jycao2.github.io/vizforge/#/e/three/mega-city)** | **[Cesium · 水污染扩散](https://jycao2.github.io/vizforge/#/e/cesium/water-pollution)** |
 | [![百万级城市](docs/screenshots/three-mega-city.png)](https://jycao2.github.io/vizforge/#/e/three/mega-city) | [![水污染扩散](docs/screenshots/cesium-water-pollution.png)](https://jycao2.github.io/vizforge/#/e/cesium/water-pollution) |
-| **[Cesium · 智慧城市运营](https://jycao2.github.io/vizforge/#/e/cesium/smart-city)** |  |
-| [![智慧城市运营](docs/screenshots/cesium-smart-city.png)](https://jycao2.github.io/vizforge/#/e/cesium/smart-city) |  |
+| **[Cesium · 智慧城市运营](https://jycao2.github.io/vizforge/#/e/cesium/smart-city)** | **[OpenLayers · GeoServer 图层服务](https://jycao2.github.io/vizforge/#/e/openlayers/geoserver)** |
+| [![智慧城市运营](docs/screenshots/cesium-smart-city.png)](https://jycao2.github.io/vizforge/#/e/cesium/smart-city) | [![GeoServer 图层服务](docs/screenshots/ol-geoserver.png)](https://jycao2.github.io/vizforge/#/e/openlayers/geoserver) |
 
 更多：时序影像、可视域、掩膜裁剪、地形剖面、IDW 插值、蜂窝聚合、缓冲区分析、阴影贴图等另外 68 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
 
@@ -46,7 +46,7 @@
 
 ## 特性
 
-- **91 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
+- **92 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
 - **源码即看即拷**：基于 Vite 的 `import.meta.glob(..., { query: '?raw' })` 直接读取组件原始文本，配合 highlight.js 高亮，改完代码刷新即同步，不存在「文档和实现对不上」。
 - **零后端、免 Token**：纯前端静态站点，不依赖 Cesium Ion Token，不依赖任何自建服务。
 - **统一交互外壳**：每个示例自带参数面板（滑杆 / 开关 / 按钮）与画布工具条（放大、缩小、复位、全屏），切换示例时资源完整释放，长时间浏览不会泄漏。
@@ -165,7 +165,7 @@ npm run preview
 | 三维推箱子 | 可玩的三维 Sokoban：方向键/WASD 推箱，木箱带金属包角与木纹、地砖逐块倒角、目标环呼吸脉动；角色行走有起伏、转身插值，拖拽旋转视角、滚轮缩放，含撤销/重来与 4 张开箱即玩的关卡（BFS 校验可解）。 | `src/examples/three/Sokoban.vue` |
 | 百万级城市 | 程序化生成 10 万~100 万栋楼，实测三种渲染方式的差异：分块 InstancedMesh（视锥剔除逐块生效）/ 单块实例化（draw call=1 但不可剔除）/ 逐实例 Mesh（draw call 爆炸）；实时显示 FPS、draw call、三角面与生成耗时。 | `src/examples/three/MegaCity.vue` |
 
-### OpenLayers（22 个）
+### OpenLayers（23 个）
 
 功能强大的二维地图库，支持瓦片、矢量与丰富的交互。
 
@@ -180,6 +180,7 @@ npm run preview
 | 热力图 | 基于加权点生成热力图，叠加在深色底图上。 | `src/examples/openlayers/Heatmap.vue` |
 | GeoJSON 省界 | 加载中国省级行政区 GeoJSON，矢量样式化并支持点击高亮查询。 | `src/examples/openlayers/GeoJson.vue` |
 | WMS 图层 | 接入 NASA GIBS 的 TileWMS 服务，切换真彩色/地表温度并调整透明度。 | `src/examples/openlayers/Wms.vue` |
+| GeoServer 图层服务 | 完整走一遍 GIS 服务链路：GetCapabilities 能力文档、5 个图层的 WMS GetMap 出图（浏览器内光栅化，离线可用）、CQL_FILTER 属性过滤、GetFeatureInfo 点查、WFS GetFeature 导出 GeoJSON；面板实时显示瓦片数/耗时/要素数，并给出可直接对拍真实 GeoServer 的标准请求 URL。 | `src/examples/openlayers/GeoServer.vue` |
 | 要素编辑 | Modify + Snap 交互：拖拽顶点或边线修改几何，要素之间自动吸附。 | `src/examples/openlayers/Modify.vue` |
 | 框选查询 | Shift + 拖拽拉框，统计并高亮框内所有要素。 | `src/examples/openlayers/Select.vue` |
 | 卷帘对比 | 通过 precompose/postcompose 裁剪画布，实现左右底图卷帘对比。 | `src/examples/openlayers/Swipe.vue` |
