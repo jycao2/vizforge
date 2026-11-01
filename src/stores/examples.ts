@@ -456,6 +456,20 @@ export const useExamplesStore = defineStore('examples', {
             file: 'openlayers/GeoServer.vue',
           },
           {
+            id: 'wfs',
+            title: 'WFS 矢量图层',
+            description:
+              '要素级服务：GetFeature 拉 GeoJSON 并按属性符号化（人口分级 / 等级线宽 / PM2.5 色阶），点选看属性表；改属性、拖几何、删要素、点图新增后走 WFS-T Transaction 写回服务端，计数器与地图同步刷新；附 DescribeFeatureType 字段定义。',
+            file: 'openlayers/Wfs.vue',
+          },
+          {
+            id: 'wmts',
+            title: 'WMTS 切片服务',
+            description:
+              '切片与实时渲染的实测对比：同一组图层，WMTS 模式命中预切缓存（亚毫秒，绿色柱），WMS 直出模式每次现场渲染（数毫秒，橙色柱）；展示 TileMatrixSet / TileMatrix / TileRow / TileCol 语义，实时命中率、缓存张数与最近 40 次瓦片耗时分布。',
+            file: 'openlayers/Wmts.vue',
+          },
+          {
             id: 'modify',
             title: '要素编辑',
             description: 'Modify + Snap 交互：拖拽顶点或边线修改几何，要素之间自动吸附。',
