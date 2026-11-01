@@ -296,6 +296,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'three/Instancing.vue',
           },
           {
+            id: 'toon',
+            title: '卡通着色与描边',
+            description:
+              '把 N·L 量化成 2~8 档做色阶化，再用法线外扩描边：先画沿法线放大的黑色外壳（cull front），再正常画正面（cull back），没被盖住的一圈就是轮廓线。色阶数 / 描边宽度 / 光照方位实时可调。',
+            file: 'webgl/Toon.vue',
+          },
+          {
             id: 'pbr',
             title: 'PBR 材质',
             description:
@@ -641,6 +648,13 @@ export const useExamplesStore = defineStore('examples', {
             title: '纹理矩形',
             description: '用 Canvas 程序化生成纹理并贴到旋转矩形上。',
             file: 'webgl/TextureQuad.vue',
+          },
+          {
+            id: 'toon',
+            title: '卡通着色与描边',
+            description:
+              '把 N·L 量化成 2~8 档做色阶化，再用法线外扩描边：先画沿法线放大的黑色外壳（cull front），再正常画正面（cull back），没被盖住的一圈就是轮廓线。色阶数 / 描边宽度 / 光照方位实时可调。',
+            file: 'webgl/Toon.vue',
           },
           {
             id: 'pbr',
