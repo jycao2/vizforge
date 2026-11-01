@@ -218,6 +218,13 @@ export const useExamplesStore = defineStore('examples', {
               '路网车流 + IoT 感知 + 告警联动：520 辆车用 PointPrimitiveCollection 批量推进（单 draw call），主干路网 clampToGround 贴地；六类设备带脉冲光环与实时读数，超阈值自动入告警队列，KPI 面板展示在线车辆/平均车速/拥堵路段/设备告警。',
             file: 'cesium/SmartCity.vue',
           },
+          {
+            id: 'post-processing',
+            title: '后期处理特效',
+            description:
+              '全屏后期特效链：夜视 / 边缘检测 / 黑白 / 景深来自 PostProcessStageLibrary，像素化与扫描线是自己写的 GLSL 片段着色器（colorTexture 即整帧，v_textureCoordinates 是屏幕 uv）；曝光段常驻打底，效果段按加入顺序串联，FXAA 可开关。夜景由一千多个窗户灯点铺出来，特效才有明暗可抓。',
+            file: 'cesium/PostProcessing.vue',
+          },
         ],
       },
       {
