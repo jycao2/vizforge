@@ -533,6 +533,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'openlayers/Wfs.vue',
           },
           {
+            id: 'coordinate-crs',
+            title: '坐标系纠偏',
+            description:
+              'WGS84 / GCJ-02 / BD-09 三套坐标的实测对比：同一批点位按所选坐标系表达，再叠加到 WGS84 底图上，未纠偏与纠偏后各画一遍并用虚线连出位移，实时统计平均 / 最大偏移与方向。GCJ-02 用公开偏移算法（含国境判断），反解走过去初值 + 8 次不动点迭代；BD-09 在 GCJ-02 上再偏一次。',
+            file: 'openlayers/CoordinateCrs.vue',
+          },
+          {
             id: 'vector-tile',
             title: 'MVT 矢量瓦片',
             description:
