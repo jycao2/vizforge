@@ -6,21 +6,22 @@ import MapControls from '@/components/MapControls.vue'
 import { CESIUM_BASEMAPS } from './basemaps'
 import {
   VIEWER_OPTIONS,
-  clipGlobeRectangle,
   enableTerrainScene,
-  sampleMaxGroundHeight,
+  sampleTerrainGrid,
   useCesiumBasemap,
   useCesiumView,
   waitRealTerrain,
 } from './useCesium'
+import { demRectangle, makeDrapedPrimitive, makeImageMaterial, makeTextureUploader } from './demMesh'
 import {
-  buildSkirtGeometry,
-  buildTerrainGeometry,
-  makeImageMaterial,
-  makeSkirtMaterial,
-  makeTextureUploader,
-} from './demMesh'
-import { HYPSOMETRIC, hillshade, makeDEM, sampleH, uvToLonLat, type DEM } from '@/examples/shared/terrain'
+  HYPSOMETRIC,
+  applyRealHeights,
+  hillshade,
+  makeDEM,
+  sampleH,
+  uvToLonLat,
+  type DEM,
+} from '@/examples/shared/terrain'
 
 /* ============================================================
  * 水库淹没分析
@@ -33,17 +34,20 @@ import { HYPSOMETRIC, hillshade, makeDEM, sampleH, uvToLonLat, type DEM } from '
  * 场景里特意埋了两个"山后闭合洼地"（DEM 生成时的 rim 保证了闭合）：
  * 切到全域模式它们会突然被灌满，直观展示两种算法的差别。
  *
- * 水面图元：局部 ENU 网格 + modelMatrix 抬升 —— 水位变化只改矩阵不改几何；
- * 水体颜色/透明度烘在 256² 掩膜纹理里（浅水青、深水蓝），随水位每帧重烘也毫无压力。
+ * 地形与水面：
+ *  - 分析基底的高程直接取自 Esri 真实地形（sampleTerrainGrid 采样后重采样到 DEM 网格），
+ *    所以「淹没到哪」是真实地面的淹没范围，不是一块浮在空中的模型；
+ *  - 结果用 GroundPrimitive 贴地渲染（分类到地形），随地表起伏，缩放/倾斜都不会分离；
+ *  - 水面本身仍是水平面（物理正确），水体颜色/透明度烘在掩膜纹理里，随水位重烘。
  * ============================================================ */
 
 const wrapRef = ref<HTMLDivElement>()
 const container = ref<HTMLDivElement>()
 let viewer: Cesium.Viewer | null = null
-/** 真实地面海拔偏移 + 裙边侧壁：库区模型嵌进真实地形（千岛湖，约 103~323m） */
-let groundOffset = 0
+/** 分析基底 = 真实地形高程，淹没结果贴回地形表面渲染（不再是悬空块） */
 let stopTerrain: (() => void) | null = null
-let skirtPrim: Cesium.Primitive | null = null
+/** 村庄标注实体：真实地形就位后要按新高程重定位 */
+const villageEntities = new Map<string, Cesium.Entity>()
 
 // 千岛湖（浙江淳安）：真实地形为岛屿丘陵，幅差约 220m，水库淹没的天然背景板
 const LON = 119.0
@@ -51,7 +55,9 @@ const LAT = 29.6
 const SPAN = 14000
 
 /* ---------------- 参数 ---------------- */
-const level = ref(210) // 库水位（米）
+const level = ref(210) // 库水位（米，绝对高程；真实地形就位后按场地高程带重置）
+/** 滑块区间跟随真实地形（dem 不是响应式对象，这里单独用 ref 暴露给模板） */
+const demRange = ref({ min: 0, max: 100 })
 const mode = ref<'conn' | 'all'>('conn')
 const playing = ref(false)
 const riseRate = ref(2.4) // 米/秒（演示用）
@@ -88,7 +94,7 @@ function findSeed(): number {
   }
   return best
 }
-const SEED = findSeed()
+let SEED = findSeed()
 
 /** 村庄：河边的会先被淹，山后的洼地只有"全域"模式才淹，山上的永远安全 */
 interface Village {
@@ -204,7 +210,8 @@ function bakeTerrain() {
       d[t] = c[0] * s
       d[t + 1] = c[1] * s
       d[t + 2] = c[2] * s
-      d[t + 3] = 255
+      // 半透明叠加：真实影像透出来，"淹没到哪"才看得清边界
+      d[t + 3] = 120
     }
   }
   tctx.putImageData(img, 0, 0)
@@ -242,7 +249,7 @@ function bakeWater() {
 }
 
 /* ---------------- 图元 ---------------- */
-let terrainPrim: Cesium.Primitive | null = null
+let terrainPrim: Cesium.GroundPrimitive | null = null
 let terrainMat: Cesium.Material | null = null
 let waterPrim: Cesium.Primitive | null = null
 let waterMat: Cesium.Material | null = null
@@ -270,11 +277,16 @@ function buildWater() {
           czm_material czm_getMaterial(czm_materialInput materialInput) {
             czm_material m = czm_getDefaultMaterial(materialInput);
             vec2 st = materialInput.st;
-            // 两列不同相位的正弦叠加，模拟水面细波纹
-            float w = sin(st.x * 160.0 + uTime * 2.1) * sin(st.y * 130.0 - uTime * 1.6);
+            // 三个方向的正弦相加（不是相乘！相乘会出棋盘格）模拟细波纹
+            float w = 0.35 * sin(st.x * 90.0 + uTime * 1.7)
+                    + 0.25 * sin(st.y * 70.0 - uTime * 1.3)
+                    + 0.20 * sin((st.x + st.y) * 130.0 + uTime * 0.9);
             vec4 c = texture(image, st);
-            m.diffuse = c.rgb * (0.94 + 0.1 * w);
-            m.alpha = c.a * (0.78 + 0.08 * w);
+            // 边缘羽化：水面/淹没色块不要被分析范围切出一条直线
+            float e = min(min(st.x, 1.0 - st.x), min(st.y, 1.0 - st.y));
+            float fade = smoothstep(0.0, 0.11, e);
+            m.diffuse = c.rgb * (0.97 + 0.035 * w);
+            m.alpha = c.a * 0.72 * fade;
             return m;
           }`,
       },
@@ -294,7 +306,7 @@ function buildWater() {
       const lon = dem.lon0 + (dem.lon1 - dem.lon0) * u
       const lat = dem.lat1 - (dem.lat1 - dem.lat0) * v
       const k = j * WATER_N + i
-      Cesium.Cartesian3.fromDegrees(lon, lat, level.value + groundOffset, undefined, tmp)
+      Cesium.Cartesian3.fromDegrees(lon, lat, level.value, undefined, tmp)
       positions[k * 3] = tmp.x
       positions[k * 3 + 1] = tmp.y
       positions[k * 3 + 2] = tmp.z
@@ -357,39 +369,16 @@ function buildWater() {
 }
 
 /**
- * 库区模型 = 顶面（贴图 DEM，exag=1 保证水位映射精确）+ 独立岩层裙边。
- * 真实地形在矩形内被 clipGlobeRectangle 挖掉，模型以自身高程嵌入，四周由裙边封口。
+ * 淹没结果贴地渲染：色块 + 水色随真实地形起伏，缩放不分离。
+ * 水面本身仍是水平面（物理正确），只有地形着色走分类渲染。
  */
 function buildAll() {
   const scene = viewer?.scene
   if (!scene) return
-  if (terrainPrim) scene.primitives.remove(terrainPrim)
-  if (skirtPrim) scene.primitives.remove(skirtPrim)
+  if (terrainPrim) scene.groundPrimitives.remove(terrainPrim)
   terrainMat = makeImageMaterial(terrainCanvas)
-  terrainPrim = new Cesium.Primitive({
-    geometryInstances: new Cesium.GeometryInstance({
-      geometry: buildTerrainGeometry(dem, 1, groundOffset),
-    }),
-    appearance: new Cesium.MaterialAppearance({
-      material: terrainMat,
-      translucent: false,
-      flat: true,
-    }),
-    asynchronous: false,
-  })
-  scene.primitives.add(terrainPrim)
-  skirtPrim = new Cesium.Primitive({
-    geometryInstances: new Cesium.GeometryInstance({
-      geometry: buildSkirtGeometry(dem, 1, groundOffset, 1400),
-    }),
-    appearance: new Cesium.MaterialAppearance({
-      material: makeSkirtMaterial(),
-      translucent: false,
-      flat: true,
-    }),
-    asynchronous: false,
-  })
-  scene.primitives.add(skirtPrim)
+  terrainPrim = makeDrapedPrimitive(demRectangle(dem), terrainMat, true)
+  scene.groundPrimitives.add(terrainPrim)
   uploader.upload(terrainMat, terrainCanvas)
   buildWater()
 }
@@ -462,15 +451,13 @@ onMounted(() => {
   computeStats()
   bakeTerrain()
   bakeWater()
-  buildAll()
 
   for (const vil of VILLAGES) {
-    viewer.entities.add({
+    const ent = viewer.entities.add({
       position: Cesium.Cartesian3.fromDegrees(
         vil.lon,
         vil.lat,
         sampleH(dem, (vil.lon - dem.lon0) / (dem.lon1 - dem.lon0), (dem.lat1 - vil.lat) / (dem.lat1 - dem.lat0)) +
-          groundOffset +
           30,
       ),
       label: {
@@ -492,6 +479,7 @@ onMounted(() => {
         disableDepthTestDistance: 4000,
       },
     })
+    villageEntities.set(vil.name, ent)
   }
 
   // 波纹时间 uniform 走 preRender，每帧推进
@@ -503,22 +491,43 @@ onMounted(() => {
   raf = requestAnimationFrame(tick)
   viewer.camera.setView(home)
 
-  // 真实地形就位后，把库区模型抬到实际高程带并重建
+  // 等真实地形就位再渲染，避免"程序化地形 → 真实地形"的跳变
   void (async () => {
-    if (!viewer || !(await waitRealTerrain(viewer))) return
-    const realMax = await sampleMaxGroundHeight(viewer, dem.lon0, dem.lat0, dem.lon1, dem.lat1)
-    if (viewer && !viewer.isDestroyed() && realMax > 0) {
-      groundOffset = Math.max(0, realMax - dem.min + 6)
+    const ready = await waitRealTerrain(viewer)
+    const grid = ready ? await sampleTerrainGrid(viewer, dem.lon0, dem.lat0, dem.lon1, dem.lat1, 65, 12) : null
+    if (!viewer || viewer.isDestroyed()) return
+    if (!grid) {
       buildAll()
-      clipGlobeRectangle(viewer, dem.lon0, dem.lat0, dem.lon1, dem.lat1)
+      return
     }
+    applyRealHeights(dem, grid, 65)
+    SEED = findSeed() // 地形换了，河道最低点要重新找
+    demRange.value = { min: Math.round(dem.min + 4), max: Math.round(dem.max) }
+    // 默认水位取低位：岸线落在分析范围内部，看起来像水库而不是整块被泡
+    level.value = Math.round(dem.min + (dem.max - dem.min) * 0.13)
+    // 村庄位置跟着真实地形重算
+    for (const v of VILLAGES) {
+      const [lon, lat] = uvToLonLat(dem, v.u, v.v)
+      v.lon = lon
+      v.lat = lat
+      const ent = villageEntities.get(v.name)
+      if (ent) {
+        ent.position = new Cesium.ConstantPositionProperty(
+          Cesium.Cartesian3.fromDegrees(lon, lat, sampleH(dem, v.u, v.v) + 30),
+        )
+      }
+    }
+    computeFlood()
+    computeStats()
+    bakeTerrain()
+    bakeWater()
+    buildAll()
   })()
 })
 
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf)
   stopTerrain?.()
-  skirtPrim = null
   uploader.dispose()
   terrainMat = null
   waterMat = null
@@ -549,7 +558,7 @@ onBeforeUnmount(() => {
 
       <div class="ctrl">
         <span class="lab">库水位</span>
-        <input v-model.number="level" type="range" :min="Math.round(dem.min + 4)" :max="Math.round(dem.max)" step="1" />
+        <input v-model.number="level" type="range" :min="demRange.min" :max="demRange.max" step="1" />
         <b>{{ level.toFixed(0) }}<i>m</i></b>
       </div>
       <div class="ctrl">
@@ -574,10 +583,9 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="tip">
-        河道用一条蜿蜒正弦线刻蚀，水位从河道最低点起算 —— 低于它时连通模式一滴水都不会出现。
-        两处<b>山后闭合洼地</b>（塬上村 / 石门村旁）在「连通」模式下永远不会被淹，
-        切到「全域」就会突然灌满，这就是两种算法的差别。
-        水面是局部 ENU 网格 + modelMatrix 抬升：水位变化只改一个矩阵，波纹用 uTime 驱动。
+        高程直接取自<b>千岛湖真实地形</b>：连通模式从河湖最低点做洪水填充，只有与水系连通的地方才会被淹；
+        全域模式则把所有低于水位的洼地一次灌满 —— 两者的差值就是「不连通的坑」。
+        淹没范围用贴地图元（GroundPrimitive）分类渲染，色块随地表起伏，放大缩小都不会与地形分离。
       </div>
     </div>
   </div>

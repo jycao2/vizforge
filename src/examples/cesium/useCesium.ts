@@ -179,75 +179,38 @@ export async function waitRealTerrain(viewer: Viewer, timeoutMs = 20000): Promis
 }
 
 /**
- * 挖掉矩形范围内的真实地形（globe.clippingPlanes）——把自定义分析模型「嵌」进真实地表用。
- * 不裁剪的话，矩形内高于模型的山体会从模型底下穿出来（z 打架）。
- * @returns 裁剪集合（挂在 globe.clippingPlanes 上，viewer 销毁时随之释放）
+ * 采样一块矩形内的真实地形高程（n×n，第 0 行是北边）。
+ * 用于把分析基底换成真实地面——分析面与地形贴合，缩放时不会"浮起来"。
+ * @param level 采样瓦片层级，11~12 对 10km 级场地足够，点数 65² 时约 4k 个、耗时几百毫秒
+ * @returns 高程数组；地形未就绪或离线时返回 null（调用方退回程序化地形）
  */
-export function clipGlobeRectangle(
+export async function sampleTerrainGrid(
   viewer: Viewer,
   lon0: number,
   lat0: number,
   lon1: number,
   lat1: number,
-): Cesium.ClippingPlaneCollection {
-  const pts = [
-    Cesium.Cartesian3.fromDegrees(lon0, lat1),
-    Cesium.Cartesian3.fromDegrees(lon1, lat1),
-    Cesium.Cartesian3.fromDegrees(lon1, lat0),
-    Cesium.Cartesian3.fromDegrees(lon0, lat0),
-  ]
-  const center = Cesium.Cartesian3.fromDegrees((lon0 + lon1) / 2, (lat0 + lat1) / 2)
-  const mid = new Cesium.Cartesian3()
-  const e1 = new Cesium.Cartesian3()
-  const up = new Cesium.Cartesian3()
-  const nrm = new Cesium.Cartesian3()
-  const planes: Cesium.ClippingPlane[] = []
-  for (let i = 0; i < pts.length; i++) {
-    const a = pts[i]
-    const b = pts[(i + 1) % pts.length]
-    Cesium.Cartesian3.midpoint(a, b, mid)
-    Cesium.Ellipsoid.WGS84.geodeticSurfaceNormal(mid, up)
-    Cesium.Cartesian3.subtract(b, a, e1)
-    Cesium.Cartesian3.normalize(e1, e1)
-    Cesium.Cartesian3.cross(e1, up, nrm)
-    Cesium.Cartesian3.normalize(nrm, nrm)
-    // 法线统一指向矩形外侧
-    Cesium.Cartesian3.subtract(mid, center, e1)
-    if (Cesium.Cartesian3.dot(nrm, e1) < 0) Cesium.Cartesian3.negate(nrm, nrm)
-    // 反向 → 保留外侧、挖掉矩形内部
-    Cesium.Cartesian3.negate(nrm, nrm)
-    planes.push(new Cesium.ClippingPlane(Cesium.Cartesian3.clone(nrm), -Cesium.Cartesian3.dot(nrm, a)))
-  }
-  const col = new Cesium.ClippingPlaneCollection({ planes, unionClippingRegions: false })
-  viewer.scene.globe.clippingPlanes = col
-  return col
-}
-
-/** 采样矩形范围内的最高地面海拔：给贴地的矩形图元定高度，避免整块被山体压住 */
-export async function sampleMaxGroundHeight(
-  viewer: Viewer,
-  lon0: number,
-  lat0: number,
-  lon1: number,
-  lat1: number,
-  grid = 5,
-): Promise<number> {
+  n: number,
+  level = 12,
+): Promise<Float32Array | null> {
+  if (!(viewer.terrainProvider instanceof Cesium.ArcGISTiledElevationTerrainProvider)) return null
   const pts: Cesium.Cartographic[] = []
-  for (let i = 0; i <= grid; i++) {
-    for (let j = 0; j <= grid; j++) {
-      pts.push(
-        Cesium.Cartographic.fromDegrees(
-          lon0 + ((lon1 - lon0) * i) / grid,
-          lat0 + ((lat1 - lat0) * j) / grid,
-        ),
-      )
+  for (let j = 0; j < n; j++) {
+    const lat = lat1 - ((lat1 - lat0) * j) / (n - 1) // 第 0 行 = 北边
+    for (let i = 0; i < n; i++) {
+      pts.push(Cesium.Cartographic.fromDegrees(lon0 + ((lon1 - lon0) * i) / (n - 1), lat))
     }
   }
   try {
-    const res = await Cesium.sampleTerrain(viewer.terrainProvider, 11, pts)
-    return res.reduce((m, c) => Math.max(m, Number.isFinite(c?.height) ? c.height : 0), 0)
+    const res = await Cesium.sampleTerrain(viewer.terrainProvider, level, pts)
+    const out = new Float32Array(n * n)
+    for (let k = 0; k < out.length; k++) {
+      const h = res[k]?.height
+      out[k] = Number.isFinite(h) ? (h as number) : 0
+    }
+    return out
   } catch {
-    return 0
+    return null
   }
 }
 

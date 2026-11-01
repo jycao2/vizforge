@@ -493,3 +493,39 @@ export const SLOPE_RAMP = makeRamp([
   [0.82, '#e2452f'],
   [1, '#8f1414'],
 ])
+
+/* ---------------- 真实地形贴合 ---------------- */
+
+/**
+ * 用真实地形高程替换 DEM 的高程场（双线性重采样到 DEM 网格）。
+ *
+ * 用途：让分析（挖填方 / 淹没 / 可视域）跑在**真实地面**上，
+ * 渲染时再把结果贴回地形，这样分析面与三维地形天然贴合，放大缩小都不会分离。
+ * @param src 真实高程，n×n，row-major，第 0 行是北边
+ * @param srcN 采样网格边数
+ */
+export function applyRealHeights(dem: DEM, src: Float32Array, srcN: number): void {
+  const gain = (srcN - 1) / (dem.n - 1)
+  let min = Infinity
+  let max = -Infinity
+  for (let j = 0; j < dem.n; j++) {
+    const sy = Math.min(j * gain, srcN - 1.0001)
+    const j0 = Math.floor(sy)
+    const ty = sy - j0
+    for (let i = 0; i < dem.n; i++) {
+      const sx = Math.min(i * gain, srcN - 1.0001)
+      const i0 = Math.floor(sx)
+      const tx = sx - i0
+      const a = src[j0 * srcN + i0]
+      const b = src[j0 * srcN + i0 + 1]
+      const c = src[(j0 + 1) * srcN + i0]
+      const d = src[(j0 + 1) * srcN + i0 + 1]
+      const h = (a * (1 - tx) + b * tx) * (1 - ty) + (c * (1 - tx) + d * tx) * ty
+      dem.h[j * dem.n + i] = h
+      if (h < min) min = h
+      if (h > max) max = h
+    }
+  }
+  dem.min = min
+  dem.max = max
+}

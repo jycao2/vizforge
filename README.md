@@ -34,13 +34,13 @@
 | **[Cesium · 场地挖填方分析](https://jycao2.github.io/vizforge/#/e/cesium/cut-fill)** | **[OpenLayers · 路网等时圈](https://jycao2.github.io/vizforge/#/e/openlayers/isochrone)** |
 | [![场地挖填方分析](docs/screenshots/cesium-cut-fill.png)](https://jycao2.github.io/vizforge/#/e/cesium/cut-fill) | [![路网等时圈](docs/screenshots/ol-isochrone.png)](https://jycao2.github.io/vizforge/#/e/openlayers/isochrone) |
 
-更多：时序影像、可视域、掩膜裁剪、地形剖面、IDW 插值、蜂窝聚合、缓冲区分析、阴影贴图等另外 81 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
+更多：时序影像、可视域、掩膜裁剪、地形剖面、IDW 插值、蜂窝聚合、缓冲区分析、阴影贴图等另外 69 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
 
 ---
 
 ## 特性
 
-- **77 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
+- **87 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
 - **源码即看即拷**：基于 Vite 的 `import.meta.glob(..., { query: '?raw' })` 直接读取组件原始文本，配合 highlight.js 高亮，改完代码刷新即同步，不存在「文档和实现对不上」。
 - **零后端、免 Token**：纯前端静态站点，不依赖 Cesium Ion Token，不依赖任何自建服务。
 - **统一交互外壳**：每个示例自带参数面板（滑杆 / 开关 / 按钮）与画布工具条（放大、缩小、复位、全屏），切换示例时资源完整释放，长时间浏览不会泄漏。
@@ -117,9 +117,9 @@ npm run preview
 | 城市白模 | 256 个街区 PolygonGraphics 按 extrudedHeight 拉伸，高度分色模拟 CBD 高楼群。 | `src/examples/cesium/CityModel.vue` |
 | 城市热力图 | 径向渐变叠加成密度场 → 256 级色带查表 → 自定义材质的 RectangleGeometry 贴回球面，半径/强度/色带实时可调。 | `src/examples/cesium/HeatmapOverlay.vue` |
 | 三维地形高程分析 | 程序化 DEM 建三角网：分层设色 / Horn 山体阴影 / 坡度 / 坡向 / Marching Squares 等高线，垂直夸张与太阳方位实时可调，鼠标读取任意点高程。 | `src/examples/cesium/TerrainDEM.vue` |
-| 场地挖填方分析 | 设计面找坡（基准标高 + 双向排水坡度）→ 差值场红挖蓝填、零线即挖填分界，格网柱体法算土方量，二分法一键求土方平衡标高；场地按真实地面高程嵌入全球三维地形。 | `src/examples/cesium/CutFill.vue` |
-| 水库淹没分析 | 连通淹没（河道种子洪水填充）与全域淹没对照，山后洼地只有后者会被淹；水面随水位重建粗网格；库区模型以千岛湖真实地形为背景，clippingPlanes 挖除矩形内真实地表后由岩层裙边封口。 | `src/examples/cesium/FloodAnalysis.vue` |
-| 可视域分析 | 瞭望塔通视分析：视线逐格插值判定地形遮挡，视高 / 视距 / 方位角 / 视场角可调，点击地图搬移观察点；分析块嵌进延庆山地真实地形，统计可视率与最远可视距离。 | `src/examples/cesium/Viewshed.vue` |
+| 场地挖填方分析 | 设计面找坡（基准标高 + 双向排水坡度）→ 差值场红挖蓝填、零线即挖填分界，格网柱体法算土方量，二分法一键求土方平衡标高；高程取自真实地形，结果贴地渲染，放大缩小不分离。 | `src/examples/cesium/CutFill.vue` |
+| 水库淹没分析 | 连通淹没（河道种子洪水填充）与全域淹没对照；高程取自千岛湖真实地形，淹没范围贴地渲染（GroundPrimitive 分类），水面为水平面，随水位实时重烘。 | `src/examples/cesium/FloodAnalysis.vue` |
+| 可视域分析 | 瞭望塔通视分析：视线逐格插值判定地形遮挡，视高 / 视距 / 方位角 / 视场角可调，点击地图搬移观察点；高程取自延庆山地真实地形，可视性着色贴地渲染。 | `src/examples/cesium/Viewshed.vue` |
 | 时序影像产品 | 2001–2025 多期影像 + 时间轴播放 + 逐期指标曲线（建成区 / 植被 / 水域），支持与基准期 2001 卷帘对比，着色器内分割。 | `src/examples/cesium/TimeSeriesImagery.vue` |
 | 掩膜裁剪 | SDF 带符号距离场实现影像掩膜的羽化 / 描边 / 挖除，三种形状可调；叠加 globe.clippingPlanes 裁剪平面真实切掉地形。 | `src/examples/cesium/MaskClip.vue` |
 
@@ -280,7 +280,9 @@ public/3dtiles/            3D Tiles 示例使用的本地瓦片集
 - **shader 里的开关别忘了乘在整个 terms 上**：`1.0 - smoothstep(...) * uCompare` 在 `uCompare = 0` 时等于 `1`，整块被 `mix` 成白色；正确写法是 `(1.0 - smoothstep(...)) * uCompare`。这类「看起来偶尔白屏」的问题先怀疑表达式括号，别急着怀疑纹理上传。
 - **OpenLayers `ImageStatic` 的 `imageExtent` 顺序是 `[minX, minY, maxX, maxY]`**：写成「西、北、东、南」（把 maxY 放前面）minY/maxY 颠倒，整个图层会静默不显示——不报错、只消失，很难查。
 - **调试 Cesium 渲染时先掐掉远程瓦片**：Esri 底图瓦片会在后台持续加载，同一状态前后两次截图平均差可达 17/255，任何基于像素差分的验证都会失效。用 Playwright 的 `page.route` 拦掉瓦片域名后噪声底为 0，差分结论才可信。
-- **自定义地形嵌进真实地球要「三件套」**：只开 `enableWorldTerrain` 的话分析块会埋进山体或悬空。正确做法：① 采样场地真实高程（`sampleTerrainMostDetailed`），把模型整体抬升 `realMax - dem.min + 6`，保证块体不低于范围内任何真实地面；② 沿矩形四边生成**裙边**（垂直侧壁）封住模型与地形的接缝；③ 用 `globe.clippingPlanes` 挖掉矩形内的真实地表，否则高于模型的山体会从模型底下穿模。三者缺一都会露馅。
+- **分析结果要「贴地」，不要自己搭一块悬空的块**：早期版本用「自建三角网 + 按场地高程整体抬高 + 垂直裙边」把分析块放到真实地形上，结果放大后必然露馅——块体像浮在地面的板，边缘出现竖向剖切面。正确做法是分开两件事：**计算用真实高程，渲染用贴地图元**。① 用 `Cesium.sampleTerrain`（65×65、层级 12，约 400ms）把真实地面高程采样进 DEM，分析的基底就是真实地形；② 结果纹理用 `GroundPrimitive` + `RectangleGeometry` + `MaterialAppearance`（`classificationType: TERRAIN`）分类渲染，Cesium 会把它贴在真实地表上，缩放/倾斜都不会分离。
+- **贴地图元必须带 alpha**：不透明的贴图在放大后就是一整块纯色，地面细节全被盖住。把分析色块的 alpha 写进 canvas（可见区 ~0.6、遮挡区 ~0.5、未覆盖 ~0.15），并给四周做 `smoothstep` 边缘羽化，矩形范围才会自然淡入地形，而不是「切一刀」。
+- **`GroundPrimitive` 同步构建要额外初始化**：`asynchronous: false` 时必须先 `await Cesium.GroundPrimitive.initializeTerrainHeights()`，否则抛 `DeveloperError`；保持默认异步构建最省事（首帧后出现）。
 - **地形自适应要先等服务就位**：`enableWorldTerrain` 是异步的，紧跟着采样海拔会拿到光滑椭球的 0 米。轮询 `viewer.terrainProvider instanceof ArcGISTiledElevationTerrainProvider` 之后再采样。
 - **Esri ImageServer 的 `identify` 接口返回的是概览金字塔值**（WorldDTM_OV256），10km 范围内可能恒为同一个数，不能用它判断局地起伏；要全精度就老老实实走 `sampleTerrainMostDetailed`。
 - **垂直拉伸（exag）必须为 1 的两种场景**：水面高程要与 DEM 判定精确一致（exag≠1 时水岸线对不上）；`pickUV` 这类射线步进拾取拿的是渲染后的世界坐标（exag≠1 时读数偏差可达数百米）。要立体感宁可换真实地形，别拉 z 轴。
@@ -296,7 +298,7 @@ public/3dtiles/            3D Tiles 示例使用的本地瓦片集
 - 需要联网：底图瓦片来自 Esri 公开服务，`ModelLoad` 示例引用的 glTF 模型为外部 URL；`Tiles3D` 使用的是 `public/3dtiles/` 下的本地瓦片集，可离线运行。
 - 示例中的点位、轨迹、气象、建筑等数据均为**程序化合成**（固定随机种子），用于演示算法与渲染，不代表真实业务数据。
 - 项目定位是学习与参考：代码以「可读、可拆、可拷」为第一目标，未做通用组件抽象与生产级错误兜底。
-- 全站回归的测试方法与缺陷记录见 [docs/TEST-REPORT.md](docs/TEST-REPORT.md)（87 个示例冒烟 + 交互语义断言 + 压力测试）。
+- 全站回归的测试方法与缺陷记录见 [docs/TEST-REPORT.md](docs/TEST-REPORT.md)（91 个示例冒烟 + 交互语义断言 + 压力测试）。
 
 ## 技术栈
 

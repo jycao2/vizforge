@@ -6,21 +6,22 @@ import MapControls from '@/components/MapControls.vue'
 import { CESIUM_BASEMAPS } from './basemaps'
 import {
   VIEWER_OPTIONS,
-  clipGlobeRectangle,
   enableTerrainScene,
-  sampleMaxGroundHeight,
+  sampleTerrainGrid,
   useCesiumBasemap,
   useCesiumView,
   waitRealTerrain,
 } from './useCesium'
+import { demRectangle, makeDrapedPrimitive, makeImageMaterial, makeTextureUploader } from './demMesh'
 import {
-  buildSkirtGeometry,
-  buildTerrainGeometry,
-  makeImageMaterial,
-  makeSkirtMaterial,
-  makeTextureUploader,
-} from './demMesh'
-import { HYPSOMETRIC, hillshade, makeDEM, sampleH, uvToLonLat, type DEM } from '@/examples/shared/terrain'
+  HYPSOMETRIC,
+  applyRealHeights,
+  hillshade,
+  makeDEM,
+  sampleH,
+  uvToLonLat,
+  type DEM,
+} from '@/examples/shared/terrain'
 
 /* ============================================================
  * 可视域分析（Viewshed / 通视分析）
@@ -38,10 +39,8 @@ import { HYPSOMETRIC, hillshade, makeDEM, sampleH, uvToLonLat, type DEM } from '
 const wrapRef = ref<HTMLDivElement>()
 const container = ref<HTMLDivElement>()
 let viewer: Cesium.Viewer | null = null
-/** 真实地面海拔偏移 + 裙边侧壁：分析块嵌进真实地形（延庆北山地区，约 484~760m） */
-let groundOffset = 0
+/** 分析基底 = 真实地形高程，可视性着色贴回地形表面（不再是悬空块） */
 let stopTerrain: (() => void) | null = null
-let skirtPrim: Cesium.Primitive | null = null
 
 // 延庆北（北京延庆与赤城交界）：真实中低山，幅差约 276m，瞭望塔选址的典型场景
 const LON = 116.05
@@ -161,6 +160,10 @@ function bakeBase() {
   }
 }
 
+/**
+ * 烘焙可视性贴图。alpha 是重点：贴地图元用半透明叠加，
+ * 地面影像/地形细节能透出来，放大时才不会变成一整块纯色。
+ */
 function bake() {
   if (!baseImg) return
   const img = new ImageData(new Uint8ClampedArray(baseImg.data), TEX, TEX)
@@ -170,18 +173,24 @@ function bake() {
     for (let px = 0; px < TEX; px++) {
       const i = Math.round((px / (TEX - 1)) * (N - 1))
       const vis = visible[j * N + i]
-      if (!vis) continue
       const t = (py * TEX + px) << 2
+      if (!vis) {
+        // 未覆盖（超视距 / 超出视场角）：只留极淡的底图，避免与"被挡"混淆
+        d[t + 3] = 40
+        continue
+      }
       if (vis === 1) {
-        // 可见：亮绿叠加
+        // 可见：亮绿
         d[t] = d[t] * 0.25 + 70
         d[t + 1] = d[t + 1] * 0.25 + 190
         d[t + 2] = d[t + 2] * 0.25 + 90
+        d[t + 3] = 150
       } else {
         // 被挡：压暗 + 泛红
         d[t] = d[t] * 0.55 + 70
         d[t + 1] = d[t + 1] * 0.4
         d[t + 2] = d[t + 2] * 0.4
+        d[t + 3] = 132
       }
     }
   }
@@ -189,41 +198,18 @@ function bake() {
 }
 
 /* ---------------- 图元 ---------------- */
-let prim: Cesium.Primitive | null = null
+let prim: Cesium.GroundPrimitive | null = null
 let mat: Cesium.Material | null = null
 const uploader = makeTextureUploader()
 
 function buildPrimitive() {
   const scene = viewer?.scene
   if (!scene) return
-  if (prim) scene.primitives.remove(prim)
-  if (skirtPrim) scene.primitives.remove(skirtPrim)
+  if (prim) scene.groundPrimitives.remove(prim)
   mat = makeImageMaterial(canvas)
-  prim = new Cesium.Primitive({
-    geometryInstances: new Cesium.GeometryInstance({
-      // exag 必须是 1：通视计算用的是 DEM 原始高程，渲染抬高会让视线判定失真
-      geometry: buildTerrainGeometry(dem, 1, groundOffset),
-    }),
-    appearance: new Cesium.MaterialAppearance({
-      material: mat,
-      translucent: false,
-      flat: true,
-    }),
-    asynchronous: false,
-  })
-  scene.primitives.add(prim)
-  skirtPrim = new Cesium.Primitive({
-    geometryInstances: new Cesium.GeometryInstance({
-      geometry: buildSkirtGeometry(dem, 1, groundOffset, 1100),
-    }),
-    appearance: new Cesium.MaterialAppearance({
-      material: makeSkirtMaterial(),
-      translucent: false,
-      flat: true,
-    }),
-    asynchronous: false,
-  })
-  scene.primitives.add(skirtPrim)
+  // 贴地分类渲染：可视/遮挡色块跟着真实山体走，缩放不分离
+  prim = makeDrapedPrimitive(demRectangle(dem), mat, true)
+  scene.groundPrimitives.add(prim)
   uploader.upload(mat, canvas)
 }
 
@@ -235,7 +221,7 @@ function syncObserver() {
   const [lon, lat] = uvToLonLat(dem, obs.value.u, obs.value.v)
   const ground = sampleH(dem, obs.value.u, obs.value.v)
   obsEntity.position = new Cesium.ConstantPositionProperty(
-    Cesium.Cartesian3.fromDegrees(lon, lat, ground + eyeH.value + 12 + groundOffset),
+    Cesium.Cartesian3.fromDegrees(lon, lat, ground + eyeH.value + 12),
   )
   ;(obsEntity.label as Cesium.LabelGraphics).text = new Cesium.ConstantProperty(
     `观察点 · 视高 ${eyeH.value}m`,
@@ -283,7 +269,7 @@ function pickUV(winPos: Cesium.Cartesian2): [number, number] | null {
       prevT = t
       continue
     }
-    const diff = c.height - (sampleH(dem, u, v) + groundOffset)
+    const diff = c.height - sampleH(dem, u, v)
     if (i > 1 && !Number.isNaN(prevDiff) && prevDiff > 0 && diff <= 0) {
       // 落点即交点附近，直接线性取
       return [u, v]
@@ -316,11 +302,10 @@ onMounted(() => {
   bakeBase()
   computeViewshed()
   bake()
-  buildPrimitive()
 
   const [olon, olat] = uvToLonLat(dem, obs.value.u, obs.value.v)
   obsEntity = viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(olon, olat, 200),
+    position: Cesium.Cartesian3.fromDegrees(olon, olat, sampleH(dem, obs.value.u, obs.value.v) + eyeH.value + 12),
     point: {
       pixelSize: 11,
       color: Cesium.Color.fromCssColorString('#ffd45e'),
@@ -350,22 +335,26 @@ onMounted(() => {
 
   viewer.camera.setView(home)
 
-  // 真实地形就位后，把分析块抬到实际高程带并重建
+  // 等真实地形就位再渲染，避免"程序化地形 → 真实地形"的跳变
   void (async () => {
-    if (!viewer || !(await waitRealTerrain(viewer))) return
-    const realMax = await sampleMaxGroundHeight(viewer, dem.lon0, dem.lat0, dem.lon1, dem.lat1)
-    if (viewer && !viewer.isDestroyed() && realMax > 0) {
-      groundOffset = Math.max(0, realMax - dem.min + 6)
+    const ready = await waitRealTerrain(viewer)
+    const grid = ready ? await sampleTerrainGrid(viewer, dem.lon0, dem.lat0, dem.lon1, dem.lat1, 65, 12) : null
+    if (!viewer || viewer.isDestroyed()) return
+    if (!grid) {
       buildPrimitive()
-      syncObserver()
-      clipGlobeRectangle(viewer, dem.lon0, dem.lat0, dem.lon1, dem.lat1)
+      return
     }
+    applyRealHeights(dem, grid, 65)
+    bakeBase()
+    computeViewshed()
+    bake()
+    buildPrimitive()
+    syncObserver()
   })()
 })
 
 onBeforeUnmount(() => {
   stopTerrain?.()
-  skirtPrim = null
   uploader.dispose()
   mat = null
   prim = null

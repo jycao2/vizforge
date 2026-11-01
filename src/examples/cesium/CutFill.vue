@@ -7,13 +7,18 @@ import { CESIUM_BASEMAPS } from './basemaps'
 import {
   VIEWER_OPTIONS,
   enableTerrainScene,
-  sampleMaxGroundHeight,
+  sampleTerrainGrid,
   useCesiumBasemap,
   useCesiumView,
   waitRealTerrain,
 } from './useCesium'
-import { buildTerrainGeometry, makeImageMaterial, makeTextureUploader } from './demMesh'
-import { contourLine, makeDEM, type DEM } from '@/examples/shared/terrain'
+import {
+  demRectangle,
+  makeDrapedPrimitive,
+  makeImageMaterial,
+  makeTextureUploader,
+} from './demMesh'
+import { applyRealHeights, contourLine, makeDEM, type DEM } from '@/examples/shared/terrain'
 
 /* ============================================================
  * 场地平整 · 挖填方分析
@@ -27,9 +32,7 @@ import { contourLine, makeDEM, type DEM } from '@/examples/shared/terrain'
 const wrapRef = ref<HTMLDivElement>()
 const container = ref<HTMLDivElement>()
 let viewer: Cesium.Viewer | null = null
-/** 真实地面海拔偏移：开了全球地形后，分析块整体抬到场地的真实高程带上，
- *  四周用裙边侧壁与真实地形衔接（buildTerrainGeometry 的 skirtDepth） */
-let groundOffset = 0
+/** 分析基底直接取真实地形高程，结果再贴回地形表面（不再抬高成"悬空块"） */
 let stopTerrain: (() => void) | null = null
 
 const LON = 116.35
@@ -154,7 +157,7 @@ function balance() {
     else hi = mid
   }
   const balanced = (lo + hi) / 2
-  baseH.value = Math.round(Cesium.Math.clamp(balanced, 30, 95) * 100) / 100
+  baseH.value = Math.round(Cesium.Math.clamp(balanced, dem.min, dem.max) * 100) / 100
 }
 
 /* ---------------- 着色 ---------------- */
@@ -194,7 +197,8 @@ function bake() {
       d[t] = r
       d[t + 1] = g
       d[t + 2] = b
-      d[t + 3] = 255
+      // 半透明：地面影像透出来，色块才像"画在"地形上而不是盖了块板
+      d[t + 3] = dif > 0.15 || dif < -0.15 ? 190 : 90
     }
   }
   ctx.putImageData(img, 0, 0)
@@ -230,7 +234,7 @@ function bake() {
 }
 
 /* ---------------- 图元 ---------------- */
-let terrainPrim: Cesium.Primitive | null = null
+let terrainPrim: Cesium.GroundPrimitive | null = null
 let terrainMat: Cesium.Material | null = null
 let planePrim: Cesium.Primitive | null = null
 const uploader = makeTextureUploader()
@@ -238,20 +242,11 @@ const uploader = makeTextureUploader()
 function buildTerrain() {
   const scene = viewer?.scene
   if (!scene) return
-  if (terrainPrim) scene.primitives.remove(terrainPrim)
+  if (terrainPrim) scene.groundPrimitives.remove(terrainPrim)
   terrainMat = makeImageMaterial(canvas)
-  terrainPrim = new Cesium.Primitive({
-    geometryInstances: new Cesium.GeometryInstance({
-      geometry: buildTerrainGeometry(dem, 1, groundOffset, 900),
-    }),
-    appearance: new Cesium.MaterialAppearance({
-      material: terrainMat,
-      translucent: false,
-      flat: true,
-    }),
-    asynchronous: false,
-  })
-  scene.primitives.add(terrainPrim)
+  // 贴地：用 GroundPrimitive 分类渲染，色块随真实地形起伏，缩放不分离
+  terrainPrim = makeDrapedPrimitive(demRectangle(dem), terrainMat, true)
+  scene.groundPrimitives.add(terrainPrim)
   uploader.upload(terrainMat, canvas)
 }
 
@@ -283,7 +278,7 @@ function buildPlane() {
       const k = j * pn + i
       const lon = dem.lon0 + (dem.lon1 - dem.lon0) * u
       const lat = dem.lat1 - (dem.lat1 - dem.lat0) * v
-      Cesium.Cartesian3.fromDegrees(lon, lat, designH(u, v) + groundOffset, undefined, tmp)
+      Cesium.Cartesian3.fromDegrees(lon, lat, designH(u, v), undefined, tmp)
       positions[k * 3] = tmp.x
       positions[k * 3 + 1] = tmp.y
       positions[k * 3 + 2] = tmp.z
@@ -337,7 +332,7 @@ function buildPlane() {
           float line = min(min(g.x, g.y), min(1.0 - g.x, 1.0 - g.y));
           float edge = 1.0 - smoothstep(0.0, 0.045, line);
           m.diffuse = mix(vec3(0.95, 0.82, 0.25), vec3(0.55, 0.45, 0.1), edge);
-          m.alpha = 0.32 + 0.3 * edge;
+          m.alpha = 0.10 + 0.22 * edge;
           return m;
         }`,
     },
@@ -399,19 +394,29 @@ onMounted(() => {
   computeDiff()
   computeStats()
   bake()
-  buildTerrain()
-  buildPlane()
   viewer.camera.setView(home)
 
-  // 真实地形就位后，把场地抬到实际高程带（北京西山山前，场地约 40~49m）并重建
+  // 等真实地形就位再渲染：避免先画一版程序化高程、再跳变到真实地面的闪烁
   void (async () => {
-    if (!viewer || !(await waitRealTerrain(viewer))) return
-    const realMax = await sampleMaxGroundHeight(viewer, dem.lon0, dem.lat0, dem.lon1, dem.lat1)
-    if (viewer && !viewer.isDestroyed() && realMax > 0) {
-      groundOffset = Math.max(0, realMax - dem.min + 6)
+    const ready = await waitRealTerrain(viewer)
+    const grid = ready ? await sampleTerrainGrid(viewer, dem.lon0, dem.lat0, dem.lon1, dem.lat1, 65, 12) : null
+    if (!viewer || viewer.isDestroyed()) return
+    if (!grid) {
       buildTerrain()
       buildPlane()
+      return
     }
+    applyRealHeights(dem, grid, 65)
+    // 设计标高改到真实地面的量纲（滑块区间同步）
+    // 默认取均值再求一次平衡标高，挖填都有量，色块才不会整片单色
+    baseH.value = Math.round(((dem.min + dem.max) / 2) * 10) / 10
+    computeDiff()
+    balance()
+    computeDiff()
+    computeStats()
+    bake()
+    buildTerrain()
+    buildPlane()
   })()
 })
 
@@ -446,7 +451,13 @@ onBeforeUnmount(() => {
 
       <div class="ctrl">
         <span class="lab">设计标高</span>
-        <input v-model.number="baseH" type="range" min="30" max="95" step="0.5" />
+        <input
+          v-model.number="baseH"
+          type="range"
+          :min="Math.round(dem.min)"
+          :max="Math.round(dem.max)"
+          step="0.5"
+        />
         <b>{{ baseH.toFixed(1) }}<i>m</i></b>
       </div>
       <div class="ctrl">
