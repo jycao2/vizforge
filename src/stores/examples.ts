@@ -296,6 +296,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'three/Instancing.vue',
           },
           {
+            id: 'normal-map',
+            title: '法线贴图',
+            description:
+              '几何只是平面，凹凸全来自 RGB 法线图：高度图中心差分生成法线，解码 rgb*2-1 后乘强度、经切线空间 TBN 转到世界空间。可切换着色 / 法线图 / 高度图三种视图，光源方位与强度实时可调。',
+            file: 'webgl/NormalMap.vue',
+          },
+          {
             id: 'tone-mapping',
             title: 'HDR 色调映射',
             description:
@@ -627,6 +634,13 @@ export const useExamplesStore = defineStore('examples', {
             title: '纹理矩形',
             description: '用 Canvas 程序化生成纹理并贴到旋转矩形上。',
             file: 'webgl/TextureQuad.vue',
+          },
+          {
+            id: 'normal-map',
+            title: '法线贴图',
+            description:
+              '几何只是平面，凹凸全来自 RGB 法线图：高度图中心差分生成法线，解码 rgb*2-1 后乘强度、经切线空间 TBN 转到世界空间。可切换着色 / 法线图 / 高度图三种视图，光源方位与强度实时可调。',
+            file: 'webgl/NormalMap.vue',
           },
           {
             id: 'tone-mapping',
