@@ -533,6 +533,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'openlayers/Wfs.vue',
           },
           {
+            id: 'od-flow',
+            title: 'OD 迁徙图',
+            description:
+              '6 个枢纽到 22 个城市的 OD 流向图：弧线是投影坐标里的二次贝塞尔，控制点沿中垂线外推、弧高按跨度比例缩放；虚线守 lineDashOffset 平移、光点沿曲线插值，两层叠出流动感。弧高与流速可调，弧线/流光可单独开关，点线可拾取。',
+            file: 'openlayers/OdFlow.vue',
+          },
+          {
             id: 'coordinate-crs',
             title: '坐标系纠偏',
             description:
