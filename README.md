@@ -8,7 +8,7 @@
 
 **在线体验（GitHub Pages，无需安装）：https://jycao2.github.io/vizforge/**
 
-一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **87 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
+一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **88 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
 
 每个示例页右上角都有「查看源码」按钮，点开就是该示例的完整实现，可一键复制——它不是一个封装好的组件库，而是一本可以直接拆开看的、跑得起来的代码手册。从 Cesium 的 DEM 地形/挖填方/淹没/可视域/时序影像/掩膜裁剪，到 Three.js 智慧工厂/海上风电场，再到 OpenLayers 的地形剖面/路网等时圈/IDW 插值/蜂窝聚合，以及体积云光线步进、GPGPU 粒子流场、SDF 光线步进、阴影贴图，都能在这里直接读源码。
 
@@ -20,7 +20,7 @@
 
 [![首页](docs/screenshots/home.png)](https://jycao2.github.io/vizforge/)
 
-**首页**：四条技术栈 87 个示例的总览入口，点卡片进入对应示例。
+**首页**：四条技术栈 88 个示例的总览入口，点卡片进入对应示例。
 
 | [Cesium · 台风路径与风圈](https://jycao2.github.io/vizforge/#/e/cesium/typhoon) | [Cesium · 日照阴影分析](https://jycao2.github.io/vizforge/#/e/cesium/sun-shadow) |
 | --- | --- |
@@ -33,14 +33,16 @@
 | [![三维地形高程分析](docs/screenshots/cesium-terrain-dem.png)](https://jycao2.github.io/vizforge/#/e/cesium/terrain-dem) | [![水库淹没分析](docs/screenshots/cesium-flood-analysis.png)](https://jycao2.github.io/vizforge/#/e/cesium/flood-analysis) |
 | **[Cesium · 场地挖填方分析](https://jycao2.github.io/vizforge/#/e/cesium/cut-fill)** | **[OpenLayers · 路网等时圈](https://jycao2.github.io/vizforge/#/e/openlayers/isochrone)** |
 | [![场地挖填方分析](docs/screenshots/cesium-cut-fill.png)](https://jycao2.github.io/vizforge/#/e/cesium/cut-fill) | [![路网等时圈](docs/screenshots/ol-isochrone.png)](https://jycao2.github.io/vizforge/#/e/openlayers/isochrone) |
+| **[Cesium · 掩膜裁剪](https://jycao2.github.io/vizforge/#/e/cesium/mask-clip)** | **[Three.js · 三维推箱子](https://jycao2.github.io/vizforge/#/e/three/sokoban)** |
+| [![掩膜裁剪](docs/screenshots/cesium-mask-clip.png)](https://jycao2.github.io/vizforge/#/e/cesium/mask-clip) | [![三维推箱子](docs/screenshots/three-sokoban.png)](https://jycao2.github.io/vizforge/#/e/three/sokoban) |
 
-更多：时序影像、可视域、掩膜裁剪、地形剖面、IDW 插值、蜂窝聚合、缓冲区分析、阴影贴图等另外 69 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
+更多：时序影像、可视域、掩膜裁剪、地形剖面、IDW 插值、蜂窝聚合、缓冲区分析、阴影贴图等另外 68 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
 
 ---
 
 ## 特性
 
-- **87 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
+- **88 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
 - **源码即看即拷**：基于 Vite 的 `import.meta.glob(..., { query: '?raw' })` 直接读取组件原始文本，配合 highlight.js 高亮，改完代码刷新即同步，不存在「文档和实现对不上」。
 - **零后端、免 Token**：纯前端静态站点，不依赖 Cesium Ion Token，不依赖任何自建服务。
 - **统一交互外壳**：每个示例自带参数面板（滑杆 / 开关 / 按钮）与画布工具条（放大、缩小、复位、全屏），切换示例时资源完整释放，长时间浏览不会泄漏。
@@ -123,7 +125,7 @@ npm run preview
 | 时序影像产品 | 2001–2025 多期影像 + 时间轴播放 + 逐期指标曲线（建成区 / 植被 / 水域），支持与基准期 2001 卷帘对比，着色器内分割。 | `src/examples/cesium/TimeSeriesImagery.vue` |
 | 掩膜裁剪 | SDF 带符号距离场实现影像掩膜的羽化 / 描边 / 挖除，三种形状可调；叠加 globe.clippingPlanes 裁剪平面真实切掉地形。 | `src/examples/cesium/MaskClip.vue` |
 
-### Three.js（24 个）
+### Three.js（25 个）
 
 通用的 WebGL 3D 渲染库，适合任意三维场景与特效。
 
@@ -154,6 +156,7 @@ npm run preview
 | 智慧工厂产线孪生 | 两条产线全链路：上料 → 三台加工中心（到位停线、切削火花）→ XYZ 桁架机械手码垛 → 托盘出库，AGV 按弧长匀速跑闭合路径，设备故障会就地停线并触发地面告警波纹，含 OEE 看板与三种相机机位。 | `src/examples/three/SmartFactory.vue` |
 | 长输管道数字孪生 | 管线随地形起伏布设：内部流体用 ShaderMaterial 沿 uv.x 做相位流动，泄漏点/清管器位置在着色器里局部染色；法兰管墩沿弧长实例化布设，支持管壁透视、发射清管器并跟随视角、注入泄漏看压力流量联动。 | `src/examples/three/Pipeline.vue` |
 | 海上风电场 | 真实尺度风机群（轮毂 90m / 叶轮 116m）：Gerstner 波海面、叶片顶点收窄+扭转建模、机舱偏航对风、Jensen 尾流模型让下游风机降载，功率按 ½ρAv³Cp 曲线计算，风况参数实时可调。 | `src/examples/three/WindFarm.vue` |
+| 三维推箱子 | 可玩的三维 Sokoban：方向键/WASD 推箱，木箱带金属包角与木纹、地砖逐块倒角、目标环呼吸脉动；角色行走有起伏、转身插值，拖拽旋转视角、滚轮缩放，含撤销/重来与 4 张开箱即玩的关卡（BFS 校验可解）。 | `src/examples/three/Sokoban.vue` |
 
 ### OpenLayers（22 个）
 

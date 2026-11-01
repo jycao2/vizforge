@@ -364,6 +364,13 @@ export const useExamplesStore = defineStore('examples', {
               '真实尺度风机群（轮毂 90m / 叶轮 116m）：Gerstner 波海面、叶片顶点收窄+扭转建模、机舱偏航对风、Jensen 尾流模型让下游风机降载，功率按 ½ρAv³Cp 曲线计算，风况参数实时可调。',
             file: 'three/WindFarm.vue',
           },
+          {
+            id: 'sokoban',
+            title: '三维推箱子',
+            description:
+              '可玩的三维 Sokoban：方向键/WASD 推箱，木箱带金属包角与木纹、地砖逐块倒角、目标环呼吸脉动；角色行走有起伏、转身插值，拖拽旋转视角、滚轮缩放，含撤销/重来与 4 张开箱即玩的关卡（BFS 校验可解）。',
+            file: 'three/Sokoban.vue',
+          },
         ],
       },
       {
