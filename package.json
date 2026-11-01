@@ -2,7 +2,7 @@
   "name": "vizforge",
   "version": "0.1.0",
   "type": "module",
-  "description": "VizForge · 可视化实验室 — 97 runnable visualization examples built with Vue 3 + TypeScript: Cesium 3D globe, Three.js scenes, OpenLayers maps and raw WebGL2 shaders, every example shipped with readable source you can copy.",
+  "description": "VizForge · 可视化实验室 — 98 runnable visualization examples built with Vue 3 + TypeScript: Cesium 3D globe, Three.js scenes, OpenLayers maps and raw WebGL2 shaders, every example shipped with readable source you can copy.",
   "license": "MIT",
   "author": "jycao2",
   "homepage": "https://jycao2.github.io/vizforge/",

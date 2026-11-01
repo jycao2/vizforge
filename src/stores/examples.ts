@@ -225,6 +225,13 @@ export const useExamplesStore = defineStore('examples', {
               '全屏后期特效链：夜视 / 边缘检测 / 黑白 / 景深来自 PostProcessStageLibrary，像素化与扫描线是自己写的 GLSL 片段着色器（colorTexture 即整帧，v_textureCoordinates 是屏幕 uv）；曝光段常驻打底，效果段按加入顺序串联，FXAA 可开关。夜景由一千多个窗户灯点铺出来，特效才有明暗可抓。',
             file: 'cesium/PostProcessing.vue',
           },
+          {
+            id: 'excavation',
+            title: '地形剖切与地下管廊',
+            description:
+              '四个朝外的竖直裁剪面取交集挖出 400 m 基坑，井壁与坑底用 WallGraphics / RectangleGraphics 补（Cesium 只切面不留壁），土壁用条纹材质分层；也可切到单平面剖切看断面。760 m 管网逐顶点采样真实高程再减埋深，检查井为圆柱；地下模式用 translucency 透视地表。',
+            file: 'cesium/Excavation.vue',
+          },
         ],
       },
       {
