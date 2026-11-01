@@ -296,6 +296,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'three/Instancing.vue',
           },
           {
+            id: 'water-surface',
+            title: '水面反射与折射',
+            description:
+              '先把池底与柱子渲到离屏纹理，水面片元按屏幕坐标加波形扰动再采样它（近似折射），反射用反射向量采样解析天空，最后按菲涅尔混合——掠射角像镜子、俯视像玻璃。波高 / 流速 / 折射强度 / 菲涅尔实时可调。',
+            file: 'webgl/Water.vue',
+          },
+          {
             id: 'toon',
             title: '卡通着色与描边',
             description:
@@ -648,6 +655,13 @@ export const useExamplesStore = defineStore('examples', {
             title: '纹理矩形',
             description: '用 Canvas 程序化生成纹理并贴到旋转矩形上。',
             file: 'webgl/TextureQuad.vue',
+          },
+          {
+            id: 'water-surface',
+            title: '水面反射与折射',
+            description:
+              '先把池底与柱子渲到离屏纹理，水面片元按屏幕坐标加波形扰动再采样它（近似折射），反射用反射向量采样解析天空，最后按菲涅尔混合——掠射角像镜子、俯视像玻璃。波高 / 流速 / 折射强度 / 菲涅尔实时可调。',
+            file: 'webgl/Water.vue',
           },
           {
             id: 'toon',

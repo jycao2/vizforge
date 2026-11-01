@@ -157,6 +157,11 @@ export function scaling(s: number): Mat4 {
   return new Float32Array([s, 0, 0, 0, 0, s, 0, 0, 0, 0, s, 0, 0, 0, 0, 1])
 }
 
+/** 非均匀缩放（scaling 是等比，画扁平的池底、柱子要用这个） */
+export function scaling3(x: number, y: number, z: number): Mat4 {
+  return new Float32Array([x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1])
+}
+
 export function translation(x: number, y: number, z: number): Mat4 {
   return new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, x, y, z, 1])
 }
