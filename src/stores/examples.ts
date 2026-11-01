@@ -622,6 +622,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'webgl/TextureQuad.vue',
           },
           {
+            id: 'bloom',
+            title: '泛光 Bloom',
+            description:
+              '亮部提取（软阈值）→ 1/4 分辨率两趟模糊 → 加法合成。加法而不是 lerp 替换，光才会叠加；阈值用「超出量加权」而不是硬截断，边缘不会出硬边。阈值 / 强度 / 半径实时可调，可一键关闭对比。',
+            file: 'webgl/Bloom.vue',
+          },
+          {
             id: 'gaussian-blur',
             title: '两趟高斯模糊',
             description:
