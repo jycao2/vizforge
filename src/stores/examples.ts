@@ -296,6 +296,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'three/Instancing.vue',
           },
           {
+            id: 'gpu-picking',
+            title: 'GPU 拾取',
+            description:
+              '颜色即 ID：每个物体的索引编码成 RGB 渲进离屏缓冲，readPixels 读回鼠标那一个像素再解出索引——不用维护 BVH，也不怕物体形变。readPixels 是同步的，会打断 GPU 流水线，所以节流到 120ms 一次，并可切换查看 ID 缓冲。',
+            file: 'webgl/PickingGpu.vue',
+          },
+          {
             id: 'water-surface',
             title: '水面反射与折射',
             description:
@@ -655,6 +662,13 @@ export const useExamplesStore = defineStore('examples', {
             title: '纹理矩形',
             description: '用 Canvas 程序化生成纹理并贴到旋转矩形上。',
             file: 'webgl/TextureQuad.vue',
+          },
+          {
+            id: 'gpu-picking',
+            title: 'GPU 拾取',
+            description:
+              '颜色即 ID：每个物体的索引编码成 RGB 渲进离屏缓冲，readPixels 读回鼠标那一个像素再解出索引——不用维护 BVH，也不怕物体形变。readPixels 是同步的，会打断 GPU 流水线，所以节流到 120ms 一次，并可切换查看 ID 缓冲。',
+            file: 'webgl/PickingGpu.vue',
           },
           {
             id: 'water-surface',
