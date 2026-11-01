@@ -296,6 +296,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'three/Instancing.vue',
           },
           {
+            id: 'sdf-text',
+            title: 'SDF 文字',
+            description:
+              '纹理里存的不是颜色而是「到字形边缘的距离」：canvas 写字 → 二值掩膜 → 双向 chamfer 距离变换 → 0~1 归一化。渲染时 smoothstep 在 0.5 附近切一刀就是字，把阈值整体外移就是描边——放大 6 倍边缘依然锐利，一张纹理搞定填充 / 描边 / 羽化。',
+            file: 'webgl/SdfText.vue',
+          },
+          {
             id: 'gpu-picking',
             title: 'GPU 拾取',
             description:
@@ -662,6 +669,13 @@ export const useExamplesStore = defineStore('examples', {
             title: '纹理矩形',
             description: '用 Canvas 程序化生成纹理并贴到旋转矩形上。',
             file: 'webgl/TextureQuad.vue',
+          },
+          {
+            id: 'sdf-text',
+            title: 'SDF 文字',
+            description:
+              '纹理里存的不是颜色而是「到字形边缘的距离」：canvas 写字 → 二值掩膜 → 双向 chamfer 距离变换 → 0~1 归一化。渲染时 smoothstep 在 0.5 附近切一刀就是字，把阈值整体外移就是描边——放大 6 倍边缘依然锐利，一张纹理搞定填充 / 描边 / 羽化。',
+            file: 'webgl/SdfText.vue',
           },
           {
             id: 'gpu-picking',
