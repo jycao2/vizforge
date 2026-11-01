@@ -8,7 +8,7 @@
 
 **在线体验（GitHub Pages，无需安装）：https://jycao2.github.io/vizforge/**
 
-一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **109 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
+一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **110 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
 
 每个示例页右上角都有「查看源码」按钮，点开就是该示例的完整实现，可一键复制——它不是一个封装好的组件库，而是一本可以直接拆开看的、跑得起来的代码手册。从 Cesium 的 DEM 地形/挖填方/淹没/可视域/时序影像/掩膜裁剪，到 Three.js 智慧工厂/海上风电场，再到 OpenLayers 的地形剖面/路网等时圈/IDW 插值/蜂窝聚合，以及体积云光线步进、GPGPU 粒子流场、SDF 光线步进、阴影贴图，都能在这里直接读源码。
 
@@ -20,7 +20,7 @@
 
 [![首页](docs/screenshots/home.png)](https://jycao2.github.io/vizforge/)
 
-**首页**：四条技术栈 109 个示例的总览入口，点卡片进入对应示例。
+**首页**：四条技术栈 110 个示例的总览入口，点卡片进入对应示例。
 
 | [Cesium · 台风路径与风圈](https://jycao2.github.io/vizforge/#/e/cesium/typhoon) | [Cesium · 日照阴影分析](https://jycao2.github.io/vizforge/#/e/cesium/sun-shadow) |
 | --- | --- |
@@ -45,8 +45,8 @@
 | [![分级统计专题图](docs/screenshots/ol-choropleth.png)](https://jycao2.github.io/vizforge/#/e/openlayers/choropleth) | [![路网路径规划](docs/screenshots/ol-route-plan.png)](https://jycao2.github.io/vizforge/#/e/openlayers/route-plan) |
 | **[Cesium · 后期处理特效](https://jycao2.github.io/vizforge/#/e/cesium/post-processing)** | **[Cesium · 地形剖切与地下管廊](https://jycao2.github.io/vizforge/#/e/cesium/excavation)** |
 | [![后期处理特效](docs/screenshots/cesium-post-processing.png)](https://jycao2.github.io/vizforge/#/e/cesium/post-processing) | [![地形剖切与地下管廊](docs/screenshots/cesium-excavation.png)](https://jycao2.github.io/vizforge/#/e/cesium/excavation) |
-| **[Cesium · 粒子特效](https://jycao2.github.io/vizforge/#/e/cesium/particles)** |  |
-| [![粒子特效](docs/screenshots/cesium-particles.png)](https://jycao2.github.io/vizforge/#/e/cesium/particles) |  |
+| **[Cesium · 粒子特效](https://jycao2.github.io/vizforge/#/e/cesium/particles)** | **[OpenLayers · MVT 矢量瓦片](https://jycao2.github.io/vizforge/#/e/openlayers/vector-tile)** |
+| [![粒子特效](docs/screenshots/cesium-particles.png)](https://jycao2.github.io/vizforge/#/e/cesium/particles) | [![MVT 矢量瓦片](docs/screenshots/ol-vector-tile.png)](https://jycao2.github.io/vizforge/#/e/openlayers/vector-tile) |
 
 更多：时序影像、可视域、掩膜裁剪、地形剖面、IDW 插值、蜂窝聚合、缓冲区分析、阴影贴图等另外 58 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
 
@@ -54,7 +54,7 @@
 
 ## 特性
 
-- **109 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
+- **110 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
 - **源码即看即拷**：基于 Vite 的 `import.meta.glob(..., { query: '?raw' })` 直接读取组件原始文本，配合 highlight.js 高亮，改完代码刷新即同步，不存在「文档和实现对不上」。
 - **零后端、免 Token**：纯前端静态站点，不依赖 Cesium Ion Token，不依赖任何自建服务。
 - **统一交互外壳**：每个示例自带参数面板（滑杆 / 开关 / 按钮）与画布工具条（放大、缩小、复位、全屏），切换示例时资源完整释放，长时间浏览不会泄漏。
@@ -176,7 +176,7 @@ npm run preview
 | 三维推箱子 | 可玩的三维 Sokoban：方向键/WASD 推箱，木箱带金属包角与木纹、地砖逐块倒角、目标环呼吸脉动；角色行走有起伏、转身插值，拖拽旋转视角、滚轮缩放，含撤销/重来与 4 张开箱即玩的关卡（BFS 校验可解）。 | `src/examples/three/Sokoban.vue` |
 | 百万级城市 | 程序化生成 10 万~100 万栋楼，实测三种渲染方式的差异：分块 InstancedMesh（视锥剔除逐块生效）/ 单块实例化（draw call=1 但不可剔除）/ 逐实例 Mesh（draw call 爆炸）；实时显示 FPS、draw call、三角面与生成耗时。 | `src/examples/three/MegaCity.vue` |
 
-### OpenLayers（27 个）
+### OpenLayers（28 个）
 
 功能强大的二维地图库，支持瓦片、矢量与丰富的交互。
 
@@ -194,6 +194,7 @@ npm run preview
 | GeoServer 图层服务 | 完整走一遍 GIS 服务链路：GetCapabilities 能力文档、5 个图层的 WMS GetMap 出图（浏览器内光栅化，离线可用）、CQL_FILTER 属性过滤、GetFeatureInfo 点查、WFS GetFeature 导出 GeoJSON；面板实时显示瓦片数/耗时/要素数，并给出可直接对拍真实 GeoServer 的标准请求 URL。 | `src/examples/openlayers/GeoServer.vue` |
 | WFS 矢量图层 | 要素级服务：GetFeature 拉 GeoJSON 并按属性符号化（人口分级 / 等级线宽 / PM2.5 色阶），点选看属性表；改属性、拖几何、删要素、点图新增后走 WFS-T Transaction 写回服务端，计数器与地图同步刷新；附 DescribeFeatureType 字段定义。 | `src/examples/openlayers/Wfs.vue` |
 | WMTS 切片服务 | 切片与实时渲染的实测对比：同一组图层，WMTS 模式命中预切缓存（亚毫秒，绿色柱），WMS 直出模式每次现场渲染（数毫秒，橙色柱）；展示 TileMatrixSet / TileMatrix / TileRow / TileCol 语义，实时命中率、缓存张数与最近 40 次瓦片耗时分布。 | `src/examples/openlayers/Wmts.vue` |
+| MVT 矢量瓦片 | 页面里手写 protobuf 编码器（varint / zigzag / 几何命令），把水系、道路、建筑、POI 编成 MVT 字节流，再交给 `ol/format/MVT` 解码渲染——不联网、不引 pbf 依赖。水系是面带河流中心线偏移，道路按全球经纬网铺所以跨瓦片不断头，z≥15 生成建筑面与 POI 标注；可切图层、点选看属性。坑：`readFeatures` 传 `dataProjection` 会改写它的 extent，把视图的 EPSG:3857 投影一起污染，之后瓦片坐标全算歪。 | `src/examples/openlayers/VectorTile.vue` |
 | 分级统计专题图 | 同一份人口数据，等间距 / 分位数 / Jenks 自然断点三种分级方法并排对比，3~7 级可调，图例显示每级区间与要素数；换一种分级，同一份数据会画出完全不同的图 —— 专题图的结论取决于分级方式。 | `src/examples/openlayers/Choropleth.vue` |
 | 路网路径规划 | 真实路网寻路：杭州西湖东侧 OpenStreetMap 数据（1394 路口 / 1538 路段，按道路等级映射限速，可切回 26×26 合成网格做对照）。A* 与 Dijkstra 同跑并对比访问节点数（实测 580 vs 1328），搜索顺序逐帧回放，能看到 Dijkstra 的同心圆扩散与 A* 朝目标收窄；权重可切最短距离 / 最快时间，点击地图重设起终点。 | `src/examples/openlayers/RoutePlan.vue` |
 | 要素编辑 | Modify + Snap 交互：拖拽顶点或边线修改几何，要素之间自动吸附。 | `src/examples/openlayers/Modify.vue` |
@@ -339,7 +340,7 @@ public/3dtiles/            3D Tiles 示例使用的本地瓦片集
 - 示例中的点位、轨迹、气象、建筑等数据均为**程序化合成**（固定随机种子），用于演示算法与渲染，不代表真实业务数据。
 - 项目定位是学习与参考：代码以「可读、可拆、可拷」为第一目标，未做通用组件抽象与生产级错误兜底。
 - 路网路径规划示例使用 **OpenStreetMap** 数据（© OpenStreetMap contributors, ODbL 1.0）：由 `scripts/fetch-osm-roadnet.mjs` 预先抓取指定 bbox 并精简成 51KB 的本地 JSON，页面不发起网络请求；换城市只需改脚本参数重跑一次（公开 Overpass 镜像在国内基本连不上，所以不做运行时拉取）。
-- 全站回归的测试方法与缺陷记录见 [docs/TEST-REPORT.md](docs/TEST-REPORT.md)（91 个示例冒烟 + 交互语义断言 + 压力测试）。
+- 全站回归的测试方法与缺陷记录见 [docs/TEST-REPORT.md](docs/TEST-REPORT.md)（110 个示例冒烟 + 交互语义断言 + 压力测试）。
 
 ## 技术栈
 

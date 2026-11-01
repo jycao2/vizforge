@@ -533,6 +533,13 @@ export const useExamplesStore = defineStore('examples', {
             file: 'openlayers/Wfs.vue',
           },
           {
+            id: 'vector-tile',
+            title: 'MVT 矢量瓦片',
+            description:
+              'OGC 系列里最后补的一块：页面里手写 protobuf 编码器（varint / zigzag / 几何命令）把要素编成 MVT 字节流，交给 ol/format/MVT 解码渲染——没有网络请求，也没有 pbf 依赖。水系是面带河流中心线偏移，道路按全球经纬网铺所以跨瓦片不断头，z≥15 生成建筑面与 POI 标注；可切图层、点选看属性。',
+            file: 'openlayers/VectorTile.vue',
+          },
+          {
             id: 'wmts',
             title: 'WMTS 切片服务',
             description:
