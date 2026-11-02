@@ -80,6 +80,14 @@ async function toggleMeasure(id: MeasureKind) {
     }
     const { startOlMeasure } = await import('@/examples/openlayers/measureOl')
     handle = startOlMeasure(h.instance as never, id, onMeasureUpdate)
+  } else if (h.kind === 'mapbox') {
+    if (id === 'height') {
+      // 未开地形时不给测高
+      measuring.value = null
+      return
+    }
+    const { startMbMeasure } = await import('@/examples/mapbox/measureMapbox')
+    handle = startMbMeasure(h.instance as never, id, onMeasureUpdate)
   } else {
     const { startCesiumMeasure } = await import('@/examples/cesium/measureCesium')
     handle = startCesiumMeasure(h.instance as never, id, onMeasureUpdate)

@@ -44,6 +44,7 @@ export default defineConfig({
      * 在带删除保护的运行环境里直接让进程退出。列全之后，新增示例不会再触发。
      */
     include: [
+      'maplibre-gl',
       'ol',
       'ol/Feature',
       'ol/ImageTile',

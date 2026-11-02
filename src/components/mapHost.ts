@@ -11,7 +11,7 @@
  */
 import { inject, provide, type InjectionKey } from 'vue'
 
-export type MapHostKind = 'ol' | 'cesium'
+export type MapHostKind = 'ol' | 'cesium' | 'mapbox'
 
 export interface MapHost {
   kind: MapHostKind

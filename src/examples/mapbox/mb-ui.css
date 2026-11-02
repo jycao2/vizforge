@@ -1,0 +1,209 @@
+/* ============================================================
+ * Mapbox 示例的公共 UI 样式
+ *
+ * maplibre-gl.css 自带一套浅色控件皮肤，放在深色底图上很跳，
+ * 这里统一刷成和 MapControls 工具栏一致的暗色玻璃质感。
+ * 由 useMapbox.ts 引入 —— 任何用到 createMap 的页面都会带上。
+ * ============================================================ */
+
+/* 页面外壳：所有 mapbox 示例都用这一层，示例内就不必再写一遍 */
+.map-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.mb-container {
+  width: 100%;
+  height: 100%;
+  background: #070c14;
+}
+
+/* ---- 控件通用 ---- */
+.mb-container .maplibregl-ctrl-group {
+  background: rgba(20, 27, 38, 0.82) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-radius: 11px !important;
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(10px) saturate(1.15);
+  overflow: hidden;
+}
+
+.mb-container .maplibregl-ctrl-group button {
+  width: 32px !important;
+  height: 32px !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+.mb-container .maplibregl-ctrl-group button + button {
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.mb-container .maplibregl-ctrl-group button:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.mb-container .maplibregl-ctrl-group button .maplibregl-ctrl-icon {
+  filter: invert(1) brightness(1.7);
+  opacity: 0.82;
+}
+
+.mb-container .maplibregl-ctrl-group button:hover .maplibregl-ctrl-icon {
+  opacity: 1;
+}
+
+/* ---- 比例尺 ---- */
+.mb-container .maplibregl-ctrl-scale {
+  background: rgba(20, 27, 38, 0.72) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: #cfdae7 !important;
+  font-size: 10.5px !important;
+  border-radius: 5px;
+  backdrop-filter: blur(6px);
+}
+
+/* ---- 版权信息 ---- */
+.mb-container .maplibregl-ctrl-attrib {
+  background: rgba(20, 27, 38, 0.74) !important;
+  border-radius: 7px 0 0 0;
+  backdrop-filter: blur(6px);
+  font-size: 10px !important;
+}
+
+.mb-container .maplibregl-ctrl-attrib a {
+  color: #9fb4c9 !important;
+}
+
+.mb-container .maplibregl-ctrl-attrib-button {
+  background-color: rgba(220, 232, 245, 0.85) !important;
+}
+
+/* ---- 弹窗 ---- */
+.mb-container .maplibregl-popup-content {
+  padding: 12px 14px !important;
+  border-radius: 10px !important;
+  background: rgba(18, 25, 35, 0.94) !important;
+  border: 1px solid rgba(90, 110, 135, 0.45);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
+  color: #dbe6f2;
+  font-size: 12px;
+  line-height: 1.55;
+  backdrop-filter: blur(10px);
+}
+
+.mb-container .maplibregl-popup-tip {
+  border-top-color: rgba(18, 25, 35, 0.94) !important;
+  border-bottom-color: rgba(18, 25, 35, 0.94) !important;
+}
+
+.mb-container .maplibregl-popup-close-button {
+  color: #8fa4b9 !important;
+  font-size: 16px !important;
+  padding: 0 5px !important;
+}
+
+.mb-container .maplibregl-popup-close-button:hover {
+  background: transparent !important;
+  color: #ffb4a4 !important;
+}
+
+/* ---- 弹窗内部排版：示例里统一用这几个类名 ---- */
+.mb-pop-title {
+  margin: 0 0 6px;
+  color: #eaf2fb;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding-right: 14px;
+}
+
+.mb-pop-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: #a9bccf;
+  font-size: 11.5px;
+}
+
+.mb-pop-row b {
+  color: #dce7f3;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 示例里常用的浮层面板 ---- */
+.mb-panel {
+  position: absolute;
+  z-index: 20;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(18, 25, 35, 0.9);
+  border: 1px solid rgba(90, 110, 135, 0.4);
+  color: #cbd8e6;
+  font-size: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.mb-panel h4 {
+  margin: 0 0 8px;
+  color: #eaf2fb;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.mb-tip {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 20;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: rgba(17, 24, 34, 0.88);
+  border: 1px solid rgba(90, 110, 135, 0.45);
+  color: #d7e2ee;
+  font-size: 12px;
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+/* 面板里的开关行 / 按钮行 */
+.mb-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.mb-row input[type='checkbox'] {
+  accent-color: #4f9dff;
+  cursor: pointer;
+}
+
+.mb-btn {
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #c6d3e1;
+  font-size: 11.5px;
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.mb-btn:hover {
+  background: rgba(79, 157, 255, 0.22);
+  color: #fff;
+}
+
+.mb-btn.on {
+  background: rgba(79, 157, 255, 0.28);
+  border-color: rgba(79, 157, 255, 0.6);
+  color: #eaf2fb;
+}

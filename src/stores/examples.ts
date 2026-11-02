@@ -296,55 +296,6 @@ export const useExamplesStore = defineStore('examples', {
             file: 'three/Instancing.vue',
           },
           {
-            id: 'sdf-text',
-            title: 'SDF 文字',
-            description:
-              '纹理里存的不是颜色而是「到字形边缘的距离」：canvas 写字 → 二值掩膜 → 双向 chamfer 距离变换 → 0~1 归一化。渲染时 smoothstep 在 0.5 附近切一刀就是字，把阈值整体外移就是描边——放大 6 倍边缘依然锐利，一张纹理搞定填充 / 描边 / 羽化。',
-            file: 'webgl/SdfText.vue',
-          },
-          {
-            id: 'gpu-picking',
-            title: 'GPU 拾取',
-            description:
-              '颜色即 ID：每个物体的索引编码成 RGB 渲进离屏缓冲，readPixels 读回鼠标那一个像素再解出索引——不用维护 BVH，也不怕物体形变。readPixels 是同步的，会打断 GPU 流水线，所以节流到 120ms 一次，并可切换查看 ID 缓冲。',
-            file: 'webgl/PickingGpu.vue',
-          },
-          {
-            id: 'water-surface',
-            title: '水面反射与折射',
-            description:
-              '先把池底与柱子渲到离屏纹理，水面片元按屏幕坐标加波形扰动再采样它（近似折射），反射用反射向量采样解析天空，最后按菲涅尔混合——掠射角像镜子、俯视像玻璃。波高 / 流速 / 折射强度 / 菲涅尔实时可调。',
-            file: 'webgl/Water.vue',
-          },
-          {
-            id: 'toon',
-            title: '卡通着色与描边',
-            description:
-              '把 N·L 量化成 2~8 档做色阶化，再用法线外扩描边：先画沿法线放大的黑色外壳（cull front），再正常画正面（cull back），没被盖住的一圈就是轮廓线。色阶数 / 描边宽度 / 光照方位实时可调。',
-            file: 'webgl/Toon.vue',
-          },
-          {
-            id: 'pbr',
-            title: 'PBR 材质',
-            description:
-              'Cook-Torrance 直接光照：GGX 法线分布 + Smith 几何遮蔽 + Schlick 菲涅尔，能量守恒（反射掉的不能再参与漫反射）。上排金属、下排电介质，五种粗糙度横向对比——粗糙度只改高光形状，不改亮度。',
-            file: 'webgl/Pbr.vue',
-          },
-          {
-            id: 'normal-map',
-            title: '法线贴图',
-            description:
-              '几何只是平面，凹凸全来自 RGB 法线图：高度图中心差分生成法线，解码 rgb*2-1 后乘强度、经切线空间 TBN 转到世界空间。可切换着色 / 法线图 / 高度图三种视图，光源方位与强度实时可调。',
-            file: 'webgl/NormalMap.vue',
-          },
-          {
-            id: 'tone-mapping',
-            title: 'HDR 色调映射',
-            description:
-              '五个自发光 0.5~8 的灯箱加一颗金属球，对比直接截断 / 线性 / Reinhard / ACES / Filmic 五条曲线：前两条把 1 以上压成死白，ACES 的高光滚降最自然。曝光与 gamma 校正可开关。',
-            file: 'webgl/ToneMapping.vue',
-          },
-          {
             id: 'bloom',
             title: '泛光后期',
             description: 'EffectComposer + UnrealBloomPass 实现发光后期，可调节泛光强度。',
@@ -849,6 +800,194 @@ export const useExamplesStore = defineStore('examples', {
             description:
               '双 pass：光空间把线性深度打包进 RGBA8（不依赖深度纹理扩展），主 pass 解包比对 + 3×3 PCF，可调偏移看 acne 如何被压住。',
             file: 'webgl/ShadowMap.vue',
+          },
+        ],
+      },
+      {
+        id: 'mapbox',
+        name: 'Mapbox GL',
+        icon: '🧭',
+        description: '矢量瓦片样式驱动的地图引擎，表达式样式、三维建筑与地形一体。',
+        examples: [
+          {
+            id: 'basic-map',
+            title: '基础地图',
+            description: '免 Token 跑起来的基础二维地图，含工具栏与五套底图切换，实时显示视图状态。',
+            file: 'mapbox/BasicMap.vue',
+          },
+          {
+            id: 'marker-popup',
+            title: '标记与弹窗',
+            description: '对比 DOM Marker 与 symbol 图层两种打点方式，点击弹出信息窗，可一键互换。',
+            file: 'mapbox/MarkerPopup.vue',
+          },
+          {
+            id: 'symbol-text',
+            title: '图标与文字标注',
+            description: 'canvas 现画图标注册进样式，八字位碰撞避让、沿线文字与缩放驱动的标注尺寸。',
+            file: 'mapbox/SymbolText.vue',
+          },
+          {
+            id: 'geojson',
+            title: 'GeoJSON 图层',
+            description: '一份内联 GeoJSON 供五个图层，按几何类型与属性分流渲染，点击查看要素属性。',
+            file: 'mapbox/GeoJson.vue',
+          },
+          {
+            id: 'choropleth',
+            title: '分级统计专题图',
+            description: 'step 离散分档填色 + 图例，hover 高亮走 feature-state，不重传数据。',
+            file: 'mapbox/Choropleth.vue',
+          },
+          {
+            id: 'expression-style',
+            title: '表达式与数据驱动样式',
+            description: '六组可切换预设：zoom / 线性 / 指数 / step / case / 数学与文本拼接表达式。',
+            file: 'mapbox/ExpressionStyle.vue',
+          },
+          {
+            id: 'heatmap',
+            title: '热力图',
+            description: '2600 个加权点的 GPU 热力图，半径与强度随 zoom 插值，放大后自动切散点。',
+            file: 'mapbox/Heatmap.vue',
+          },
+          {
+            id: 'cluster',
+            title: '点聚合',
+            description: '8000 点聚合渲染，聚合块显示总量，点击用 getClusterExpansionZoom 精确展开。',
+            file: 'mapbox/Cluster.vue',
+          },
+          {
+            id: 'three-d-building',
+            title: '三维建筑',
+            description: 'fill-extrusion 拉起 484 栋楼体，楼高按距离形成天际线，可调夸张倍数与自转。',
+            file: 'mapbox/ThreeDBuilding.vue',
+          },
+          {
+            id: 'terrain-3d',
+            title: '三维地形与晕渲',
+            description: 'terrarium DEM 免 Token 接三维起伏，hillshade 单独成层，夸张倍数实时可调。',
+            file: 'mapbox/Terrain3D.vue',
+          },
+          {
+            id: 'fly-line',
+            title: '飞线动画',
+            description: '二次贝塞尔 OD 弧线，lineMetrics + line-gradient 每帧推进出流动光带。',
+            file: 'mapbox/FlyLine.vue',
+          },
+          {
+            id: 'track-playback',
+            title: '轨迹回放',
+            description: '按弧长插值推进的轨迹回放，图标朝向随路转向，支持倍速与进度条拖拽。',
+            file: 'mapbox/TrackPlayback.vue',
+          },
+          {
+            id: 'route-nav',
+            title: '路网路径规划',
+            description: '真实路网 1394 节点跑 Dijkstra + 二叉堆，点击就近吸附到路口并给出距离与耗时。',
+            file: 'mapbox/RouteNav.vue',
+          },
+          {
+            id: 'draw-measure',
+            title: '绘制与量测',
+            description: '手写点线面绘制：单击加点、双击收尾，长度与面积均按球面公式计算。',
+            file: 'mapbox/DrawMeasure.vue',
+          },
+          {
+            id: 'layer-switch',
+            title: '图层控制',
+            description: '五组图层的显隐、透明度与叠放顺序，并用 queryRenderedFeatures 统计视口要素数。',
+            file: 'mapbox/LayerSwitch.vue',
+          },
+          {
+            id: 'vector-tile',
+            title: '矢量瓦片',
+            description: '接 OpenFreeMap planet（OSM 免 Token），按 source-layer 取建筑/道路/水体并拉三维。',
+            file: 'mapbox/VectorTile.vue',
+          },
+          {
+            id: 'wms-layer',
+            title: 'WMS 服务图层',
+            description: 'raster source 用 {bbox-epsg-3857} 直连 OGC WMS，点击发起 GetFeatureInfo 查属性。',
+            file: 'mapbox/WmsLayer.vue',
+          },
+          {
+            id: 'image-overlay',
+            title: '图片叠加',
+            description: 'canvas 现画的规划图按四角钉在地图上，可旋转（在米空间里算，避免被拉扁）。',
+            file: 'mapbox/ImageOverlay.vue',
+          },
+          {
+            id: 'video-overlay',
+            title: '视频叠加',
+            description: 'type: video source 播放航拍视频并贴地，含播放控制、进度跳转与透明度调节。',
+            file: 'mapbox/VideoOverlay.vue',
+          },
+          {
+            id: 'canvas-overlay',
+            title: '动态 Canvas 图层',
+            description: '自绘 2D canvas 叠在地图上做雷达扫描：余晖拖尾、极坐标扫描扇与回波衰减。',
+            file: 'mapbox/CanvasOverlay.vue',
+          },
+          {
+            id: 'custom-layer',
+            title: '自定义 WebGL 图层',
+            description: '手写 GLSL 插进地图渲染管线，用 MercatorCoordinate 画一根带呼吸效果的 3D 光柱。',
+            file: 'mapbox/CustomLayer.vue',
+          },
+          {
+            id: 'click-query',
+            title: '要素查询与过滤',
+            description: 'setFilter 走 worker 索引过滤 220 条 POI，点击带容差查询并高亮选中要素。',
+            file: 'mapbox/ClickQuery.vue',
+          },
+          {
+            id: 'hover-highlight',
+            title: '悬停高亮与列表联动',
+            description: 'feature-state 驱动的双向联动：地图 hover ↔ 侧栏列表高亮，点击飞入。',
+            file: 'mapbox/HoverHighlight.vue',
+          },
+          {
+            id: 'boundary-mask',
+            title: '边界掩膜',
+            description: '带洞多边形压暗区域外部，边界用辉光 + 实线两层描边，可调暗度。',
+            file: 'mapbox/BoundaryMask.vue',
+          },
+          {
+            id: 'swipe-compare',
+            title: '卷帘对比',
+            description: '两个 Map 实例叠放并用 clip-path 裁切，视图双向同步（syncing 标志防死循环）。',
+            file: 'mapbox/SwipeCompare.vue',
+          },
+          {
+            id: 'minimap',
+            title: '鹰眼小地图',
+            description: '小图 interactive: false 只做显示，主图视口框实时同步，点击小图可跳转。',
+            file: 'mapbox/Minimap.vue',
+          },
+          {
+            id: 'geocoder',
+            title: '地名搜索定位',
+            description: '接 Nominatim 做正向地理编码，400ms 防抖，有 bbox 的结果整块框住。',
+            file: 'mapbox/Geocoder.vue',
+          },
+          {
+            id: 'theme-swap',
+            title: '底图风格化',
+            description: '只改 raster 的亮度/饱和/对比/色相五个参数，一套影像底图出六种调性。',
+            file: 'mapbox/ThemeSwap.vue',
+          },
+          {
+            id: 'big-data',
+            title: '十万点性能',
+            description: '10 万点一次入库交给 GPU，分段测量生成/入库/首帧耗时并实时统计 FPS。',
+            file: 'mapbox/BigData.vue',
+          },
+          {
+            id: 'export-image',
+            title: '导出图片',
+            description: 'preserveDrawingBuffer + idle 时机导出 PNG，并用 canvas 自己补画标题与图例。',
+            file: 'mapbox/ExportImage.vue',
           },
         ],
       },
