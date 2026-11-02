@@ -8,11 +8,11 @@
 
 **在线体验（GitHub Pages，无需安装）：https://jycao2.github.io/vizforge/**
 
-一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **113 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**原生 WebGL**（手写着色器，零依赖）四条技术栈。
+一个「读得懂、拷得走」的前端可视化示例库：用 Vue 3 + TypeScript 单文件组件手写 **155 个可运行示例**，覆盖 **Cesium**（三维地球 / 地理空间）、**Three.js**（通用三维场景）、**OpenLayers**（二维地图 / GIS）、**Mapbox GL**（样式驱动的矢量瓦片地图）、**原生 WebGL**（手写着色器，零依赖）五条技术栈。
 
-每个示例页右上角都有「查看源码」按钮，点开就是该示例的完整实现，可一键复制——它不是一个封装好的组件库，而是一本可以直接拆开看的、跑得起来的代码手册。从 Cesium 的 DEM 地形/挖填方/淹没/可视域/时序影像/掩膜裁剪，到 Three.js 智慧工厂/海上风电场，再到 OpenLayers 的地形剖面/路网等时圈/IDW 插值/蜂窝聚合，以及体积云光线步进、GPGPU 粒子流场、SDF 光线步进、阴影贴图，都能在这里直接读源码。
+每个示例页右上角都有「查看源码」按钮，点开就是该示例的完整实现，可一键复制——它不是一个封装好的组件库，而是一本可以直接拆开看的、跑得起来的代码手册。从 Cesium 的 DEM 地形/挖填方/淹没/可视域/时序影像/掩膜裁剪，到 Three.js 智慧工厂/海上风电场，再到 OpenLayers 的地形剖面/路网等时圈/IDW 插值/蜂窝聚合、Mapbox 的表达式样式/fill-extrusion 楼块/热力图/点聚合/自定义图层，以及体积云光线步进、GPGPU 粒子流场、SDF 光线步进、阴影贴图，都能在这里直接读源码。
 
-> **Keywords**：Vue 3 · TypeScript · Vite · Pinia · Cesium · Three.js · OpenLayers · WebGL2 · GLSL shader · GIS · 三维地球 · 数字孪生 · 数据可视化 · 热力图 · 等值线 · 风场粒子 · 体积云 · GPGPU · 光线步进 · 阴影贴图 · 日照分析 · 挖填方 · 淹没分析 · 可视域 · 时序影像 · 掩膜裁剪 · 等时圈 · IDW 插值 · 蜂窝聚合 · 前端可视化示例集
+> **Keywords**：Vue 3 · TypeScript · Vite · Pinia · Cesium · Three.js · OpenLayers · Mapbox GL · MapLibre GL · WebGL2 · GLSL shader · GIS · 三维地球 · 数字孪生 · 数据可视化 · 热力图 · 等值线 · 风场粒子 · 体积云 · GPGPU · 光线步进 · 阴影贴图 · 日照分析 · 挖填方 · 淹没分析 · 可视域 · 时序影像 · 掩膜裁剪 · 等时圈 · IDW 插值 · 蜂窝聚合 · 矢量瓦片 · 表达式样式 · 前端可视化示例集
 
 ## 项目预览
 
@@ -20,7 +20,7 @@
 
 [![首页](docs/screenshots/home.png)](https://jycao2.github.io/vizforge/)
 
-**首页**：四条技术栈 113 个示例的总览入口，点卡片进入对应示例。
+**首页**：五条技术栈 155 个示例的总览入口，点卡片进入对应示例。
 
 | [Cesium · 台风路径与风圈](https://jycao2.github.io/vizforge/#/e/cesium/typhoon) | [Cesium · 日照阴影分析](https://jycao2.github.io/vizforge/#/e/cesium/sun-shadow) |
 | --- | --- |
@@ -52,17 +52,17 @@
 | **[Three.js · 球面地球](https://jycao2.github.io/vizforge/#/e/three/globe)** |  |
 | [![球面地球](docs/screenshots/three-globe.png)](https://jycao2.github.io/vizforge/#/e/three/globe) |  |
 
-更多：时序影像、可视域、掩膜裁剪、地形剖面、IDW 插值、蜂窝聚合、缓冲区分析、阴影贴图等另外 58 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
+更多：时序影像、可视域、掩膜裁剪、地形剖面、IDW 插值、蜂窝聚合、缓冲区分析、阴影贴图、表达式样式、三维建筑、点聚合、矢量瓦片大屏 3D 地图特效（光墙 / 数据柱 / 扫描光锥 / 视角巡航，MapLibre 与 Cesium 双实现）等另外 128 个示例，[在线 Demo](https://jycao2.github.io/vizforge/) 直接体验。
 
 ---
 
 ## 特性
 
-- **113 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
+- **155 个完整示例**：从「旋转三角形」到「体积云光线步进」「GPGPU 粒子流场」，全部是真实场景而非占位 demo，参数和交互都是活的。
 - **源码即看即拷**：基于 Vite 的 `import.meta.glob(..., { query: '?raw' })` 直接读取组件原始文本，配合 highlight.js 高亮，改完代码刷新即同步，不存在「文档和实现对不上」。
-- **零后端、免 Token**：纯前端静态站点，不依赖 Cesium Ion Token，不依赖任何自建服务。
+- **零后端、免 Token**：纯前端静态站点，不依赖 Cesium Ion Token、不依赖 Mapbox Access Token，也不依赖任何自建服务。Mapbox GL 一条线用的是 **MapLibre GL**（`mapbox-gl` 的开源分叉，同一套 style spec 与表达式语言），无需 Token 即可渲染矢量瓦片与三维地形。
 - **统一交互外壳**：每个示例自带参数面板（滑杆 / 开关 / 按钮）与画布工具条（放大、缩小、复位、全屏），切换示例时资源完整释放，长时间浏览不会泄漏。
-- **按需懒加载**：示例组件全部异步加载，Cesium / Three / OL 各自的重量级依赖只在进入对应页面时才下载。
+- **按需懒加载**：示例组件全部异步加载，Cesium / Three / OL / MapLibre 各自的重量级依赖只在进入对应页面时才下载。
 
 ## 在线 Demo 与自动部署
 
@@ -98,7 +98,7 @@ npm run preview
 | 区域 | 作用 |
 | --- | --- |
 | 左侧栏 | 按技术栈分组的全部示例，底部实时统计技术栈数与示例总数 |
-| 首页 | 四张技术栈卡片，点击直接进入该栈的第一个示例 |
+| 首页 | 五张技术栈卡片，点击直接进入该栈的第一个示例 |
 | 示例页头部 | 面包屑（技术栈 / 示例名）+ 一句话原理说明 + 「查看源码」开关 |
 | 示例页画布 | 场景本体，带工具条（放大 / 缩小 / 复位 / 全屏，Cesium 的缩放以屏幕中心地物为锚点） |
 | 参数面板 | 该示例可调的参数，改动即时生效 |
@@ -108,7 +108,7 @@ npm run preview
 
 ## 示例清单
 
-### Cesium（30 个）
+### Cesium（36 个）
 
 三维地球与地理空间可视化引擎，基于 WebGL 的地球渲染。
 
@@ -145,6 +145,13 @@ npm run preview
 | 后期处理特效 | 全屏后期特效链：夜视 / 黑白 / 景深取自 PostProcessStageLibrary，描边（Sobel）/ 像素化 / 扫描线是自己写的 GLSL 片段着色器（colorTexture 即整帧，v_textureCoordinates 是屏幕 uv）；曝光段常驻打底，效果段按加入顺序串联，FXAA 可开关，景深依赖 WEBGL_depth_texture 不支持时按钮自动禁用。 | `src/examples/cesium/PostProcessing.vue` |
 | 地形剖切与地下管廊 | 四个朝外的竖直裁剪面取交集挖出 400 m 基坑，井壁与坑底用 WallGraphics / RectangleGraphics 补（Cesium 只切面不留壁），土壁用条纹材质分层；也可切到单平面剖切看断面。760 m 管网逐顶点采样真实高程再减埋深（clampToGround 会把管线贴回地表），检查井为圆柱；地下模式用 translucency 透视地表，此时必须关掉 depthTestAgainstTerrain。 | `src/examples/cesium/Excavation.vue` |
 | 粒子特效 | 火炬（火核 + 火焰 + 黑烟三系统叠加）、喷泉（球形发射器）、烟羽（锥形发射器）三个场景：发射率 / 尺寸 / 生命期 / 风速实时可调，发射器可在圆形、球形、锥形、立方之间切换。Cesium 1.118 的 ParticleSystem 已没有 gravity 选项，重力走 updateCallback 手动积分；贴图由 canvas 径向渐变现场生成，零外部资源。 | `src/examples/cesium/Particles.vue` |
+
+| 大屏城市总览 | 同一座城市用 Cesium 再实现一遍：500 个楼块合并成 1 次 draw call（Primitive + GeometryInstance），Wall 做光墙，PolylineGlow 跑飞线；深空外观要手动压暗。 | `src/examples/cesium/ScreenOverview.vue` |
+| 发光光墙 | Wall 图元：地面点 + 每点最大高度数组，回调里每帧返回新数组做呼吸；材质引用要常驻，换对象会重建属性。 | `src/examples/cesium/GlowWall.vue` |
+| 三维数据柱 | Cylinder 实体：length 与 position 都靠 CallbackProperty 生长 —— 圆柱以几何中心定位，position 高度必须写 length/2。 | `src/examples/cesium/DataBar3D.vue` |
+| 涟漪脉冲 | Ellipse 用真实米数扩散（最大 2.2 km），半长轴与材质 alpha 都是回调，4 圈相位错开连成连续的波。 | `src/examples/cesium/RipplePulse.vue` |
+| 扫描光锥 | 同一个 PolygonHierarchy 回调喂两个面：贴地涂层 + extrudedHeight 体光锥，8 个目标点按方位角区间实时判命中。 | `src/examples/cesium/ScanCone.vue` |
+| 视角巡航 | camera.flyTo 自动算绕球弧线，rAF 只管进度环；4 个机位轮播 + 手动跳站 + 高亮切换。 | `src/examples/cesium/ScreenTour.vue` |
 
 ### Three.js（27 个）
 
@@ -219,6 +226,53 @@ npm run preview
 | 降雨量空间插值 | IDW 反距离加权 + 等雨量线，幂参数 p 与邻站数 k 实时可调，留一交叉验证（LOO-CV）用 MAE / RMSE 给参数打分。 | `src/examples/openlayers/IdwInterpolation.vue` |
 | 蜂窝聚合分析 | 共享单车轨迹点做 Hexbin 分箱：pointy-top 轴坐标系 + 立方取整，六边形尺寸实时可调，密度色带与计数标注。 | `src/examples/openlayers/HexAggregate.vue` |
 
+### Mapbox GL（36 个）
+
+样式驱动的矢量瓦片地图引擎：一份 style JSON 描述数据源 + 图层 + 表达式，样式与数据分离、可热替换，适合专题图 / 大屏 / 三维城市。
+
+> 实现用的是 **MapLibre GL**（`mapbox-gl` 的开源分叉，style spec、表达式语言、图层类型完全兼容，不需要 Access Token）。代码里 `maplibregl` 与 `mapboxgl` 的用法基本一一对应，换回官方 `mapbox-gl` 只需改 import 与一个 Token。
+
+
+| 示例 | 说明 | 源文件 |
+| --- | --- | --- |
+| 基础地图 | 免 Token 跑起来的基础二维地图，含工具栏与五套底图切换，实时显示视图状态。 | `src/examples/mapbox/BasicMap.vue` |
+| 标记与弹窗 | 对比 DOM Marker 与 symbol 图层两种打点方式，点击弹出信息窗，可一键互换。 | `src/examples/mapbox/MarkerPopup.vue` |
+| 图标与文字标注 | canvas 现画图标注册进样式，八字位碰撞避让、沿线文字与缩放驱动的标注尺寸。 | `src/examples/mapbox/SymbolText.vue` |
+| GeoJSON 图层 | 一份内联 GeoJSON 供五个图层，按几何类型与属性分流渲染，点击查看要素属性。 | `src/examples/mapbox/GeoJson.vue` |
+| 分级统计专题图 | step 离散分档填色 + 图例，hover 高亮走 feature-state，不重传数据。 | `src/examples/mapbox/Choropleth.vue` |
+| 表达式与数据驱动样式 | 六组可切换预设：zoom / 线性 / 指数 / step / case / 数学与文本拼接表达式。 | `src/examples/mapbox/ExpressionStyle.vue` |
+| 热力图 | 2600 个加权点的 GPU 热力图，半径与强度随 zoom 插值，放大后自动切散点。 | `src/examples/mapbox/Heatmap.vue` |
+| 点聚合 | 8000 点聚合渲染，聚合块显示总量，点击用 getClusterExpansionZoom 精确展开。 | `src/examples/mapbox/Cluster.vue` |
+| 三维建筑 | fill-extrusion 拉起 484 栋楼体，楼高按距离形成天际线，可调夸张倍数与自转。 | `src/examples/mapbox/ThreeDBuilding.vue` |
+| 三维地形与晕渲 | terrarium DEM 免 Token 接三维起伏，hillshade 单独成层，夸张倍数实时可调。 | `src/examples/mapbox/Terrain3D.vue` |
+| 飞线动画 | 二次贝塞尔 OD 弧线，lineMetrics + line-gradient 每帧推进出流动光带。 | `src/examples/mapbox/FlyLine.vue` |
+| 轨迹回放 | 按弧长插值推进的轨迹回放，图标朝向随路转向，支持倍速与进度条拖拽。 | `src/examples/mapbox/TrackPlayback.vue` |
+| 路网路径规划 | 真实路网 1394 节点跑 Dijkstra + 二叉堆，点击就近吸附到路口并给出距离与耗时。 | `src/examples/mapbox/RouteNav.vue` |
+| 绘制与量测 | 手写点线面绘制：单击加点、双击收尾，长度与面积均按球面公式计算。 | `src/examples/mapbox/DrawMeasure.vue` |
+| 图层控制 | 五组图层的显隐、透明度与叠放顺序，并用 queryRenderedFeatures 统计视口要素数。 | `src/examples/mapbox/LayerSwitch.vue` |
+| 矢量瓦片 | 接 OpenFreeMap planet（OSM 免 Token），按 source-layer 取建筑/道路/水体并拉三维。 | `src/examples/mapbox/VectorTile.vue` |
+| WMS 服务图层 | raster source 用 {bbox-epsg-3857} 直连 OGC WMS，点击发起 GetFeatureInfo 查属性。 | `src/examples/mapbox/WmsLayer.vue` |
+| 图片叠加 | canvas 现画的规划图按四角钉在地图上，可旋转（在米空间里算，避免被拉扁）。 | `src/examples/mapbox/ImageOverlay.vue` |
+| 视频叠加 | type: video source 播放航拍视频并贴地，含播放控制、进度跳转与透明度调节。 | `src/examples/mapbox/VideoOverlay.vue` |
+| 动态 Canvas 图层 | 自绘 2D canvas 叠在地图上做雷达扫描：余晖拖尾、极坐标扫描扇与回波衰减。 | `src/examples/mapbox/CanvasOverlay.vue` |
+| 自定义 WebGL 图层 | 手写 GLSL 插进地图渲染管线，用 MercatorCoordinate 画一根带呼吸效果的 3D 光柱。 | `src/examples/mapbox/CustomLayer.vue` |
+| 要素查询与过滤 | setFilter 走 worker 索引过滤 220 条 POI，点击带容差查询并高亮选中要素。 | `src/examples/mapbox/ClickQuery.vue` |
+| 悬停高亮与列表联动 | feature-state 驱动的双向联动：地图 hover ↔ 侧栏列表高亮，点击飞入。 | `src/examples/mapbox/HoverHighlight.vue` |
+| 边界掩膜 | 带洞多边形压暗区域外部，边界用辉光 + 实线两层描边，可调暗度。 | `src/examples/mapbox/BoundaryMask.vue` |
+| 卷帘对比 | 两个 Map 实例叠放并用 clip-path 裁切，视图双向同步（syncing 标志防死循环）。 | `src/examples/mapbox/SwipeCompare.vue` |
+| 鹰眼小地图 | 小图 interactive: false 只做显示，主图视口框实时同步，点击小图可跳转。 | `src/examples/mapbox/Minimap.vue` |
+| 地名搜索定位 | 接 Nominatim 做正向地理编码，400ms 防抖，有 bbox 的结果整块框住。 | `src/examples/mapbox/Geocoder.vue` |
+| 底图风格化 | 只改 raster 的亮度/饱和/对比/色相五个参数，一套影像底图出六种调性。 | `src/examples/mapbox/ThemeSwap.vue` |
+| 十万点性能 | 10 万点一次入库交给 GPU，分段测量生成/入库/首帧耗时并实时统计 FPS。 | `src/examples/mapbox/BigData.vue` |
+| 导出图片 | preserveDrawingBuffer + idle 时机导出 PNG，并用 canvas 自己补画标题与图例。 | `src/examples/mapbox/ExportImage.vue` |
+
+| 大屏城市总览 | 600 栋拉伸楼块 + 片区辉光边界 + 飞线光带 + HUD 数据卡拼成一屏；自动巡航每帧只改 bearing，不做会排队的 flyTo。 | `src/examples/mapbox/ScreenOverview.vue` |
+| 发光光墙 | 边界每段加厚成 18m 条带再拉伸成墙：内层实墙 + 外层 12% 辉光，高度按片区指标给，呼吸只改一个系数。 | `src/examples/mapbox/GlowWall.vue` |
+| 三维数据柱 | 12 根按指标拉伸的数据立柱，四档配色 + 侧壁明暗过渡；入场生长只改一个系数，重播零成本。 | `src/examples/mapbox/DataBar3D.vue` |
+| 涟漪脉冲 | canvas 辉光环注册成 sprite，4 层错相缩放做扩散波 —— 纯 GPU 特效，一帧数据都不用重传。 | `src/examples/mapbox/RipplePulse.vue` |
+| 扫描光锥 | 扇形 polygon 每帧重算 25 个顶点：地面涂层 + fill-extrusion 体光锥，目标点按方位角区间判命中。 | `src/examples/mapbox/ScanCone.vue` |
+| 视角巡航 | 4 个机位 flyTo 轮播 + 进度环；rAF 状态机自己算 dt，不依赖 flyTo 回调，切站点不会错拍。 | `src/examples/mapbox/ScreenTour.vue` |
+
 ### WebGL（26 个）
 
 原生 WebGL 编程，直接操作着色器与缓冲区，零依赖。
@@ -267,11 +321,14 @@ src/
 │  └─ ExamplePage.vue      示例页：懒加载组件 + 源码面板
 ├─ examples/
 │  ├─ basemap-defs.ts      底图统一定义（Cesium / OpenLayers 共用）
-│  ├─ shared/terrain.ts     DEM 合成与算法工具（噪声场 / 双线性采样 / Horn 晕渲 / Marching Squares 等），地形类示例共用
-│  ├─ cesium/              25 个示例 + demMesh.ts（DEM 转 Cesium 几何 / 贴图材质）+ useCesium.ts + basemaps.ts
-│  ├─ three/               24 个示例 + useThree.ts（Renderer / 相机 / OrbitControls / 自适应）
-│  ├─ openlayers/          22 个示例 + useOl.ts（Map 脚手架）+ basemaps.ts
-│  └─ webgl/               16 个示例 + gl.ts（着色器编译、FBO、纹理、矩阵工具）
+│  ├─ shared/
+│  │  ├─ terrain.ts        DEM 合成与算法工具（噪声场 / 双线性采样 / Horn 晕渲 / Marching Squares 等），地形类示例共用
+│  │  └─ screen.ts / screen.css   大屏系列共用数据（6 片区 / 楼块 / 数据柱）与 HUD 皮肤，MapLibre / Cesium 两套大屏同吃一份
+│  ├─ cesium/              36 个示例 + demMesh.ts（DEM 转 Cesium 几何 / 贴图材质）+ screenScene.ts（大屏场景构件）+ useCesium.ts + basemaps.ts
+│  ├─ three/               27 个示例 + useThree.ts（Renderer / 相机 / OrbitControls / 自适应）
+│  ├─ openlayers/          30 个示例 + useOl.ts（Map 脚手架）+ basemaps.ts
+│  ├─ mapbox/              36 个示例 + useMapbox.ts（Map 脚手架 / 量测 / 弧线 / 流光渐变）+ basemaps.ts + data.ts + mb-ui.css
+│  └─ webgl/               26 个示例 + gl.ts（着色器编译、FBO、纹理、矩阵工具）
 ├─ utils/highlight.ts      highlight.js 封装
 ├─ types/                  ExampleMeta / TechCategory 等类型
 └─ styles/global.css       主题变量（面板、边框、强调色）与公共样式
@@ -296,7 +353,7 @@ public/3dtiles/            3D Tiles 示例使用的本地瓦片集
 
 写示例时的几个约定：
 
-- 复用对应技术栈的脚手架（`useCesium` / `useThree` / `useOl` / `gl.ts`），不要每个文件重复搭一遍渲染循环；
+- 复用对应技术栈的脚手架（`useCesium` / `useThree` / `useOl` / `useMapbox` / `gl.ts`），不要每个文件重复搭一遍渲染循环；
 - Cesium 示例给 `home` 带上 `focus`（内容中心 + 半径），复位与缩放才会围着内容转，而不是围着随手写的相机位置转；
 - 在 `onBeforeUnmount` 里销毁 viewer / renderer / 事件监听 / 定时器 / 位图，切换示例不能留下悬挂的 RAF；
 - 控制面板沿用 `global.css` 里的 `.panel` `.stat` `.tip` 等类，保持视觉统一；
@@ -314,7 +371,18 @@ public/3dtiles/            3D Tiles 示例使用的本地瓦片集
 - **Cesium 自带的太阳与阴影对自定义几何无效**：`SunLight.directionWC` 恒为 `undefined`，`viewer.shadows` 对 entity 多边形不起作用。日照分析是自己按方位角/高度角算太阳向量，再在 fabric 材质里用 `czm_viewRotation * uSun` 自算漫反射，落影则用「底面四点 + 顶面四点投影取凸包」解析求出后烘进贴图。
 - **`RectangleGraphics.stRotation` 旋转的是整个 UV**：贴图会越界被 `REPEAT` 采样，台风图因此变成方框。要让贴图自转，必须用 `Primitive` + 三角/椭圆几何，在 shader 里转 UV，并把 `minificationFilter` 设为 `LINEAR` 关掉 mipmap。
 - **OpenLayers 9 移除了 `ol/sphere.circular()`**：点缓冲改为自己按「起点 + 方位角 + 距离」的球面大地线公式推 256 边形（在 Web Mercator 投影坐标里直接画圆，中高纬会明显拉伸失真）；线缓冲用相邻段的**平均法向**做 miter 平移（并 clamp miter 系数）+ 端点半圆帽；面积与长度取 `ol/sphere` 的 `getArea` / `getLength` 球面真值。
-- **底图选型**：CARTO basemaps 已强制要求 API Key（返回「API KEY REQUIRED」水印瓦片），OSM 官方瓦片对非规范客户端返回 403。本项目统一使用 Esri ArcGIS Online 公开服务：无需 Token，且响应头带 `Access-Control-Allow-Origin: *`，Cesium 才能把瓦片当纹理用。
+- **底图选型**：CARTO basemaps 已强制要求 API Key（返回「API KEY REQUIRED」水印瓦片），OSM 官方瓦片对非规范客户端返回 403。本项目统一使用 Esri ArcGIS Online 公开服务：无需 Token，且响应头带 `Access-Control-Allow-Origin: *`，Cesium 才能把瓦片当纹理用。矢量瓦片则用 OpenFreeMap planet（OSM 数据、免 Token、含字形服务 `fonts.openmaptiles.org`）。
+- **Mapbox 一条线改用 MapLibre GL**：`mapbox-gl` v2+ 在 `_revokeAuth` 里强校验 Access Token（源码注释写明移除该校验违反其服务条款），无 Token 时整幅地图被清空，示例无法开箱即用。MapLibre GL 是它的开源分叉，style spec / 表达式 / 图层类型一致且免 Token。迁移时踩到的差异：① 无默认导出，要 `import * as maplibregl from 'maplibre-gl'`；② CSS 类名前缀是 `.maplibregl-` 不是 `.mapboxgl-`；③ WebGL 上下文参数走 `canvasContextAttributes: { antialias, preserveDrawingBuffer }`，没有顶层 `antialias` / `projection` 选项；④ `attributionControl` 只接受 `false` 或选项对象，不能传 `true`；⑤ `getClusterExpansionZoom(id)` 返回 Promise（mapbox v3 是回调式）。
+- **Vite 打包后 MapLibre 的 worker 路径会失效**：必须在入口显式 `import mbWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'` 再赋给 `maplibregl.config.WORKER_URL`，否则生产构建下 worker 加载失败 → 样式永远 `is not done loading`。
+- **`addSource` / `addLayer` 必须等 `map.once('load')`**：在 `load` 之前调用会抛 `Style is not done loading`，且这个错在 dev 下偶尔不出现（时序刚好），上线才炸。
+- **自定义图层（custom layer）的投影矩阵在 `args.defaultProjectionData.mainMatrix`**：MapLibre v6 的 `CustomRenderMethodInput` 里 `modelViewProjectionMatrix` 是内部裁剪管线用的（坐标系不是归一化墨卡托），拿它当 MVP 会把顶点投到画面外——表现为「渲染函数跑了、一个像素都没变化」。顶点仍按 `MercatorCoordinate`（归一化 0~1）给，且矩阵是 `Float64Array`，`uniformMatrix4fv` 前要 `new Float32Array(...)`。
+- **layout 属性不支持 feature-state**：只有 paint 属性能用 `['feature-state', 'hover']`。想让 hover 时标注变大是做不到的，改用 `text-color` / `circle-radius` 这类 paint 属性表达高亮。
+- **大屏系列的分工**：信息层永远是 DOM（`src/examples/shared/screen.css` 的 HUD 皮肤），引擎只画地图 —— 让引擎画字只会得到一坨不可维护的标注；Esri 深灰底图直接当大屏背景还是太亮，用 `raster-brightness-max` / `raster-saturation` / `raster-contrast` 三个参数把底图压成背景。
+- **Cesium 自动巡航不能用 `camera.rotate(UNIT_Z)`**：那是绕地轴「公转」，城市尺度下相机会被甩出目标区几百公里（瓦片永远加载不出来）。原地转方位角等价于 MapLibre 的 bearing 递增：`setView({ destination: camera.positionWC, orientation: { heading + dt*k } })`。另外 `clock.onTick` 按「帧」触发，写固定 rad/帧 会在掉帧时转速翻倍，必须按真实 dt 折算。
+- **Cesium 的 `BoxGeometry` 只有 `minimum` / `maximum` 两个入参**（没有 dimensions），批量楼块走 `Primitive + GeometryInstance` + `PerInstanceColorAppearance`，几百个盒子合并成 1 次 draw call；换成 Entity 会慢一个数量级。
+- **Cesium 的 Cylinder 以几何中心定位**：`position` 的高度必须写 `length / 2`，否则柱子一半埋在地下；长度逐帧变时 position 也得跟着用 CallbackProperty。
+- **MapLibre 没有「离地标注」**：柱顶数值只能贴地摆（放在柱子旁边）或改用 DOM Marker 反算像素偏移；同理「光墙」是 `fill-extrusion` 画不出来的 —— 要把边界每段加厚成条带再整体拉伸。
+- **MapLibre 的 `icon-color` 只对 SDF 图标生效**：普通 canvas 图标染不了色，不同颜色要分别注册 sprite（涟漪示例的三档颜色就是这么干的）。
 - **Three.js `Reflector.material` 类型上是 `Material`**：想改 uniforms 需要 `as THREE.ShaderMaterial` 断言。
 - **阴影贴图的光锥必须覆盖整个场景**：`fwd` / `back` 范围不够会把远端几何裁掉、影子整段消失；自阴影摩尔纹（acne）用「沿法线偏移采样点」的 slope-scaled bias 压制，比加常量偏移更能压住斜面上的条纹。
 - **GPGPU 粒子会聚成球壳**：每个粒子的刚度要在速度纹理的 w 通道里随机化，否则所有粒子同步运动，看起来像一层壳。
@@ -343,15 +411,16 @@ public/3dtiles/            3D Tiles 示例使用的本地瓦片集
 
 ## 说明与限制
 
-- 需要联网：底图瓦片来自 Esri 公开服务，`ModelLoad` 示例引用的 glTF 模型为外部 URL；`Tiles3D` 使用的是 `public/3dtiles/` 下的本地瓦片集，可离线运行。
+- 需要联网：底图瓦片来自 Esri 公开服务，`ModelLoad` 示例引用的 glTF 模型为外部 URL；Mapbox 一条线的矢量瓦片（OpenFreeMap）、字形（openmaptiles）、DEM（AWS Terrarium）、WMS（terrestris）、地理编码（Nominatim）均为公开服务，全部免 Token；`Tiles3D` 使用的是 `public/3dtiles/` 下的本地瓦片集，可离线运行。
 - 示例中的点位、轨迹、气象、建筑等数据均为**程序化合成**（固定随机种子），用于演示算法与渲染，不代表真实业务数据。
 - 项目定位是学习与参考：代码以「可读、可拆、可拷」为第一目标，未做通用组件抽象与生产级错误兜底。
 - 路网路径规划示例使用 **OpenStreetMap** 数据（© OpenStreetMap contributors, ODbL 1.0）：由 `scripts/fetch-osm-roadnet.mjs` 预先抓取指定 bbox 并精简成 51KB 的本地 JSON，页面不发起网络请求；换城市只需改脚本参数重跑一次（公开 Overpass 镜像在国内基本连不上，所以不做运行时拉取）。
-- 全站回归的测试方法与缺陷记录见 [docs/TEST-REPORT.md](docs/TEST-REPORT.md)（113 个示例冒烟 + 交互语义断言 + 压力测试）。
+- 全站回归的测试方法与缺陷记录见 [docs/TEST-REPORT.md](docs/TEST-REPORT.md)（155 个示例冒烟 + 交互语义断言 + 压力测试）。
+- 矢量瓦片示例依赖 OpenFreeMap（© OpenStreetMap contributors，ODbL 1.0）；地名搜索走 OSM Nominatim，请遵守其使用政策（需标识来源、限低频调用）。
 
 ## 技术栈
 
-Vue 3 · TypeScript · Pinia · Vue Router · Vite · Cesium 1.118 · Three.js 0.160 · OpenLayers 9 · highlight.js
+Vue 3 · TypeScript · Pinia · Vue Router · Vite · Cesium 1.118 · Three.js 0.160 · OpenLayers 9 · MapLibre GL 6（Mapbox GL style spec 兼容实现，免 Token） · highlight.js
 
 ## 许可
 

@@ -239,6 +239,48 @@ export const useExamplesStore = defineStore('examples', {
               '火炬（火核 + 火焰 + 黑烟三系统叠加）、喷泉（球形发射器）、烟羽（锥形发射器）三个场景：发射率 / 尺寸 / 生命期 / 风速实时可调，发射器可在圆形、球形、锥形、立方之间切换。重力走 updateCallback 手动积分（1.118 的 ParticleSystem 已无 gravity 选项），贴图由 canvas 径向渐变现场生成。',
             file: 'cesium/Particles.vue',
           },
+          {
+            id: 'screen-overview',
+            title: '大屏城市总览',
+            description:
+              '同一座城市用 Cesium 再实现一遍：500 个楼块合并成 1 次 draw call，Wall 图元做光墙，PolylineGlow + CallbackProperty 跑飞线光点；深空外观要手动压暗。',
+            file: 'cesium/ScreenOverview.vue',
+          },
+          {
+            id: 'screen-glow-wall',
+            title: '发光光墙',
+            description:
+              'Wall 图元：地面点 + 每个点的最大高度数组，回调里每帧返回新数组做呼吸；材质引用要常驻，换对象会重建属性、肉眼可见地卡。',
+            file: 'cesium/GlowWall.vue',
+          },
+          {
+            id: 'screen-data-bar',
+            title: '三维数据柱',
+            description:
+              'Cylinder 实体：length 与 position 都靠 CallbackProperty 驱动生长 —— 圆柱以几何中心定位，position 高度必须写 length/2，否则一半埋地下。',
+            file: 'cesium/DataBar3D.vue',
+          },
+          {
+            id: 'screen-ripple',
+            title: '涟漪脉冲',
+            description:
+              'Ellipse 用真实米数扩散（最大 2.2 km），半长轴与材质 alpha 都是回调，4 圈相位错开连成连续的波。',
+            file: 'cesium/RipplePulse.vue',
+          },
+          {
+            id: 'screen-scan',
+            title: '扫描光锥',
+            description:
+              '同一个 PolygonHierarchy 回调喂两个面：贴地涂层 + extrudedHeight 体光锥，8 个目标点按方位角区间实时判命中。',
+            file: 'cesium/ScanCone.vue',
+          },
+          {
+            id: 'screen-tour',
+            title: '视角巡航',
+            description:
+              'camera.flyTo 自动算绕球弧线，rAF 只管进度环；4 个机位轮播 + 手动跳站 + 高亮切换。',
+            file: 'cesium/ScreenTour.vue',
+          },
         ],
       },
       {
@@ -988,6 +1030,48 @@ export const useExamplesStore = defineStore('examples', {
             title: '导出图片',
             description: 'preserveDrawingBuffer + idle 时机导出 PNG，并用 canvas 自己补画标题与图例。',
             file: 'mapbox/ExportImage.vue',
+          },
+          {
+            id: 'screen-overview',
+            title: '大屏城市总览',
+            description:
+              '600 栋拉伸楼块 + 片区辉光边界 + 飞线光带 + HUD 数据卡，一套拼起来就是城市运营大屏；自动巡航每帧只改 bearing，不做会排队的 flyTo。',
+            file: 'mapbox/ScreenOverview.vue',
+          },
+          {
+            id: 'screen-glow-wall',
+            title: '发光光墙',
+            description:
+              '边界每段加厚成 18m 条带再拉伸成墙：内层实墙 + 外层 12% 辉光，高度按片区指标给，呼吸只改一个系数。',
+            file: 'mapbox/GlowWall.vue',
+          },
+          {
+            id: 'screen-data-bar',
+            title: '三维数据柱',
+            description:
+              '12 根按指标拉伸的数据立柱，四档配色 + vertical-gradient 侧壁明暗过渡；入场生长只改一个系数，重播零成本。',
+            file: 'mapbox/DataBar3D.vue',
+          },
+          {
+            id: 'screen-ripple',
+            title: '涟漪脉冲',
+            description:
+              'canvas 画的辉光环注册成 sprite，4 层错相缩放做扩散波 —— 纯 GPU 特效，一帧数据都不用重传。',
+            file: 'mapbox/RipplePulse.vue',
+          },
+          {
+            id: 'screen-scan',
+            title: '扫描光锥',
+            description:
+              '扇形 polygon 每帧重算 25 个顶点：地面涂层 + fill-extrusion 体光锥，目标点按方位角区间判定是否被扫到。',
+            file: 'mapbox/ScanCone.vue',
+          },
+          {
+            id: 'screen-tour',
+            title: '视角巡航',
+            description:
+              '4 个机位 flyTo 轮播 + 进度环；rAF 状态机自己算 dt，不依赖 flyTo 回调，切站点不会错拍。',
+            file: 'mapbox/ScreenTour.vue',
           },
         ],
       },
