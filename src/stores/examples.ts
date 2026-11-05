@@ -281,6 +281,34 @@ export const useExamplesStore = defineStore('examples', {
               'camera.flyTo 自动算绕球弧线，rAF 只管进度环；4 个机位轮播 + 手动跳站 + 高亮切换。',
             file: 'cesium/ScreenTour.vue',
           },
+          {
+            id: 'video-projection',
+            title: '视频投射融合',
+            description:
+              'HTMLVideoElement 当纹理贴到矩形几何：fabric 里按 st 采样、四边 smoothstep 羽化融入底图；视频帧必须每帧重赋 uniform，纹理缓存不会自刷。',
+            file: 'cesium/VideoProjection.vue',
+          },
+          {
+            id: 'kriging',
+            title: '克里金插值',
+            description:
+              '55 站气温场做普通克里金：球状变差函数 + 对偶方程组，矩阵先 LU 分解一次、64² 网格逐点回代；Marching Squares 抽 8 层等值线。',
+            file: 'cesium/Kriging.vue',
+          },
+          {
+            id: 'satellite-cone',
+            title: '卫星成像视锥',
+            description:
+              '550km 圆轨道（倾角 60°）直接算 ECEF 位置，视锥 = 卫星到地面四角点的棱与侧面，地面足迹随半视场角实时变化。',
+            file: 'cesium/SatelliteCone.vue',
+          },
+          {
+            id: 'lightning',
+            title: '雷暴闪电',
+            description:
+              '中点位移递归 6 层生成分形闪电 + 随机 3 条支线，14Hz 双闪后淡出；canvas 软云团 billboard 群 + 全屏遮罩同步闪光。',
+            file: 'cesium/Lightning.vue',
+          },
         ],
       },
       {
@@ -461,6 +489,41 @@ export const useExamplesStore = defineStore('examples', {
             description:
               '程序化生成 10 万~100 万栋楼，实测三种渲染方式的差异：分块 InstancedMesh（视锥剔除逐块生效）/ 单块实例化（draw call=1 但不可剔除）/ 逐实例 Mesh（draw call 爆炸）；实时显示 FPS、draw call、三角面与生成耗时。',
             file: 'three/MegaCity.vue',
+          },
+          {
+            id: 'ocean',
+            title: 'Gerstner 波海洋',
+            description:
+              '四组 Gerstner 波叠加削尖波峰，片元用数值偏分求解析法线；菲涅尔混天空反射、Blinn-Phong 粼光、波谷次表面散射与波峰泡沫，零纹理依赖。',
+            file: 'three/Ocean.vue',
+          },
+          {
+            id: 'clipping',
+            title: '模型截面剖切',
+            description:
+              'material.clippingPlanes 在 GPU 上按半空间裁剪片元，剖开的内壁用 gl_FrontFacing 分支染发光橙并叠网格刻度，替代 stencil 盖帽。',
+            file: 'three/Clipping.vue',
+          },
+          {
+            id: 'bird-flock',
+            title: 'GPGPU 鸟群',
+            description:
+              '4096 只鸟的位置/速度各存 64² 浮点纹理，Boids 三原则（分离/对齐/聚合）在片元里暴力遍历邻居；顶点着色器按速度构造朝向并扇翅。',
+            file: 'three/BirdFlock.vue',
+          },
+          {
+            id: 'post-chain',
+            title: '后处理链',
+            description:
+              'RenderPass → UnrealBloom → Afterimage 拖影 → 自定义 pass（色差/橙青调色/胶片颗粒/暗角），五条滑杆逐层拆解每个环节。',
+            file: 'three/PostChain.vue',
+          },
+          {
+            id: 'particle-morph',
+            title: '粒子形态变形',
+            description:
+              '2 万粒子在 canvas 文字/斐波那契球面/环面扭结三形态间插值，过渡带飞行弧与逐粒子相位差，鼠标可推开粒子云。',
+            file: 'three/ParticleMorph.vue',
           },
         ],
       },
@@ -843,6 +906,34 @@ export const useExamplesStore = defineStore('examples', {
               '双 pass：光空间把线性深度打包进 RGBA8（不依赖深度纹理扩展），主 pass 解包比对 + 3×3 PCF，可调偏移看 acne 如何被压住。',
             file: 'webgl/ShadowMap.vue',
           },
+          {
+            id: 'fluid-sim',
+            title: '流体模拟',
+            description:
+              'Stable Fluids：半拉格朗日平流 → 涡度约束 → Jacobi 迭代解压力泊松方程 → 投影成无散场；鼠标拖动注入速度与染料，1024² 染料纹理。',
+            file: 'webgl/FluidSim.vue',
+          },
+          {
+            id: 'pathtrace',
+            title: '路径追踪',
+            description:
+              '每帧每像素 1 条路径累加进 RGBA32F（静止即逐帧收敛），漫反射/金属/玻璃三材质 + 两个面光源，ACES 色调映射。',
+            file: 'webgl/PathTrace.vue',
+          },
+          {
+            id: 'ssao',
+            title: 'SSAO 环境光遮蔽',
+            description:
+              'G-Buffer 存视角空间法线与深度，半球 16 样本投回屏幕比深度算遮蔽，模糊后与前向着色相乘；可切到 AO 通道直接看结果。',
+            file: 'webgl/SSAO.vue',
+          },
+          {
+            id: 'caustics',
+            title: '水下焦散',
+            description:
+              '池底亮网纹 = 五层迭代 sin/cos 扭曲场的倒数累加；水面从水下看有菲涅尔与 Snell 窗口，配加法混合体积光柱与气泡。',
+            file: 'webgl/Caustics.vue',
+          },
         ],
       },
       {
@@ -1072,6 +1163,20 @@ export const useExamplesStore = defineStore('examples', {
             description:
               '4 个机位 flyTo 轮播 + 进度环；rAF 状态机自己算 dt，不依赖 flyTo 回调，切站点不会错拍。',
             file: 'mapbox/ScreenTour.vue',
+          },
+          {
+            id: 'terrain-building',
+            title: '三维地形与建筑',
+            description:
+              '重庆渝中半岛：raster-dem 开真三维起伏，fill-extrusion 的 base 交给地形高度兜底，山坡上的楼才不会被埋或悬空。',
+            file: 'mapbox/TerrainBuilding.vue',
+          },
+          {
+            id: 'timeline-growth',
+            title: '建筑年份生长',
+            description:
+              '时间轴回放 14 年建设：filter 控建成与否、feature-state 控当年那批楼的生长进度、高度与配色随年份变化。',
+            file: 'mapbox/TimelineGrowth.vue',
           },
         ],
       },
